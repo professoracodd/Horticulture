@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plant Nutrient Terminology Visual Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --soil: #3d2b1f;
+    --bark: #6b4c35;
+    --leaf-healthy: #4a7c3f;
+    --leaf-mid: #8ab87a;
+    --leaf-light: #c9dea0;
+    --yellow: #e8c84a;
+    --orange: #d4874a;
+    --brown: #8b5c3e;
+    --dead: #b5a48a;
+    --cream: #faf6ee;
+    --ink: #1a1208;
+    --accent: #7ab648;
+    --rust: #c0533a;
+    --parchment: #f2ead8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--cream);
+    font-family: 'Source Sans 3', sans-serif;
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* Header */
+  .header {
+    background: var(--soil);
+    padding: 48px 40px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 6px;
+    background: repeating-linear-gradient(90deg, var(--accent) 0px, var(--accent) 20px, var(--yellow) 20px, var(--yellow) 40px);
+  }
+  .header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    color: var(--cream);
+    line-height: 1.1;
+    margin-bottom: 10px;
+  }
+  .header h1 span { color: var(--accent); }
+  .header p {
+    color: #b5c9a0;
+    font-size: 1.05rem;
+    font-weight: 300;
+    letter-spacing: 0.02em;
+  }
+  .leaf-deco {
+    position: absolute;
+    right: 60px;
+    top: 20px;
+    opacity: 0.12;
+    font-size: 140px;
+  }
+
+  /* Main layout */
+  .main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 50px 24px 80px;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: var(--soil);
+    margin-bottom: 24px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title .icon { font-size: 1.4rem; }
+
+  .section { margin-bottom: 56px; }
+
+  /* === SYMPTOM CARDS === */
+  .symptom-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  .symptom-card {
+    background: #fff;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(60,40,20,0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1.5px solid #e6ddd0;
+  }
+  .symptom-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 28px rgba(60,40,20,0.13);
+  }
+
+  .leaf-visual {
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-body {
+    padding: 16px 18px 18px;
+  }
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--soil);
+    margin-bottom: 6px;
+  }
+  .card-def {
+    font-size: 0.88rem;
+    color: #5a4a38;
+    line-height: 1.55;
+  }
+  .badge {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 20px;
+    margin-bottom: 8px;
+  }
+  .badge-symptom { background: #eaf4e0; color: #3a6e2a; }
+  .badge-pattern { background: #fff3dc; color: #7a5200; }
+  .badge-position { background: #e8f0ff; color: #2a4a8a; }
+
+  /* ====== SVG LEAVES ====== */
+
+  /* Healthy leaf bg */
+  .bg-healthy { background: linear-gradient(135deg, #e8f5e0 0%, #c9e8b5 100%); }
+  .bg-yellow { background: linear-gradient(135deg, #fdf8e1 0%, #f5e9a0 100%); }
+  .bg-brown { background: linear-gradient(135deg, #f5ede0 0%, #e8d4b8 100%); }
+  .bg-dark { background: linear-gradient(135deg, #d5e8ca 0%, #a8cc90 100%); }
+  .bg-red { background: linear-gradient(135deg, #fce8e8 0%, #f0c0b0 100%); }
+  .bg-spotty { background: linear-gradient(135deg, #f0f8e8 0%, #d8ecc0 100%); }
+
+  /* Nutrient pill grid */
+  .nutrient-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+  }
+
+  .nutrient-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    border: 1.5px solid #e0d8cc;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    box-shadow: 0 1px 6px rgba(60,40,20,0.06);
+  }
+  .nutrient-symbol {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 900;
+    flex-shrink: 0;
+  }
+  .macro-sym { background: #d4edba; color: #2a5c18; }
+  .micro-sym { background: #d8eaf8; color: #1a4a7a; }
+  .nutrient-info {}
+  .nutrient-name { font-weight: 600; font-size: 0.88rem; color: var(--soil); }
+  .nutrient-mobility {
+    font-size: 0.75rem;
+    color: #7a6a58;
+    margin-top: 2px;
+  }
+  .mob-dot {
+    display: inline-block;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+  .mob-mobile { background: var(--accent); }
+  .mob-immobile { background: var(--orange); }
+
+  /* Plant position diagram */
+  .position-diagram {
+    background: #fff;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 2px 14px rgba(60,40,20,0.08);
+    border: 1.5px solid #e0d8cc;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Mobility explainer */
+  .mobility-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .mobility-card {
+    border-radius: 14px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .mobility-card.mobile-card {
+    background: linear-gradient(135deg, #eaf6de, #d0eabb);
+    border: 2px solid #a8d888;
+  }
+  .mobility-card.immobile-card {
+    background: linear-gradient(135deg, #fef0e2, #fad8b5);
+    border: 2px solid #e8a870;
+  }
+  .mob-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+  }
+  .mob-desc {
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: #4a3828;
+    margin-bottom: 14px;
+  }
+  .mob-nutrients {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .mob-pill {
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+  .mob-pill-green { background: #4a7c3f; color: #fff; }
+  .mob-pill-orange { background: #c0683a; color: #fff; }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #c8b89a, transparent);
+    margin: 50px 0;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .mobility-cards { grid-template-columns: 1fr; }
+    .leaf-deco { display: none; }
+  }
+
+  /* Animation */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .symptom-card, .nutrient-card, .mobility-card, .position-diagram {
+    animation: fadeUp 0.5s ease both;
+  }
+  .symptom-card:nth-child(1) { animation-delay: 0.05s; }
+  .symptom-card:nth-child(2) { animation-delay: 0.1s; }
+  .symptom-card:nth-child(3) { animation-delay: 0.15s; }
+  .symptom-card:nth-child(4) { animation-delay: 0.2s; }
+  .symptom-card:nth-child(5) { animation-delay: 0.25s; }
+  .symptom-card:nth-child(6) { animation-delay: 0.3s; }
+  .symptom-card:nth-child(7) { animation-delay: 0.35s; }
+  .symptom-card:nth-child(8) { animation-delay: 0.4s; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="leaf-deco">🌿</div>
+  <div class="header-inner">
+    <h1>Plant Nutrient<br><span>Terminology</span> Visual Guide</h1>
+    <p>A pictorial reference for identifying deficiency and toxicity symptoms · A. Codd</p>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- SECTION 1: Visual Symptoms -->
+  <div class="section">
+    <div class="section-title"><span class="icon">🔍</span> Visual Symptom Terms</div>
+    <div class="symptom-grid">
+
+      <!-- Chlorosis -->
+      <div class="symptom-card">
+        <div class="leaf-visual bg-yellow">
+          <svg width="160" height="130" viewBox="0 0 160 130">
+            <defs>
+              <radialGradient id="chl" cx="50%" cy="50%">
+                <stop offset="0%" stop-color="#f5e060"/>
+                <stop offset="100%" stop-color="#e8c840"/>
+              </radialGradient>
+            </defs>
+            <!-- Leaf shape -->
+            <path d="M80,15 C110,15 140,45 140,80 C140,110 112,125 80,125 C48,125 20,110 20,80 C20,45 50,15 80,15 Z" fill="url(#chl)" stroke="#c8a830" stroke-width="1.5"/>
+            <!-- Veins -->
+            <line x1="80" y1="15" x2="80" y2="125" stroke="#b89820" stroke-width="1.5"/>
+            <line x1="80" y1="50" x2="55" y2="75" stroke="#b89820" stroke-width="1"/>
+            <line x1="80" y1="50" x2="105" y2="75" stroke="#b89820" stroke-width="1"/>
+            <line x1="80" y1="72" x2="48" y2="95" stroke="#b89820" stroke-width="1"/>
+            <line x1="80" y1="72" x2="112" y2="95" stroke="#b89820" stroke-width="1"/>
+            <!-- Yellow glow label -->
+            <text x="80" y="145" text-anchor="middle" font-size="9" fill="#8a7020" font-family="sans-serif">Entire leaf yellowed</text>
+          </svg>
+        </div>
+        <div class="card-body">
+          <span class="badge badge-symptom">Symptom</span>
+          <div class="card-title">Chlorosis</div>
+          <div class="card-def">Yellowing of plant tissue caused by loss of chlorophyll. The leaf turns pale green, yellow, or nearly white.</div>
+        </div>
+      </div>
+
+      <!-- Interveinal Chlorosis -->
+      <div class="symptom-card">
+        <div class="leaf-visual bg-spotty">
+          <svg width="160" height="130" viewBox="0 0 160 130">
+            <defs>
+              <radialGradient id="ivchl" cx="50%" cy="50%">
+                <stop offset="0%" stop-color="#c8e0a0"/>
+                <stop offset="100%" stop-color="#a8cc80"/>
+              </radialGradient>
+            </defs>
+            <path d="M80,15 C110,15 140,45 140,80 C140,110 112,125 80,125 C48,125 20,110 20,80 C20,45 50,15 80,15 Z" fill="#f0e870" stroke="#c8c830" stroke-width="1.5"/>
+            <!-- Green veins stand out -->
+            <line x1="80" y1="15" x2="80" y2="125" stroke="#2d7a20" stroke-width="3"/>
+            <line x1="80" y1="45" x2="50" y2="70" stroke="#2d7a20" stroke-width="2.5"/>
+            <line x1="80" y1="45" x2="110" y2="70" stroke="#2d7a20" stroke-width="2.5"/>
+            <line x1="80" y1="68" x2="42" y2="92" stroke="#2d7a20" stroke-width="2.5"/>
+            <line x1="80" y1="68" x2="118" y2="92" stroke="#2d7a20" stroke-width="2.5"/>
+            <line x1="80" y1="90" x2="55" y2="110" stroke="#2d7a20" stroke-width="2"/>
+            <line x1="80" y1="90" x2="105" y2="110" stroke="#2d7a20" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="card-body">
+          <span class="badge badge-symptom">Symptom</span>
+          <div class="card-title">Interveinal Chlorosis</div>
+          <div class="card-def">Yellowing occurs between the leaf veins, while the veins themselves remain green. Creates a distinctive striped or netted appearance.</div>
+        </div>
+      </div>
+
+      <!-- Necrosis -->
+      <div class="symptom-card">
+        <div class="leaf-visual bg-brown">
+          <svg width="160" height="130" viewBox="0 0 160 130">
+            <path d="M80,15 C110,15 140,45 140,80 C140,110 112,125 80,125 C48,125 20,110 20,80 C20,45 50,15 80,15 Z" fill="#7ab860" stroke="#4a8830" stroke-width="1.5"/>
+            <!-- Dead spots -->
+            <ellipse cx="55" cy="65" rx="14" ry="10" fill="#8b5c3e" opacity="0.9"/>
+            <ellipse cx="105" cy="58" rx="12" ry="9" fill="#8b5c3e" opacity="0.9"/>
+            <ellipse cx="70" cy="95" rx="10" ry="8" fill="#7a4a2e" opacity="0.9"/>
+            <ellipse cx="100" cy="88" rx="9" ry="7" fill="#8b5c3e" opacity="0.9"/>
+            <!-- Veins -->
+            <line x1="80" y1="15" x2="80" y2="125" stroke="#3a6830" stroke-width="1.5" opacity="0.7"/>
+            <line x1="80" y1="50" x2="50" y2="78" stroke="#3a6830" stroke-width="1" opacity="0.7"/>
+            <line x1="80" y1="50" x2="110" y2="78" stroke="#3a6830" stroke-width="1" opacity="0.7"/>
+          </svg>
+        </div>
+        <div class="card-body">
+          <span class="badge badge-symptom">Symptom</span>
+          <div class="card-title">Necrosis / Necrotic Spotting</div>
+          <div class="card-def">Areas of dead, brown or tan tissue on the leaf. Can appear as scattered spots, blotches, or lesions where cells have died.</div>
+        </div>
+      </div>
+
+      <!-- Scorched -->
+      <div class="symptom-card">
+        <div class="leaf-visual bg-brown">
+          <svg width="160" height="130" viewBox="0 0 160 130">
+            <path d="M80,15 C110,15 140,45 140,80 C140,110 112,125 80,125 C48,125 20,110 20,80 C20,45 50,15 80,15 Z" fill="#6ab050" stroke="#4a8030" stroke-width="1.5"/>
+            <!-- Scorched/burned brown margins -->
+            <path d="M80,15 C100,15 128,35 138,60 C142,72 140,85 132,98 C118,118 100,125 80,125" fill="none" stroke="none"/>
+            <path d="M80,15 C100,15 130,38 140,62 C145,76 142,90 132,102 C118,120 100,126 80,125 C60,124 42,118 30,104 C18,88 18,72 25,56 C35,34 60,15 80,15 Z" fill="#6ab050"/>
+            <!-- Burned edges -->
+            <path d="M80,15 C100,14 130,37 140,62 C145,76 142,92 131,104" fill="none" stroke="#8b4a20" stroke-width="8" stroke-linecap="round" opacity="0.8"/>
+            <path d="M131,104 C118,120 100,127 80,126 C60,125 42,119 30,105" fill="none" stroke="#8b4a20" stroke-width="8" stroke-linecap="round" opacity="0.8"/>
+            <!-- Veins -->
+            <line x1="80" y1="20" x2="80" y2="122" stroke="#3a6830" stroke-width="1.5"/>
+            <line x1="80" y1="50" x2="52" y2="78" stroke="#3a6830" stroke-width="1"/>
+            <line x1="80" y1="50" x2="108" y2="78" stroke="#3a6830" stroke-width="1"/>
+          </svg>
+        </div>
+        <div class="card-body">
+          <span class="badge badge-symptom">Symptom</span>
+          <div class="card-title">Scorched / Burned Margins</div>
+          <div class="card-def">Leaf edges appear dry, brown, and burnt. Often associated with potassium or chloride deficiency causing a "tip burn" effect along margins.</div>
+        </div>
+      </div>
+
+      <!-- Cupped/Rolled -->
+      <div class="symptom-card">
+        <div class="leaf-visual bg-healthy">
+          <svg width="160" height="130" viewBox="0 0 160 130">
+            <!-- Curled leaf cross-section -->
+            <path d="M30,80 Q55,30 80,25 Q105,30 130,80" fill="none" stroke="#4a8040" stroke-width="3"/>
+            <!-- Leaf body curled (cup shape) -->
+            <path d="M30,80 Q40,95 55,92 Q80,88 105,92 Q120,95 130,80" fill="#7ab860" stroke="#4a8040" stroke-width="2"/>
+            <!-- Curled sides -->
+            <path d="M30,80 Q25,65 35,55 Q55,30 80,25" fill="#5a9850" stroke="#3a7030" stroke-width="1.5"/>
+            <path d="M130,80 Q135,65 125,55 Q105,30 80,25" fill="#5a9850" stroke="#3a7030" stroke-width="1.5"/>
+            <!-- Midrib -->
+            <line x1="80" y1="25" x2="80" y2="90" stroke="#3a6820" stroke-width="2"/>
+            <!-- Arrow showing curl direction -->
+            <path d="M148,60 Q158,80 148,100" fill="none" stroke="#c0683a" stroke-width="2" stroke-dasharray="4,3"/>
+            <text x="80" y="118" text-anchor="middle" font-size="9" fill="#5a4030" font-family="sans-serif">Edges curling upward</text>
+          </svg>
+        </div>
+        <div class="card-body">
+          <span class="badge badge-symptom">Symptom</span>
+          <div class="card-title">Cupped / Rolled Leaves</div>
+          <div class="card-def">Leaves curl inward (cupped) or roll along their length. A response to stress that can indicate molybdenum or nitrogen deficiency.</div>
+        </div>
+      </div>
+
+      <!-- Abrupt Boundary -->
+      <div class="symptom-card">
+        <div class="leaf-visual bg-spotty">
+          <svg width="160" height="130" viewBox="0 0 160 130">
+            <path d="M80,15 C110,15 140,45 140,80 C140,110 112,125 80,125 C48,125 20,110 20,80 C20,45 50,15 80,15 Z" fill="#7ab860" stroke="#4a8030" stroke-width="1.5"/>
+            <!-- Sharp-edged necrotic lesion -->
+            <ellipse cx="75" cy="68" rx="28" ry="22" fill="#8b5c3e"/>
+            <!-- Sharp inner edge highlight -->
+            <ellipse cx="75" cy="68" rx="28" ry="22" fill="none" stroke="#5a3020" stroke-width="2"/>
+            <!-- "sharp" boundary indicator arrows -->
+            <line x1="55" y1="52" x2="48" y2="44" stroke="#c0683a" stroke-width="1.5"/>
+            <circle cx="48" cy="44" r="3" fill="#c0683a"/>
+            <line x1="103" y1="60" x2="112" y2="53" stroke="#c0683a" stroke-width="1.5"/>
+            <circle cx="112" cy="53" r="3" fill="#c0683a"/>
+            <!-- Label zone -->
+            <text x="76" y="71" text-anchor="middle" font-size="8" fill="#f0e8d8" font-family="sans-serif" font-weight="bold">DEAD</text>
+            <text x="76" y="81" text-anchor="middle" font-size="7" fill="#f0e8d8" font-family="sans-serif">tissue</text>
+          </svg>
+        </div>
+        <div class="card-body">
+          <span class="badge badge-pattern">Pattern</span>
+          <div class="card-title">Abrupt Boundary</div>
+          <div class="card-def">A sharp, well-defined line between dead and living tissue on a leaf. This clear demarcation (seen in Cl deficiency) distinguishes it from gradual yellowing.</div>
+        </div>
+      </div>
+
+      <!-- Generalized vs Localized -->
+      <div class="symptom-card">
+        <div class="leaf-visual bg-yellow" style="gap:16px; flex-direction:row; padding:10px;">
+          <!-- Generalized: uniform yellowing -->
+          <svg width="65" height="110" viewBox="0 0 65 110">
+            <path d="M32,8 C48,8 58,28 58,55 C58,80 46,102 32,102 C18,102 6,80 6,55 C6,28 16,8 32,8 Z" fill="#f0e060" stroke="#c0b820" stroke-width="1.5"/>
+            <line x1="32" y1="8" x2="32" y2="102" stroke="#a89818" stroke-width="1.5"/>
+            <line x1="32" y1="35" x2="18" y2="58" stroke="#a89818" stroke-width="1"/>
+            <line x1="32" y1="35" x2="46" y2="58" stroke="#a89818" stroke-width="1"/>
+            <text x="32" y="108" text-anchor="middle" font-size="8" fill="#7a6010" font-family="sans-serif">Generalized</text>
+          </svg>
+          <!-- Localized: spots only -->
+          <svg width="65" height="110" viewBox="0 0 65 110">
+            <path d="M32,8 C48,8 58,28 58,55 C58,80 46,102 32,102 C18,102 6,80 6,55 C6,28 16,8 32,8 Z" fill="#7ab860" stroke="#4a8030" stroke-width="1.5"/>
+            <line x1="32" y1="8" x2="32" y2="102" stroke="#3a6820" stroke-width="1.5"/>
+            <ellipse cx="22" cy="50" rx="9" ry="7" fill="#e8d040"/>
+            <ellipse cx="42" cy="65" rx="8" ry="6" fill="#e8d040"/>
+            <ellipse cx="28" cy="78" rx="7" ry="5" fill="#e8d040"/>
+            <text x="32" y="108" text-anchor="middle" font-size="8" fill="#3a6020" font-family="sans-serif">Localized</text>
+          </svg>
+        </div>
+        <div class="card-body">
+          <span class="badge badge-pattern">Pattern</span>
+          <div class="card-title">Generalized vs. Localized</div>
+          <div class="card-def"><strong>Generalized:</strong> symptoms spread evenly across the whole plant or leaf. <strong>Localized:</strong> symptoms appear in specific areas only, like spots or patches.</div>
+        </div>
+      </div>
+
+      <!-- Necrotic Lesions -->
+      <div class="symptom-card">
+        <div class="leaf-visual bg-healthy">
+          <svg width="160" height="130" viewBox="0 0 160 130">
+            <path d="M80,15 C110,15 140,45 140,80 C140,110 112,125 80,125 C48,125 20,110 20,80 C20,45 50,15 80,15 Z" fill="#7ab860" stroke="#4a8030" stroke-width="1.5"/>
+            <!-- Lesions of various sizes -->
+            <ellipse cx="60" cy="55" rx="16" ry="11" fill="#8b5c3e"/>
+            <ellipse cx="98" cy="70" rx="13" ry="9" fill="#7a4a2e"/>
+            <ellipse cx="72" cy="92" rx="11" ry="8" fill="#8b5c3e"/>
+            <!-- Tan halos around lesions -->
+            <ellipse cx="60" cy="55" rx="20" ry="15" fill="none" stroke="#c8a870" stroke-width="1.5"/>
+            <ellipse cx="98" cy="70" rx="17" ry="13" fill="none" stroke="#c8a870" stroke-width="1.5"/>
+            <!-- Veins -->
+            <line x1="80" y1="15" x2="80" y2="125" stroke="#3a6820" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div class="card-body">
+          <span class="badge badge-symptom">Symptom</span>
+          <div class="card-title">Necrotic Lesions</div>
+          <div class="card-def">Defined areas of dead, collapsed tissue, larger or more distinct than simple spots. Often tan, brown, or gray with a surrounding halo of discoloration.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SECTION 2: Leaf Position -->
+  <div class="section">
+    <div class="section-title"><span class="icon">🌱</span> Leaf Position Terms</div>
+    <div class="position-diagram">
+      <svg width="100%" height="360" viewBox="0 0 600 360" style="max-width:600px;">
+        <!-- Stem -->
+        <rect x="292" y="30" width="16" height="310" rx="8" fill="#6b4c35"/>
+
+        <!-- TERMINAL BUD at top -->
+        <ellipse cx="300" cy="28" rx="22" ry="16" fill="#4a9850" stroke="#2a7030" stroke-width="2"/>
+        <text x="300" y="32" text-anchor="middle" font-size="10" font-weight="bold" fill="white" font-family="sans-serif">BUD</text>
+        <!-- Label -->
+        <rect x="340" y="14" width="160" height="30" rx="6" fill="#e8f5de" stroke="#88c870" stroke-width="1.5"/>
+        <text x="420" y="26" text-anchor="middle" font-size="10" fill="#2a5c20" font-family="sans-serif" font-weight="600">Terminal / Growing Point</text>
+        <text x="420" y="38" text-anchor="middle" font-size="9" fill="#4a7c40" font-family="sans-serif">(where new growth emerges)</text>
+        <line x1="322" y1="28" x2="340" y2="29" stroke="#88c870" stroke-width="1.5"/>
+
+        <!-- NEWER/YOUNG leaves (top) -->
+        <path d="M292,70 C265,55 240,60 235,80 C230,100 252,112 292,100 Z" fill="#5ab048" stroke="#3a8030" stroke-width="1.5"/>
+        <path d="M308,70 C335,55 360,60 365,80 C370,100 348,112 308,100 Z" fill="#5ab048" stroke="#3a8030" stroke-width="1.5"/>
+        <!-- Label -->
+        <rect x="375" y="66" width="160" height="30" rx="6" fill="#e8f5de" stroke="#88c870" stroke-width="1.5"/>
+        <text x="455" y="78" text-anchor="middle" font-size="10" fill="#2a5c20" font-family="sans-serif" font-weight="600">Newer / Younger Leaves</text>
+        <text x="455" y="90" text-anchor="middle" font-size="9" fill="#4a7c40" font-family="sans-serif">(upper on the stem)</text>
+        <line x1="365" y1="81" x2="375" y2="81" stroke="#88c870" stroke-width="1.5"/>
+
+        <!-- MIDDLE leaves -->
+        <path d="M292,165 C255,148 220,155 215,178 C210,200 240,215 292,200 Z" fill="#6ab858" stroke="#3a8830" stroke-width="1.5"/>
+        <path d="M308,165 C345,148 380,155 385,178 C390,200 360,215 308,200 Z" fill="#6ab858" stroke="#3a8830" stroke-width="1.5"/>
+        <!-- Label -->
+        <rect x="100" y="162" width="100" height="30" rx="6" fill="#fff8e8" stroke="#d8b858" stroke-width="1.5"/>
+        <text x="150" y="174" text-anchor="middle" font-size="10" fill="#7a5010" font-family="sans-serif" font-weight="600">Middle Leaves</text>
+        <text x="150" y="186" text-anchor="middle" font-size="9" fill="#8a6830" font-family="sans-serif">(mid-height on stem)</text>
+        <line x1="215" y1="181" x2="200" y2="181" stroke="#d8b858" stroke-width="1.5"/>
+
+        <!-- OLDER/LOWER leaves -->
+        <path d="M292,275 C248,255 205,265 200,292 C195,318 232,335 292,318 Z" fill="#4a8840" stroke="#2a6020" stroke-width="1.5"/>
+        <path d="M308,275 C352,255 395,265 400,292 C405,318 368,335 308,318 Z" fill="#4a8840" stroke="#2a6020" stroke-width="1.5"/>
+        <!-- Label -->
+        <rect x="100" y="280" width="85" height="30" rx="6" fill="#fce8e0" stroke="#d07050" stroke-width="1.5"/>
+        <text x="142" y="292" text-anchor="middle" font-size="10" fill="#8a3010" font-family="sans-serif" font-weight="600">Older / Lower</text>
+        <text x="142" y="304" text-anchor="middle" font-size="9" fill="#a04030" font-family="sans-serif">Leaves</text>
+        <line x1="200" y1="297" x2="185" y2="297" stroke="#d07050" stroke-width="1.5"/>
+
+        <!-- IMMOBILE annotation -->
+        <rect x="10" y="50" width="118" height="24" rx="5" fill="#d8eaf8" stroke="#5090c0" stroke-width="1.5"/>
+        <text x="69" y="66" text-anchor="middle" font-size="9" fill="#1a4a7a" font-family="sans-serif" font-weight="600">↑ IMMOBILE deficiency</text>
+
+        <!-- MOBILE annotation -->
+        <rect x="10" y="258" width="118" height="24" rx="5" fill="#eaf6de" stroke="#60a840" stroke-width="1.5"/>
+        <text x="69" y="274" text-anchor="middle" font-size="9" fill="#2a6020" font-family="sans-serif" font-weight="600">↓ MOBILE deficiency</text>
+      </svg>
+      <p style="font-size:0.82rem; color:#7a6a58; text-align:center; margin-top:8px; max-width:420px;">Mobile nutrients deficiency appears in <strong>older/lower leaves first</strong> (plant moves nutrients upward). Immobile nutrients deficiency appears in <strong>newer/younger leaves first.</strong></p>
+    </div>
+  </div>
+
+  <!-- SECTION 3: Mobility -->
+  <div class="section">
+    <div class="section-title"><span class="icon">🔄</span> Nutrient Mobility</div>
+    <div class="mobility-cards">
+      <div class="mobility-card mobile-card">
+        <div class="mob-title" style="color:#2a5c18;">🟢 Mobile Nutrients</div>
+        <div class="mob-desc">These nutrients can <strong>move freely within the plant</strong>. When deficient, the plant relocates them from older leaves to newer growth — so deficiency symptoms appear in older, lower leaves first.</div>
+        <div class="mob-nutrients">
+          <span class="mob-pill mob-pill-green">N – Nitrogen</span>
+          <span class="mob-pill mob-pill-green">P – Phosphorus</span>
+          <span class="mob-pill mob-pill-green">K – Potassium</span>
+          <span class="mob-pill mob-pill-green">Mg – Magnesium</span>
+          <span class="mob-pill mob-pill-green">Mo – Molybdenum</span>
+          <span class="mob-pill mob-pill-green">Cl – Chloride</span>
+        </div>
+      </div>
+      <div class="mobility-card immobile-card">
+        <div class="mob-title" style="color:#7a2c10;">🟠 Immobile Nutrients</div>
+        <div class="mob-desc">These nutrients <strong>cannot be relocated</strong> once deposited in a leaf. Deficiency symptoms first appear in younger, newer growth at the top of the plant.</div>
+        <div class="mob-nutrients">
+          <span class="mob-pill mob-pill-orange">Fe – Iron</span>
+          <span class="mob-pill mob-pill-orange">Mn – Manganese</span>
+          <span class="mob-pill mob-pill-orange">Zn – Zinc</span>
+          <span class="mob-pill mob-pill-orange">B – Boron</span>
+          <span class="mob-pill mob-pill-orange">Cu – Copper</span>
+          <span class="mob-pill mob-pill-orange">Ca – Calcium</span>
+          <span class="mob-pill mob-pill-orange">S – Sulfur</span>
+          <span class="mob-pill mob-pill-orange">Ni – Nickel</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 4: Nutrient Reference -->
+  <div class="section">
+    <div class="section-title"><span class="icon">⚗️</span> Nutrient Quick Reference</div>
+    <div class="nutrient-grid">
+      <div class="nutrient-card">
+        <div class="nutrient-symbol macro-sym">N</div>
+        <div class="nutrient-info">
+          <div class="nutrient-name">Nitrogen</div>
+          <div class="nutrient-mobility"><span class="mob-dot mob-mobile"></span>Mobile · Macronutrient</div>
+          <div class="card-def" style="font-size:0.8rem; margin-top:4px;">Light green plant, leaves yellow-green; no necrotic spots</div>
+        </div>
+      </div>
+      <div class="nutrient-card">
+        <div class="nutrient-symbol macro-sym">P</div>
+        <div class="nutrient-info">
+          <div class="nutrient-name">Phosphorus</div>
+          <div class="nutrient-mobility"><span class="mob-dot mob-mobile"></span>Mobile · Macronutrient</div>
+          <div class="card-def" style="font-size:0.8rem; margin-top:4px;">Dark green plant; purple or red coloring develops</div>
+        </div>
+      </div>
+      <div class="nutrient-card">
+        <div class="nutrient-symbol macro-sym">K</div>
+        <div class="nutrient-info">
+          <div class="nutrient-name">Potassium</div>
+          <div class="nutrient-mobility"><span class="mob-dot mob-mobile"></span>Mobile · Macronutrient</div>
+          <div class="card-def" style="font-size:0.8rem; margin-top:4px;">Burning of leaf margins; spotting along margins</div>
+        </div>
+      </div>
+      <div class="nutrient-card">
+        <div class="nutrient-symbol macro-sym">Mg</div>
+        <div class="nutrient-info">
+          <div class="nutrient-name">Magnesium</div>
+          <div class="nutrient-mobility"><span class="mob-dot mob-mobile"></span>Mobile · Macronutrient</div>
+          <div class="card-def" style="font-size:0.8rem; margin-top:4px;">Interveinal chlorosis; leaves sometimes red with dead spots</div>
+        </div>
+      </div>
+      <div class="nutrient-card">
+        <div class="nutrient-symbol macro-sym">S</div>
+        <div class="nutrient-info">
+          <div class="nutrient-name">Sulfur</div>
+          <div class="nutrient-mobility"><span class="mob-dot mob-immobile"></span>Immobile · Macronutrient</div>
+          <div class="card-def" style="font-size:0.8rem; margin-top:4px;">Young leaves light green; no chlorotic spotting or striping</div>
+        </div>
+      </div>
+      <div class="nutrient-card">
+        <div class="nutrient-symbol macro-sym">Ca</div>
+        <div class="nutrient-info">
+          <div class="nutrient-name">Calcium</div>
+          <div class="nutrient-mobility"><span class="mob-dot mob-immobile"></span>Immobile · Macronutrient</div>
+          <div class="card-def" style="font-size:0.8rem; margin-top:4px;">Terminal bud hooked, turns brown and dies back</div>
+        </div>
+      </div>
+      <div class="nutrient-card">
+        <div class="nutrient-symbol micro-sym">Fe</div>
+        <div class="nutrient-info">
+          <div class="nutrient-name">Iron</div>
+          <div class="nutrient-mobility"><span class="mob-dot mob-immobile"></span>Immobile · Micronutrient</div>
+          <div class="card-def" style="font-size:0.8rem; margin-top:4px;">Young leaves; sharp distinction between green veins and yellow areas</div>
+        </div>
+      </div>
+      <div class="nutrient-card">
+        <div class="nutrient-symbol micro-sym">Mn</div>
+        <div class="nutrient-info">
+          <div class="nutrient-name">Manganese</div>
+          <div class="nutrient-mobility"><span class="mob-dot mob-immobile"></span>Immobile · Micronutrient</div>
+          <div class="card-def" style="font-size:0.8rem; margin-top:4px;">Young leaves; no sharp distinction, spotty chlorotic appearance</div>
+        </div>
+      </div>
+      <div class="nutrient-card">
+        <div class="nutrient-symbol micro-sym">Zn</div>
+        <div class="nutrient-info">
+          <div class="nutrient-name">Zinc</div>
+          <div class="nutrient-mobility"><span class="mob-dot mob-immobile"></span>Immobile · Micronutrient</div>
+          <div class="card-def" style="font-size:0.8rem; margin-top:4px;">Middle leaves with interveinal chlorosis; stunted growth</div>
+        </div>
+      </div>
+      <div class="nutrient-card">
+        <div class="nutrient-symbol micro-sym">B</div>
+        <div class="nutrient-info">
+          <div class="nutrient-name">Boron</div>
+          <div class="nutrient-mobility"><span class="mob-dot mob-immobile"></span>Immobile · Micronutrient</div>
+          <div class="card-def" style="font-size:0.8rem; margin-top:4px;">Terminal bud: leaves twisted, brittle, light green at base</div>
+        </div>
+      </div>
+      <div class="nutrient-card">
+        <div class="nutrient-symbol micro-sym">Cu</div>
+        <div class="nutrient-info">
+          <div class="nutrient-name">Copper</div>
+          <div class="nutrient-mobility"><span class="mob-dot mob-immobile"></span>Immobile · Micronutrient</div>
+          <div class="card-def" style="font-size:0.8rem; margin-top:4px;">Young leaves withered at tips; will eventually die</div>
+        </div>
+      </div>
+      <div class="nutrient-card">
+        <div class="nutrient-symbol micro-sym">Mo</div>
+        <div class="nutrient-info">
+          <div class="nutrient-name">Molybdenum</div>
+          <div class="nutrient-mobility"><span class="mob-dot mob-mobile"></span>Mobile · Micronutrient</div>
+          <div class="card-def" style="font-size:0.8rem; margin-top:4px;">Pale leaves scorched, cupped, or rolled; necrotic spotting</div>
+        </div>
+      </div>
+      <div class="nutrient-card">
+        <div class="nutrient-symbol micro-sym">Cl</div>
+        <div class="nutrient-info">
+          <div class="nutrient-name">Chloride</div>
+          <div class="nutrient-mobility"><span class="mob-dot mob-mobile"></span>Mobile · Micronutrient</div>
+          <div class="card-def" style="font-size:0.8rem; margin-top:4px;">Distinct lesions with abrupt boundary between dead and live tissue</div>
+        </div>
+      </div>
+      <div class="nutrient-card">
+        <div class="nutrient-symbol micro-sym">Ni</div>
+        <div class="nutrient-info">
+          <div class="nutrient-name">Nickel</div>
+          <div class="nutrient-mobility"><span class="mob-dot mob-immobile"></span>Immobile · Micronutrient</div>
+          <div class="card-def" style="font-size:0.8rem; margin-top:4px;">Recently added essential nutrient; chlorosis and interveinal chlorosis in younger leaves</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p style="text-align:center; font-size:0.8rem; color:#9a8878; margin-top:20px;">A. Codd · Plant Nutrient Functions and Deficiency and Toxicity Symptoms</p>
+</div>
+
+</body>
+</html>
