@@ -10,27 +10,13 @@
 
     :root {
       --bg-primary: #ffffff;
-      --bg-secondary: #f5f5f3;
-      --text-primary: #1a1a18;
-      --text-secondary: #5a5a56;
-      --text-tertiary: #9a9a94;
-      --border: rgba(0,0,0,0.10);
-      --border-hover: rgba(0,0,0,0.20);
+      --bg-secondary: #f9f5f6;
+      --text-primary: #2a2a2a;
+      --text-secondary: #666666;
+      --text-tertiary: #aaaaaa;
+      --border: rgba(0,0,0,0.07);
       --radius: 14px;
-      --shadow: 0 4px 24px rgba(0,0,0,0.10);
-    }
-
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg-primary: #1c1c1a;
-        --bg-secondary: #252523;
-        --text-primary: #f0ede6;
-        --text-secondary: #a8a59e;
-        --text-tertiary: #6a6a64;
-        --border: rgba(255,255,255,0.08);
-        --border-hover: rgba(255,255,255,0.18);
-        --shadow: 0 4px 24px rgba(0,0,0,0.35);
-      }
+      --shadow: 0 4px 20px rgba(0,0,0,0.07);
     }
 
     body {
@@ -44,10 +30,7 @@
       padding: 32px 16px 48px;
     }
 
-    .container {
-      width: 100%;
-      max-width: 900px;
-    }
+    .container { width: 100%; max-width: 900px; }
 
     h1 {
       text-align: center;
@@ -66,34 +49,32 @@
       font-weight: 500;
     }
 
-    /* === SCALE BAR === */
     .scale-track {
       position: relative;
       height: 56px;
       border-radius: 28px;
       background: linear-gradient(to right,
-        #8B0000 0%, #C0392B 7%, #E74C3C 14.3%,
-        #E67E22 21.4%, #F39C12 28.6%,
-        #F1C40F 35.7%, #2ECC71 42.9%,
-        #27AE60 50%, #1ABC9C 57.1%,
-        #3498DB 64.3%, #2980B9 71.4%,
-        #8E44AD 78.6%, #6C3483 85.7%,
-        #4A235A 92.9%, #1A0030 100%
+        #E8766A 0%, #E87DA0 7%, #E989B0 14.3%,
+        #EDA0BF 21.4%, #F2B8CE 28.6%,
+        #F7D0DF 35.7%, #FAF0F4 42.9%,
+        #F0F6FA 50%, #D8EEF6 57.1%,
+        #BFE4F2 64.3%, #A8D9EE 71.4%,
+        #8FCFEB 78.6%, #78C5E8 85.7%,
+        #62BCE5 92.9%, #4EB0E0 100%
       );
       box-shadow:
-        0 6px 20px rgba(0,0,0,0.30),
-        inset 0 1.5px 0 rgba(255,255,255,0.28),
-        inset 0 -3px 6px rgba(0,0,0,0.25);
-      margin-bottom: 0;
+        0 4px 16px rgba(0,0,0,0.08),
+        inset 0 1.5px 0 rgba(255,255,255,0.70),
+        inset 0 -2px 4px rgba(0,0,0,0.05);
     }
 
     .scale-track::before {
       content: '';
       position: absolute;
       top: 4px; left: 12px; right: 12px;
-      height: 16px;
+      height: 14px;
       border-radius: 20px;
-      background: linear-gradient(to bottom, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0.03) 100%);
+      background: linear-gradient(to bottom, rgba(255,255,255,0.50) 0%, rgba(255,255,255,0.0) 100%);
       pointer-events: none;
     }
 
@@ -127,7 +108,6 @@
       text-transform: uppercase;
     }
 
-    /* === ITEMS === */
     .items-row {
       display: flex;
       justify-content: space-between;
@@ -147,7 +127,7 @@
     }
 
     .item:hover { transform: translateY(-5px) scale(1.06); }
-    .item:hover .item-card { box-shadow: 0 10px 28px rgba(0,0,0,0.35); }
+    .item:hover .item-card { box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
 
     .item-card {
       width: 48px;
@@ -157,21 +137,13 @@
       align-items: center;
       justify-content: center;
       border: 1.5px solid var(--border);
-      box-shadow: 0 3px 10px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.14);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.9);
       transition: box-shadow 0.18s ease;
     }
 
-    .item-emoji {
-      font-size: 24px;
-      line-height: 1;
-      display: block;
-    }
+    .item-emoji { font-size: 24px; line-height: 1; display: block; }
 
-    .connector-line {
-      width: 1.5px;
-      height: 10px;
-      margin: 3px 0;
-    }
+    .connector-line { width: 1.5px; height: 10px; margin: 3px 0; }
 
     .item-name {
       font-size: 9px;
@@ -184,7 +156,6 @@
 
     .item-ph-tag { display: none; }
 
-    /* === DETAIL PANEL === */
     .detail-panel {
       margin-top: 24px;
       border-radius: var(--radius);
@@ -196,15 +167,8 @@
       transition: border-color 0.25s ease, background 0.25s ease;
     }
 
-    .detail-header {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 12px;
-    }
-
+    .detail-header { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
     .detail-emoji { font-size: 42px; line-height: 1; }
-
     .detail-meta { flex: 1; }
 
     .detail-name {
@@ -228,11 +192,7 @@
 
     .detail-ph-block { text-align: right; }
 
-    .detail-ph-num {
-      font-size: 32px;
-      font-weight: 700;
-      line-height: 1;
-    }
+    .detail-ph-num { font-size: 32px; font-weight: 700; line-height: 1; }
 
     .detail-ph-label {
       font-size: 11px;
@@ -241,19 +201,10 @@
       font-weight: 500;
     }
 
-    .detail-divider {
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 12px 0;
-    }
+    .detail-divider { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
 
-    .detail-desc {
-      font-size: 14px;
-      color: var(--text-secondary);
-      line-height: 1.6;
-    }
+    .detail-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
 
-    /* === LEGEND === */
     .legend {
       display: flex;
       justify-content: center;
@@ -271,24 +222,14 @@
       font-weight: 500;
     }
 
-    .legend-dot {
-      width: 11px; height: 11px;
-      border-radius: 50%;
-    }
+    .legend-dot { width: 11px; height: 11px; border-radius: 50%; }
 
-    .hint {
-      text-align: center;
-      font-size: 12px;
-      color: var(--text-tertiary);
-      margin-top: 12px;
-    }
+    .hint { text-align: center; font-size: 12px; color: var(--text-tertiary); margin-top: 12px; }
 
-    /* === RESPONSIVE === */
     @media (max-width: 600px) {
       .item-card { width: 36px; height: 36px; border-radius: 9px; }
       .item-emoji { font-size: 18px; }
       .item-name { font-size: 7.5px; width: 40px; }
-      .item-ph-tag { font-size: 7px; }
       .tick { font-size: 11px; width: 36px; }
       h1 { font-size: 22px; }
     }
@@ -301,13 +242,12 @@
   <p class="subtitle">Tap any substance to explore its chemistry</p>
 
   <div class="scale-track"></div>
-
   <div class="tick-row" id="ticks"></div>
 
   <div class="label-row">
-    <span class="label-section" style="color:#E74C3C">◀ Acidic</span>
-    <span class="label-section" style="color:#27AE60">Neutral</span>
-    <span class="label-section" style="color:#8E44AD">Alkaline ▶</span>
+    <span class="label-section" style="color:#C96070">◀ Acidic</span>
+    <span class="label-section" style="color:#bbbbbb">Neutral</span>
+    <span class="label-section" style="color:#3A96C8">Alkaline ▶</span>
   </div>
 
   <div class="items-row" id="items-row"></div>
@@ -319,9 +259,9 @@
   </div>
 
   <div class="legend">
-    <div class="legend-item"><div class="legend-dot" style="background:#E74C3C"></div>Acidic (pH 0–6)</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#27AE60"></div>Neutral (pH 7)</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#8E44AD"></div>Alkaline (pH 8–14)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#E8766A"></div>Acidic (pH 0–6)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ddd; border:1px solid #ccc"></div>Neutral (pH 7)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#4EB0E0"></div>Alkaline (pH 8–14)</div>
   </div>
 
   <p class="hint">A. Codd</p>
@@ -330,30 +270,29 @@
 
 <script>
   const items = [
-    { ph: 0,  label: "Battery\nacid",    emoji: "🔋", type: "acid",    badge: "#8B0000", full: "Battery Acid (H₂SO₄)",        desc: "Concentrated sulfuric acid found in lead-acid batteries. Extremely corrosive with a pH close to 0 — one of the most acidic substances in everyday use." },
-    { ph: 1,  label: "Stomach\nacid",    emoji: "🫁", type: "acid",    badge: "#B03030", full: "Stomach Acid (HCl)",            desc: "Hydrochloric acid secreted by your stomach lining. It breaks down food, activates digestive enzymes, and kills most ingested bacteria." },
-    { ph: 2,  label: "Lemon\njuice",     emoji: "🍋", type: "acid",    badge: "#C0392B", full: "Lemon Juice",                   desc: "Rich in citric acid, lemon juice has a pH around 2. That sharp sourness you taste is your tongue detecting hydrogen ions." },
-    { ph: 3,  label: "Vinegar /\nsoda",  emoji: "🥤", type: "acid",    badge: "#D35400", full: "Vinegar / Soda",               desc: "Acetic acid gives vinegar its tang (pH ~2.5–3.5), while dissolved CO₂ makes fizzy drinks slightly acidic at around pH 3." },
-    { ph: 4,  label: "Tomato\njuice",    emoji: "🍅", type: "acid",    badge: "#E67E22", full: "Tomato Juice",                  desc: "Tomatoes contain both citric and malic acids, landing at pH 4–4.5. This mild acidity also helps preserve tomato-based foods." },
-    { ph: 5,  label: "Coffee",           emoji: "☕", type: "acid",    badge: "#CC8800", full: "Coffee",                       desc: "Brewed coffee typically sits at pH 4.5–5.5, depending on roast and brewing method. Darker roasts tend to be slightly less acidic." },
-    { ph: 6,  label: "Milk",             emoji: "🥛", type: "acid",    badge: "#B8960C", full: "Fresh Milk",                   desc: "Fresh cow's milk is slightly acidic at pH 6–6.5 due to lactic acid and dissolved CO₂. As milk sours, the pH drops further." },
-    { ph: 7,  label: "Water",            emoji: "💧", type: "neutral", badge: "#27AE60", full: "Pure Water (H₂O)",             desc: "Pure water is the definition of neutral at pH 7. It contains equal concentrations of H⁺ and OH⁻ ions — perfect chemical balance." },
-    { ph: 8,  label: "Blood",            emoji: "🩸", type: "base",   badge: "#1A9C80", full: "Human Blood",                  desc: "Human blood is tightly regulated between pH 7.35 and 7.45. Even small deviations cause serious medical conditions like acidosis or alkalosis." },
-    { ph: 9,  label: "Egg\nwhite",       emoji: "🥚", type: "base",   badge: "#2E86C1", full: "Egg White (Albumen)",           desc: "Fresh egg whites are mildly alkaline at pH 7.6–9.2, thanks to proteins like albumin. The pH rises further as eggs age and CO₂ escapes." },
-    { ph: 10, label: "Antacid",          emoji: "💊", type: "base",   badge: "#1F618D", full: "Antacid — Milk of Magnesia",   desc: "Magnesium hydroxide suspensions work by neutralising excess stomach acid. At pH ~10, they provide fast relief from heartburn and indigestion." },
-    { ph: 11, label: "Ammonia",          emoji: "🧪", type: "base",   badge: "#7D3C98", full: "Household Ammonia (NH₃)",      desc: "Dilute ammonia solution is a powerful household cleaner at pH 11–12. Its alkalinity helps break down grease and cut through grime." },
-    { ph: 12, label: "Soap",             emoji: "🧼", type: "base",   badge: "#6C3483", full: "Soap / Detergent",             desc: "Most bar soaps and detergents range from pH 9–12. The high pH saponifies fats and oils, allowing them to be rinsed away with water." },
-    { ph: 13, label: "Bleach",           emoji: "🫧", type: "base",   badge: "#5B2C6F", full: "Bleach (NaOCl)",               desc: "Sodium hypochlorite bleach sits at pH 12–13. The highly alkaline environment enhances its disinfecting and whitening power." },
-    { ph: 14, label: "Drain\ncleaner",   emoji: "🚿", type: "base",   badge: "#4A235A", full: "Drain Cleaner (NaOH)",         desc: "Sodium hydroxide (lye) at pH 14 is the most alkaline common substance. It dissolves hair, grease, and organic blockages through saponification." },
+    { ph: 0,  label: "Battery\nacid",    emoji: "🔋", type: "acid",    badge: "#C0564A", full: "Battery Acid (H₂SO₄)",       desc: "Concentrated sulfuric acid found in lead-acid batteries. Extremely corrosive with a pH close to 0 — one of the most acidic substances in everyday use." },
+    { ph: 1,  label: "Stomach\nacid",    emoji: "🫁", type: "acid",    badge: "#C96080", full: "Stomach Acid (HCl)",           desc: "Hydrochloric acid secreted by your stomach lining. It breaks down food, activates digestive enzymes, and kills most ingested bacteria." },
+    { ph: 2,  label: "Lemon\njuice",     emoji: "🍋", type: "acid",    badge: "#CF7095", full: "Lemon Juice",                  desc: "Rich in citric acid, lemon juice has a pH around 2. That sharp sourness you taste is your tongue detecting hydrogen ions." },
+    { ph: 3,  label: "Vinegar /\nsoda",  emoji: "🥤", type: "acid",    badge: "#D888AA", full: "Vinegar / Soda",              desc: "Acetic acid gives vinegar its tang (pH ~2.5–3.5), while dissolved CO₂ makes fizzy drinks slightly acidic at around pH 3." },
+    { ph: 4,  label: "Tomato\njuice",    emoji: "🍅", type: "acid",    badge: "#DFA0BB", full: "Tomato Juice",                 desc: "Tomatoes contain both citric and malic acids, landing at pH 4–4.5. This mild acidity also helps preserve tomato-based foods." },
+    { ph: 5,  label: "Coffee",           emoji: "☕", type: "acid",    badge: "#E5B0C8", full: "Coffee",                      desc: "Brewed coffee typically sits at pH 4.5–5.5, depending on roast and brewing method. Darker roasts tend to be slightly less acidic." },
+    { ph: 6,  label: "Milk",             emoji: "🥛", type: "acid",    badge: "#CAAABB", full: "Fresh Milk",                  desc: "Fresh cow's milk is slightly acidic at pH 6–6.5 due to lactic acid and dissolved CO₂. As milk sours, the pH drops further." },
+    { ph: 7,  label: "Water",            emoji: "💧", type: "neutral", badge: "#aaaaaa", full: "Pure Water (H₂O)",            desc: "Pure water is the definition of neutral at pH 7. It contains equal concentrations of H⁺ and OH⁻ ions — perfect chemical balance." },
+    { ph: 8,  label: "Blood",            emoji: "🩸", type: "base",   badge: "#8BBEDD", full: "Human Blood",                 desc: "Human blood is tightly regulated between pH 7.35 and 7.45. Even small deviations cause serious medical conditions like acidosis or alkalosis." },
+    { ph: 9,  label: "Egg\nwhite",       emoji: "🥚", type: "base",   badge: "#70B2D8", full: "Egg White (Albumen)",          desc: "Fresh egg whites are mildly alkaline at pH 7.6–9.2, thanks to proteins like albumin. The pH rises further as eggs age and CO₂ escapes." },
+    { ph: 10, label: "Antacid",          emoji: "💊", type: "base",   badge: "#55A6D2", full: "Antacid — Milk of Magnesia",  desc: "Magnesium hydroxide suspensions work by neutralising excess stomach acid. At pH ~10, they provide fast relief from heartburn and indigestion." },
+    { ph: 11, label: "Ammonia",          emoji: "🧪", type: "base",   badge: "#409CCD", full: "Household Ammonia (NH₃)",     desc: "Dilute ammonia solution is a powerful household cleaner at pH 11–12. Its alkalinity helps break down grease and cut through grime." },
+    { ph: 12, label: "Soap",             emoji: "🧼", type: "base",   badge: "#3092C8", full: "Soap / Detergent",            desc: "Most bar soaps and detergents range from pH 9–12. The high pH saponifies fats and oils, allowing them to be rinsed away with water." },
+    { ph: 13, label: "Bleach",           emoji: "🫧", type: "base",   badge: "#2088C2", full: "Bleach (NaOCl)",              desc: "Sodium hypochlorite bleach sits at pH 12–13. The highly alkaline environment enhances its disinfecting and whitening power." },
+    { ph: 14, label: "Drain\ncleaner",   emoji: "🚿", type: "base",   badge: "#1A80BE", full: "Drain Cleaner (NaOH)",        desc: "Sodium hydroxide (lye) at pH 14 is the most alkaline common substance. It dissolves hair, grease, and organic blockages through saponification." },
   ];
 
   const phColors = [
-    '#8B0000','#C0392B','#E74C3C','#E67E22','#F39C12',
-    '#F1C40F','#2ECC71','#27AE60','#1ABC9C','#3498DB',
-    '#2980B9','#8E44AD','#6C3483','#4A235A','#1A0030'
+    '#E8766A','#E87DA0','#E989B0','#EDA0BF','#F2B8CE',
+    '#F7D0DF','#F5E8EE','#E8E8E8','#C8E8F4','#BFE4F2',
+    '#A8D9EE','#8FCFEB','#78C5E8','#62BCE5','#4EB0E0'
   ];
 
-  // Ticks
   const tickRow = document.getElementById('ticks');
   for (let i = 0; i <= 14; i++) {
     const t = document.createElement('div');
@@ -362,17 +301,16 @@
     tickRow.appendChild(t);
   }
 
-  // Item cards
   const row = document.getElementById('items-row');
   items.forEach(item => {
     const color = phColors[item.ph];
     const div = document.createElement('div');
     div.className = 'item';
     div.innerHTML = `
-      <div class="item-card" style="background:${color}18; border-color:${color}44;">
+      <div class="item-card" style="background:${color}66; border-color:${color}cc;">
         <span class="item-emoji">${item.emoji}</span>
       </div>
-      <div class="connector-line" style="background:${color}88;"></div>
+      <div class="connector-line" style="background:${color};"></div>
       <div class="item-name">${item.label.replace('\n','<br>')}</div>
       <div class="item-ph-tag">pH ${item.ph}</div>
     `;
@@ -384,8 +322,8 @@
     const color = phColors[item.ph];
     const typeLabel = item.type === 'acid' ? 'Acid' : item.type === 'neutral' ? 'Neutral' : 'Alkaline Base';
     const panel = document.getElementById('detail');
-    panel.style.borderColor = color + '55';
-    panel.style.background = `linear-gradient(135deg, ${color}12 0%, var(--bg-secondary) 55%)`;
+    panel.style.borderColor = color + 'cc';
+    panel.style.background = `linear-gradient(135deg, ${color}40 0%, var(--bg-secondary) 60%)`;
     panel.innerHTML = `
       <div class="detail-header">
         <div class="detail-emoji">${item.emoji}</div>
@@ -394,7 +332,7 @@
           <span class="detail-badge" style="background:${item.badge}">${typeLabel}</span>
         </div>
         <div class="detail-ph-block">
-          <div class="detail-ph-num" style="color:${color}">pH ${item.ph}</div>
+          <div class="detail-ph-num" style="color:${item.badge}">pH ${item.ph}</div>
           <div class="detail-ph-label">hydrogen potential</div>
         </div>
       </div>
@@ -403,7 +341,6 @@
     `;
   }
 
-  // Default selection
   showDetail(items[7]);
 </script>
 </body>
