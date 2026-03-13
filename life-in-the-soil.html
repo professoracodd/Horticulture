@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Life in the Soil</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f0e8;
+    --soil-dark: #3d2b1f;
+    --soil-mid: #6b4c3b;
+    --soil-light: #a07850;
+    --micro-color: #2d6a4f;
+    --meso-color: #52796f;
+    --macro-color: #84a98c;
+    --mega-color: #b7c4a0;
+    --micro-bg: #d8f3dc;
+    --meso-bg: #cde6db;
+    --macro-bg: #d4e6ce;
+    --mega-bg: #e8f0e0;
+    --text: #1a1008;
+    --text-muted: #6b5a4e;
+    --card-bg: #fffdf7;
+    --border: #d4c4a8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Soil texture background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(ellipse at 20% 50%, rgba(107,76,59,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(45,106,79,0.06) 0%, transparent 50%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  /* Header */
+  header {
+    margin-bottom: 56px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--soil-light);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .eyebrow::before {
+    content: '';
+    display: block;
+    width: 24px;
+    height: 1px;
+    background: var(--soil-light);
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 5vw, 3.8rem);
+    font-weight: 700;
+    color: var(--soil-dark);
+    line-height: 1.05;
+  }
+
+  .subtitle {
+    font-size: 15px;
+    color: var(--text-muted);
+    max-width: 540px;
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  /* Scale legend */
+  .scale-bar {
+    display: flex;
+    align-items: stretch;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 40px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 16px rgba(61,43,31,0.08);
+  }
+
+  .scale-segment {
+    flex: 1;
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+
+  .scale-segment:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 20%; bottom: 20%;
+    width: 1px;
+    background: var(--border);
+  }
+
+  .scale-segment:hover { filter: brightness(0.96); }
+  .scale-segment.active { filter: brightness(0.92); }
+
+  .scale-segment:nth-child(1) { background: var(--micro-bg); }
+  .scale-segment:nth-child(2) { background: var(--meso-bg); }
+  .scale-segment:nth-child(3) { background: var(--macro-bg); }
+  .scale-segment:nth-child(4) { background: var(--mega-bg); }
+
+  .seg-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--soil-dark);
+  }
+
+  .seg-range {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+  }
+
+  .seg-count {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  /* Filter bar */
+  .filter-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .filter-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  .filter-btn {
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    color: var(--text-muted);
+  }
+
+  .filter-btn:hover { border-color: var(--soil-mid); color: var(--soil-dark); }
+  .filter-btn.active {
+    background: var(--soil-dark);
+    border-color: var(--soil-dark);
+    color: #fff;
+  }
+
+  /* Organism grid */
+  .category-section {
+    margin-bottom: 48px;
+    transition: all 0.3s ease;
+  }
+
+  .category-section.hidden { display: none; }
+
+  .category-header {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .category-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--soil-dark);
+  }
+
+  .category-range {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+    padding: 3px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+  }
+
+  .category-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-left: auto;
+  }
+
+  .organism-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+  }
+
+  .organism-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .organism-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .micro .organism-card::before { background: var(--micro-color); }
+  .meso .organism-card::before { background: var(--meso-color); }
+  .macro .organism-card::before { background: var(--macro-color); }
+  .mega .organism-card::before { background: var(--mega-color); }
+
+  .organism-card:hover {
+    border-color: var(--soil-light);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(61,43,31,0.12);
+  }
+
+  .organism-card:hover::before { opacity: 1; }
+
+  .organism-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+    display: block;
+    line-height: 1;
+  }
+
+  .organism-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--soil-dark);
+    margin-bottom: 4px;
+  }
+
+  .organism-size {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .organism-role {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .role-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.05em;
+    margin-top: 8px;
+    background: rgba(61,43,31,0.07);
+    color: var(--soil-mid);
+  }
+
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(26,16,8,0.5);
+    z-index: 100;
+    backdrop-filter: blur(4px);
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--card-bg);
+    border-radius: 16px;
+    max-width: 480px;
+    width: 100%;
+    padding: 32px;
+    position: relative;
+    box-shadow: 0 24px 64px rgba(26,16,8,0.25);
+    animation: modalIn 0.25s ease;
+  }
+
+  @keyframes modalIn {
+    from { opacity: 0; transform: translateY(16px) scale(0.97); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 16px; right: 16px;
+    background: none; border: none;
+    font-size: 20px; cursor: pointer;
+    color: var(--text-muted);
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 6px;
+  }
+
+  .modal-close:hover { background: var(--border); }
+
+  .modal-icon { font-size: 48px; margin-bottom: 12px; }
+
+  .modal-category {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .modal-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--soil-dark);
+    margin-bottom: 4px;
+  }
+
+  .modal-size {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+
+  .modal-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 16px 0;
+  }
+
+  .modal-section-title {
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .modal-text {
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--text);
+  }
+
+  .modal-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 12px;
+  }
+
+  .modal-tag {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    background: rgba(61,43,31,0.07);
+    color: var(--soil-mid);
+  }
+
+  /* Visual scale bar at bottom */
+  .visual-scale {
+    margin-top: 56px;
+    padding: 32px;
+    background: var(--soil-dark);
+    border-radius: 14px;
+    color: #e8dcc8;
+  }
+
+  .vs-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(232,220,200,0.5);
+    margin-bottom: 20px;
+  }
+
+  .vs-track {
+    position: relative;
+    height: 8px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    margin-bottom: 10px;
+  }
+
+  .vs-segment {
+    position: absolute;
+    height: 100%;
+    border-radius: 4px;
+    transition: opacity 0.2s;
+  }
+
+  .vs-segment:hover { opacity: 0.8; cursor: pointer; }
+
+  .vs-labels {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: rgba(232,220,200,0.4);
+    margin-top: 8px;
+  }
+
+  .vs-categories {
+    display: flex;
+    margin-top: 20px;
+    gap: 6px;
+  }
+
+  .vs-cat {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .vs-cat-name {
+    font-size: 13px;
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+  }
+
+  .vs-cat-range {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: rgba(232,220,200,0.5);
+  }
+
+  /* Animations */
+  .organism-card {
+    animation: fadeUp 0.4s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .organism-grid .organism-card:nth-child(1) { animation-delay: 0.05s; }
+  .organism-grid .organism-card:nth-child(2) { animation-delay: 0.10s; }
+  .organism-grid .organism-card:nth-child(3) { animation-delay: 0.15s; }
+  .organism-grid .organism-card:nth-child(4) { animation-delay: 0.20s; }
+  .organism-grid .organism-card:nth-child(5) { animation-delay: 0.25s; }
+  .organism-grid .organism-card:nth-child(6) { animation-delay: 0.30s; }
+
+  @media (max-width: 600px) {
+    .scale-bar { flex-direction: column; }
+    .scale-segment::after { display: none; }
+    .vs-categories { flex-direction: column; }
+    .category-desc { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="eyebrow">Soil Ecology</div>
+    <h1>Life in the Soil</h1>
+    <p class="subtitle">An interactive guide to the organisms living beneath our feet — from single-celled microbes to visible invertebrates — organized by size and ecological role.</p>
+  </header>
+
+  <!-- Scale bar navigation -->
+  <div class="scale-bar" id="scaleBar">
+    <div class="scale-segment active" data-cat="micro" onclick="filterCategory('micro', this)">
+      <div class="seg-label">Microflora & Microfauna</div>
+      <div class="seg-range">1 µm – 100 µm</div>
+      <div class="seg-count">5 organisms</div>
+    </div>
+    <div class="scale-segment" data-cat="meso" onclick="filterCategory('meso', this)">
+      <div class="seg-label">Mesofauna</div>
+      <div class="seg-range">100 µm – 2 mm</div>
+      <div class="seg-count">8 organisms</div>
+    </div>
+    <div class="scale-segment" data-cat="macro" onclick="filterCategory('macro', this)">
+      <div class="seg-label">Macrofauna</div>
+      <div class="seg-range">2 mm – 20 mm</div>
+      <div class="seg-count">11 organisms</div>
+    </div>
+    <div class="scale-segment" data-cat="mega" onclick="filterCategory('mega', this)">
+      <div class="seg-label">Megafauna</div>
+      <div class="seg-range">&gt; 20 mm</div>
+      <div class="seg-count">4 organisms</div>
+    </div>
+  </div>
+
+  <!-- Filter bar -->
+  <div class="filter-bar">
+    <span class="filter-label">Role:</span>
+    <button class="filter-btn active" onclick="filterRole('all', this)">All</button>
+    <button class="filter-btn" onclick="filterRole('decomposer', this)">Decomposers</button>
+    <button class="filter-btn" onclick="filterRole('predator', this)">Predators</button>
+    <button class="filter-btn" onclick="filterRole('herbivore', this)">Herbivores</button>
+    <button class="filter-btn" onclick="filterRole('engineer', this)">Ecosystem Engineers</button>
+  </div>
+
+  <!-- Categories -->
+  <section class="category-section micro" id="cat-micro">
+    <div class="category-header">
+      <div class="category-title">Microflora & Microfauna</div>
+      <div class="category-range">1 µm – 100 µm</div>
+      <div class="category-desc">Invisible to the naked eye</div>
+    </div>
+    <div class="organism-grid" id="grid-micro"></div>
+  </section>
+
+  <section class="category-section meso" id="cat-meso">
+    <div class="category-header">
+      <div class="category-title">Mesofauna</div>
+      <div class="category-range">100 µm – 2 mm</div>
+      <div class="category-desc">Visible with a hand lens</div>
+    </div>
+    <div class="organism-grid" id="grid-meso"></div>
+  </section>
+
+  <section class="category-section macro" id="cat-macro">
+    <div class="category-header">
+      <div class="category-title">Macrofauna</div>
+      <div class="category-range">2 mm – 20 mm</div>
+      <div class="category-desc">Visible to the naked eye</div>
+    </div>
+    <div class="organism-grid" id="grid-macro"></div>
+  </section>
+
+  <section class="category-section mega" id="cat-mega">
+    <div class="category-header">
+      <div class="category-title">Megafauna</div>
+      <div class="category-range">&gt; 20 mm</div>
+      <div class="category-desc">Clearly visible, even large</div>
+    </div>
+    <div class="organism-grid" id="grid-mega"></div>
+  </section>
+
+  <!-- Visual scale -->
+  <div class="visual-scale">
+    <div class="vs-title">Continuous Size Scale</div>
+    <div class="vs-track">
+      <div class="vs-segment" style="left:0; width:25%; background:#2d6a4f;"></div>
+      <div class="vs-segment" style="left:25%; width:25%; background:#52796f;"></div>
+      <div class="vs-segment" style="left:50%; width:25%; background:#84a98c;"></div>
+      <div class="vs-segment" style="left:75%; width:25%; background:#b7c4a0;"></div>
+    </div>
+    <div class="vs-labels">
+      <span>1 µm</span><span>10 µm</span><span>100 µm</span><span>1 mm</span><span>10 mm</span><span>100 mm</span>
+    </div>
+    <div class="vs-categories">
+      <div class="vs-cat"><div class="vs-cat-name" style="color:#2d6a4f;">Micro</div><div class="vs-cat-range">1–100 µm</div></div>
+      <div class="vs-cat"><div class="vs-cat-name" style="color:#52796f;">Meso</div><div class="vs-cat-range">100 µm–2 mm</div></div>
+      <div class="vs-cat"><div class="vs-cat-name" style="color:#84a98c;">Macro</div><div class="vs-cat-range">2–20 mm</div></div>
+      <div class="vs-cat"><div class="vs-cat-name" style="color:#b7c4a0;">Mega</div><div class="vs-cat-range">&gt;20 mm</div></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal" id="modalContent">
+    <button class="modal-close" onclick="closeModal(null, true)">✕</button>
+    <div class="modal-icon" id="mIcon"></div>
+    <div class="modal-category" id="mCategory"></div>
+    <div class="modal-name" id="mName"></div>
+    <div class="modal-size" id="mSize"></div>
+    <div class="modal-divider"></div>
+    <div class="modal-section-title">About</div>
+    <div class="modal-text" id="mDesc"></div>
+    <div class="modal-section-title" style="margin-top:16px;">Ecological Role</div>
+    <div class="modal-text" id="mRole"></div>
+    <div class="modal-tags" id="mTags"></div>
+  </div>
+</div>
+
+<script>
+const organisms = [
+  // MICRO
+  {
+    id: 'bacteria', name: 'Bacteria', category: 'micro', catLabel: 'Microflora',
+    icon: '🦠', size: '1–10 µm', roles: ['decomposer', 'engineer'],
+    roleText: 'Primary decomposers — break down organic matter and release nutrients. Nitrogen-fixing species convert atmospheric N₂ into plant-available forms.',
+    desc: 'The most abundant organisms in soil by far, with billions per gram of healthy soil. They form biofilms, produce antibiotics, and form the base of the soil food web.',
+    tags: ['Decomposer', 'Nutrient cycling', 'Nitrogen fixation']
+  },
+  {
+    id: 'fungi', name: 'Fungi', category: 'micro', catLabel: 'Microflora',
+    icon: '🍄', size: '2–100 µm (hyphae)', roles: ['decomposer', 'engineer'],
+    roleText: 'Decompose tough organic materials like lignin and cellulose. Mycorrhizal fungi form mutualistic partnerships with plant roots, greatly extending nutrient uptake.',
+    desc: 'Fungi form vast hyphal networks through the soil. A single teaspoon of healthy soil may contain several kilometers of fungal hyphae. They are essential for nutrient transfer between plants.',
+    tags: ['Decomposer', 'Mycorrhizal symbiosis', 'Carbon cycling']
+  },
+  {
+    id: 'nematodes', name: 'Nematodes', category: 'micro', catLabel: 'Microfauna',
+    icon: '🪱', size: '0.1–2.5 mm', roles: ['predator', 'herbivore', 'decomposer'],
+    roleText: 'Occupy multiple trophic levels — some feed on bacteria, others on fungi, plants, or other nematodes. Their feeding releases nutrients and regulates microbial populations.',
+    desc: 'Nematodes are among the most abundant animals on Earth. Soils can harbor millions per square meter. They are excellent bioindicators of soil health due to their sensitivity to pollution and disturbance.',
+    tags: ['Predator', 'Herbivore', 'Bioindicator']
+  },
+  {
+    id: 'protozoa', name: 'Protozoans', category: 'micro', catLabel: 'Microfauna',
+    icon: '🔬', size: '5–500 µm', roles: ['predator', 'decomposer'],
+    roleText: 'Primarily bacterivores — they graze on bacteria, releasing bound nutrients in plant-available forms. This "microbial loop" is critical for soil fertility.',
+    desc: 'Single-celled eukaryotes including amoebae, flagellates, and ciliates. They need films of water to move through the soil and are most active in moist conditions.',
+    tags: ['Bacterivore', 'Nutrient release', 'Microbial loop']
+  },
+  {
+    id: 'rotifers', name: 'Rotifers', category: 'micro', catLabel: 'Microfauna',
+    icon: '💧', size: '100–500 µm', roles: ['decomposer'],
+    roleText: 'Feed on bacteria, algae, and organic particles. Their activity stimulates microbial turnover and contributes to decomposition in moist soils.',
+    desc: 'Microscopic aquatic animals that can survive desiccation in a dormant state (cryptobiosis) for years. They "come alive" when soil moisture returns, making them remarkably resilient.',
+    tags: ['Filter feeder', 'Cryptobiosis', 'Moisture dependent']
+  },
+
+  // MESO
+  {
+    id: 'mites', name: 'Mites', category: 'meso', catLabel: 'Mesofauna',
+    icon: '🕷️', size: '0.1–2 mm', roles: ['predator', 'decomposer'],
+    roleText: 'The most diverse soil arthropods. Oribatid mites are primary decomposers of leaf litter; predatory mites regulate populations of other mesofauna.',
+    desc: 'Soil mites (Acari) are extraordinarily diverse — a single handful of forest soil may contain hundreds of species. They are critical regulators of fungal and microbial communities.',
+    tags: ['Diverse', 'Decomposer', 'Predator', 'Litter fragmentation']
+  },
+  {
+    id: 'springtails', name: 'Springtails', category: 'meso', catLabel: 'Mesofauna',
+    icon: '🦗', size: '0.25–6 mm', roles: ['decomposer'],
+    roleText: 'Feed primarily on fungi, bacteria, and decaying plant material. They physically fragment organic matter, dramatically increasing surface area for microbial action.',
+    desc: 'Collembola are among the most abundant hexapods on Earth. They get their name from a forked appendage (furcula) that allows them to jump. Their grazing shapes fungal community composition.',
+    tags: ['Fungivore', 'Litter fragmentation', 'Abundant']
+  },
+  {
+    id: 'proturans', name: 'Proturans', category: 'meso', catLabel: 'Mesofauna',
+    icon: '🦟', size: '0.6–1.5 mm', roles: ['decomposer'],
+    roleText: 'Feed on mycorrhizal fungi and decomposing organic matter. Little-studied but potentially important in fungal regulation in forest soils.',
+    desc: 'Tiny, pale, blind soil arthropods without antennae — they use their forelegs as sensory organs instead. One of the most obscure and least-studied soil animal groups.',
+    tags: ['Fungivore', 'Rarely studied', 'Blind']
+  },
+  {
+    id: 'diplurans', name: 'Diplurans', category: 'meso', catLabel: 'Mesofauna',
+    icon: '🦠', size: '2–5 mm', roles: ['predator', 'decomposer'],
+    roleText: 'Some species are predators of other soil invertebrates; others feed on fungi and decaying matter. They contribute to soil mixing.',
+    desc: 'Two-pronged bristletails — eyeless, white soil arthropods with two tail-like appendages (cerci). They live deep in soil cracks and are sensitive indicators of soil disturbance.',
+    tags: ['Predator', 'Decomposer', 'Soil cracks']
+  },
+  {
+    id: 'pseudocentipedes', name: 'Pseudocentipedes', category: 'meso', catLabel: 'Mesofauna',
+    icon: '🐛', size: '2–4 mm', roles: ['predator'],
+    roleText: 'Tiny predators feeding on other soil microarthropods and small invertebrates. They contribute to top-down regulation of lower trophic levels.',
+    desc: 'Symphyla — small, centipede-like myriapods that move rapidly through soil pores. Despite their small size, they can be serious agricultural pests when feeding on plant roots.',
+    tags: ['Predator', 'Root feeder', 'Rapid mover']
+  },
+  {
+    id: 'enchytraeidae', name: 'Enchytraeidae', category: 'meso', catLabel: 'Mesofauna',
+    icon: '🪱', size: '0.5–5 cm', roles: ['decomposer', 'engineer'],
+    roleText: 'Potworms fragment organic matter and stimulate microbial activity through gut passage. They improve soil structure by casting organic-mineral aggregates.',
+    desc: 'Small, whitish relatives of earthworms (enchytraeids or potworms). Often enormously abundant in acidic forest soils where earthworms are absent, taking on a similar ecological role.',
+    tags: ['Decomposer', 'Soil structure', 'Acid tolerant']
+  },
+  {
+    id: 'pseudoscorpions', name: 'Pseudoscorpions', category: 'meso', catLabel: 'Mesofauna',
+    icon: '🦂', size: '1–8 mm', roles: ['predator'],
+    roleText: 'Voracious predators of mites, springtails, and small insects. They inject venom through their chelicerae to subdue prey. Important regulators of mesofauna populations.',
+    desc: 'Miniature scorpion-like arachnids without a tail or sting. They use silk to build brood chambers and are famous for "hitchhiking" (phoresy) on larger insects to disperse.',
+    tags: ['Predator', 'Arachnid', 'Phoresy']
+  },
+  {
+    id: 'termites', name: 'Termites', category: 'meso', catLabel: 'Mesofauna',
+    icon: '🐜', size: '1–15 mm', roles: ['decomposer', 'engineer'],
+    roleText: 'Among the most powerful ecosystem engineers in tropical soils. They decompose dead wood and plant material, build elaborate mounds that alter hydrology, and aerate soil deeply.',
+    desc: 'Eusocial insects with complex colonies. In tropical regions, termite mounds can persist for centuries. Their gut microbiomes include unique bacteria and protozoa that break down cellulose.',
+    tags: ['Ecosystem engineer', 'Cellulose decomposer', 'Social insect']
+  },
+
+  // MACRO
+  {
+    id: 'harvestmen', name: 'Opiliones / Harvestmen', category: 'macro', catLabel: 'Macrofauna',
+    icon: '🕷️', size: '1–10 mm (body)', roles: ['predator', 'decomposer'],
+    roleText: 'Omnivores feeding on small invertebrates, fungi, and decaying material. Unlike spiders, they can directly digest solid food particles.',
+    desc: 'Often mistaken for spiders, harvestmen (daddy longlegs) are a distinct arachnid order. They lack venom and silk glands. Many live in soil and leaf litter, active mainly at night.',
+    tags: ['Omnivore', 'Arachnid', 'Nocturnal']
+  },
+  {
+    id: 'isopods', name: 'Isopods', category: 'macro', catLabel: 'Macrofauna',
+    icon: '🦞', size: '5–20 mm', roles: ['decomposer'],
+    roleText: 'Shred leaf litter into fine particles, dramatically accelerating decomposition. Their gut microbiomes contain bacteria that fix nitrogen and break down cellulose.',
+    desc: 'Terrestrial crustaceans (woodlice, pill bugs, roly-polies) — the only crustaceans fully adapted to land. They are covered in calcite plates and require humid conditions to breathe through gill-like structures.',
+    tags: ['Litter shredder', 'Crustacean', 'Calcium cycling']
+  },
+  {
+    id: 'amphipods', name: 'Amphipods', category: 'macro', catLabel: 'Macrofauna',
+    icon: '🦐', size: '5–15 mm', roles: ['decomposer'],
+    roleText: 'Shred and ingest decaying plant and animal material. Common in very moist soils and leaf litter, especially near water bodies.',
+    desc: 'Laterally flattened crustaceans (scuds, sand hoppers) that in soil contexts live in damp leaf litter and riparian zones. Less studied than other soil macrofauna.',
+    tags: ['Litter shredder', 'Crustacean', 'Moisture dependent']
+  },
+  {
+    id: 'centipedes', name: 'Centipedes', category: 'macro', catLabel: 'Macrofauna',
+    icon: '🐛', size: '1–30 cm', roles: ['predator'],
+    roleText: 'Fast-moving, venomous predators at the top of the soil arthropod food web. They regulate populations of insects, earthworms, and other invertebrates.',
+    desc: 'Chilopods with one pair of legs per segment. The first pair is modified into venom-injecting forcipules. Geophilomorpha centipedes are fully fossorial, penetrating deep soil horizons.',
+    tags: ['Apex predator', 'Venomous', 'Fossorial']
+  },
+  {
+    id: 'millipedes', name: 'Millipedes', category: 'macro', catLabel: 'Macrofauna',
+    icon: '🐛', size: '2–30 cm', roles: ['decomposer', 'engineer'],
+    roleText: 'Major shredders of dead plant material. Their gut passage transforms litter into rich fecal pellets that fuel microbial activity and form stable soil aggregates.',
+    desc: 'Diplopods with two pairs of legs per segment. Many produce defensive chemicals (quinones, HCN) to deter predators. Some species can roll into a ball. Crucial in forest nutrient cycling.',
+    tags: ['Litter shredder', 'Soil structure', 'Chemical defense']
+  },
+  {
+    id: 'epigeic-worms', name: 'Epigeic Earthworms', category: 'macro', catLabel: 'Macrofauna',
+    icon: '🪱', size: '3–12 cm', roles: ['decomposer'],
+    roleText: 'Live in the surface litter layer, feeding on decomposing organic matter. They rapidly process leaf litter but do not burrow into mineral soil. Classic examples include red wigglers (Eisenia fetida), popular in vermicomposting.',
+    desc: 'Epigeic worms like red wigglers stay near the surface, making them perfect for compost bins. They thrive in dense organic material and reproduce quickly. Their casts are rich in plant-available nutrients.',
+    tags: ['Litter layer', 'Vermicomposting', 'Surface dweller']
+  },
+  {
+    id: 'endogeic-worms', name: 'Endogeic Earthworms', category: 'macro', catLabel: 'Macrofauna',
+    icon: '🪱', size: '5–20 cm', roles: ['engineer', 'decomposer'],
+    roleText: 'Burrow horizontally through mineral soil, ingesting soil particles to extract organic matter. They create a dense network of lateral tunnels that improve soil aeration and water infiltration.',
+    desc: 'Endogeic worms are typically pale or pinkish — they rarely reach the surface. They consume soil directly (geophagous feeders), passing large volumes through their guts. Their horizontal tunnels mix mineral and organic layers without deep vertical penetration.',
+    tags: ['Horizontal burrower', 'Geophagous', 'Mineral soil']
+  },
+  {
+    id: 'anecic-worms', name: 'Anecic Earthworms', category: 'macro', catLabel: 'Macrofauna',
+    icon: '🪱', size: '10–30 cm', roles: ['engineer', 'decomposer'],
+    roleText: 'Dig permanent, deep vertical burrows and pull surface litter down into them. Their deep channels persist for years, channeling rainwater into subsoil and bringing mineral material to the surface.',
+    desc: 'The nightcrawler (Lumbricus terrestris) is the classic anecic species. Darwin devoted 40 years to studying them. A single acre may contain over a million, collectively moving tons of soil per year. They emerge at night to collect leaf litter.',
+    tags: ['Deep vertical burrower', 'Ecosystem engineer', 'Nightcrawler']
+  },
+  {
+    id: 'beetles', name: 'Beetles', category: 'macro', catLabel: 'Macrofauna',
+    icon: '🪲', size: '1–50+ mm', roles: ['predator', 'decomposer', 'herbivore'],
+    roleText: 'Enormously diverse ecological roles. Ground beetles (Carabidae) are predators; dung beetles engineer soil by burying dung; bark beetles decompose woody material.',
+    desc: 'Coleoptera is the most species-rich order on Earth (~400,000 species). Soil-dwelling beetles include predators, fungivores, dung-rollers, and herbivores. Many have aquatic larval stages.',
+    tags: ['Diverse', 'Predator', 'Decomposer', 'Most species-rich order']
+  },
+  {
+    id: 'spiders', name: 'Spiders', category: 'macro', catLabel: 'Macrofauna',
+    icon: '🕷️', size: '1–30 mm', roles: ['predator'],
+    roleText: 'Major predators of insects and other invertebrates in soil and at the soil surface. Wolf spiders and ground spiders are purely terrestrial hunters.',
+    desc: 'Most spiders encountered at ground level live and hunt in the litter layer. Trapdoor spiders and funnel weavers build underground retreats. They are vital controllers of insect populations.',
+    tags: ['Predator', 'Ambush hunter', 'Venom']
+  },
+  {
+    id: 'molluscs', name: 'Molluscs', category: 'macro', catLabel: 'Macrofauna',
+    icon: '🐌', size: '5–50+ mm', roles: ['herbivore', 'decomposer'],
+    roleText: 'Snails and slugs feed on living plants, fungi, and decaying material. They recycle calcium via their shells and influence plant community composition.',
+    desc: 'Terrestrial gastropods are the most familiar soil molluscs. Snails carry calcite shells (important calcium cycling); slugs lack them. Both are major food sources for birds, hedgehogs, and ground beetles.',
+    tags: ['Herbivore', 'Fungivore', 'Calcium cycling']
+  },
+
+  // MEGA
+  {
+    id: 'moles', name: 'Moles', category: 'mega', catLabel: 'Megafauna',
+    icon: '🦔', size: '10–20 cm', roles: ['predator', 'engineer'],
+    roleText: 'Powerful soil engineers that excavate extensive tunnel systems. Their burrowing aerates compacted soil, improves drainage, and mixes soil horizons.',
+    desc: 'Talpidae are highly specialized underground mammals with large front limbs, velvety fur that lies in any direction, and vestigial eyes. A single mole can dig 20 meters of tunnel per day.',
+    tags: ['Ecosystem engineer', 'Mammal', 'Deep burrower']
+  },
+  {
+    id: 'giant-anecic-worms', name: 'Giant Earthworms', category: 'mega', catLabel: 'Megafauna',
+    icon: '🪱', size: '20 cm–3 m', roles: ['engineer', 'decomposer'],
+    roleText: 'The largest anecic earthworms create massive permanent burrows that dramatically reshape deep soil structure, channeling water meters underground and bringing subsoil minerals to the surface.',
+    desc: 'The Giant Gippsland earthworm (Megascolides australis) can exceed 1 meter and is critically endangered. These giants make audible gurgling sounds when moving underground. Their burrows can persist for decades and become important habitat for other soil organisms.',
+    tags: ['Anecic', 'Giant', 'Deep burrower', 'Endangered']
+  },
+  {
+    id: 'shrews', name: 'Shrews', category: 'mega', catLabel: 'Megafauna',
+    icon: '🐭', size: '5–15 cm', roles: ['predator'],
+    roleText: 'Voracious predators of earthworms, insects, and other soil invertebrates. Their extremely high metabolic rate requires constant feeding, making them significant predators.',
+    desc: 'Among the smallest mammals, shrews have venomous saliva in some species. They have the highest metabolic rate of any mammal and must eat almost continuously. Important regulators of invertebrate communities.',
+    tags: ['Predator', 'Mammal', 'Venomous (some)']
+  },
+  {
+    id: 'woodmice', name: 'Rodents & Rabbits', category: 'mega', catLabel: 'Megafauna',
+    icon: '🐇', size: '8–50 cm', roles: ['herbivore', 'engineer'],
+    roleText: 'Burrowing rodents and rabbits move enormous amounts of soil. Pocket gophers and prairie dogs create entire underground cities that restructure soil architecture.',
+    desc: 'Fossorial rodents (pocket gophers, voles, mole-rats) and rabbits are major soil engineers in grasslands and semi-arid environments. Their abandoned burrows become refugia for many other species.',
+    tags: ['Herbivore', 'Burrower', 'Ecosystem engineer']
+  }
+];
+
+let activeCategory = 'all';
+let activeRole = 'all';
+
+function renderAll() {
+  ['micro','meso','macro','mega'].forEach(cat => {
+    const grid = document.getElementById('grid-' + cat);
+    const filtered = organisms.filter(o => o.category === cat && (activeRole === 'all' || o.roles.includes(activeRole)));
+    grid.innerHTML = filtered.map((o, i) => `
+      <div class="organism-card" style="animation-delay:${i*0.07}s" onclick="openModal('${o.id}')">
+        <span class="organism-icon">${o.icon}</span>
+        <div class="organism-name">${o.name}</div>
+        <div class="organism-size">${o.size}</div>
+        <div class="organism-role">${o.roleText.split('.')[0]}.</div>
+        ${o.tags.slice(0,2).map(t => `<span class="role-tag">${t}</span>`).join('')}
+      </div>
+    `).join('') || `<div style="color:var(--text-muted);font-size:13px;font-style:italic;padding:12px 0;">No organisms match this filter in this category.</div>`;
+
+    const section = document.getElementById('cat-' + cat);
+    if (activeCategory !== 'all' && activeCategory !== cat) {
+      section.classList.add('hidden');
+    } else {
+      section.classList.remove('hidden');
+    }
+  });
+}
+
+function filterCategory(cat, el) {
+  activeCategory = activeCategory === cat ? 'all' : cat;
+  document.querySelectorAll('.scale-segment').forEach(s => s.classList.remove('active'));
+  if (activeCategory !== 'all') el.classList.add('active');
+  renderAll();
+}
+
+function filterRole(role, el) {
+  activeRole = role;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderAll();
+}
+
+function openModal(id) {
+  const o = organisms.find(x => x.id === id);
+  if (!o) return;
+  document.getElementById('mIcon').textContent = o.icon;
+  document.getElementById('mCategory').textContent = o.catLabel + ' · ' + o.category.charAt(0).toUpperCase() + o.category.slice(1) + 'fauna';
+  document.getElementById('mName').textContent = o.name;
+  document.getElementById('mSize').textContent = o.size;
+  document.getElementById('mDesc').textContent = o.desc;
+  document.getElementById('mRole').textContent = o.roleText;
+  document.getElementById('mTags').innerHTML = o.tags.map(t => `<span class="modal-tag">${t}</span>`).join('');
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal(e, force) {
+  if (force || e.target.id === 'modal') {
+    document.getElementById('modal').classList.remove('open');
+  }
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(null, true); });
+
+renderAll();
+</script>
+</body>
+</html>
