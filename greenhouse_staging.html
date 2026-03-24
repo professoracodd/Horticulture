@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Greenhouse Staging</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-deep: #1a2e1a;
+    --green-mid: #2d5a27;
+    --green-bright: #4a8c3f;
+    --green-light: #7ec67a;
+    --green-pale: #c8e6c4;
+    --cream: #f5f0e8;
+    --warm-white: #faf8f4;
+    --amber: #d4860a;
+    --amber-light: #f5b53f;
+    --cool-blue: #4a7fa5;
+    --cool-blue-light: #a8d4f0;
+    --heat-red: #c0392b;
+    --heat-light: #f5a89a;
+    --text-dark: #1a1f1a;
+    --text-mid: #3d4a3d;
+    --border: rgba(74, 140, 63, 0.2);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background-color: var(--green-deep);
+    color: var(--cream);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(26, 46, 26, 0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+  }
+
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--green-light);
+    letter-spacing: 0.05em;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 0.25rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    display: block;
+    padding: 0.35rem 0.75rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--green-pale);
+    text-decoration: none;
+    border-radius: 3px;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .nav-links a:hover {
+    background: rgba(74, 140, 63, 0.2);
+    color: var(--green-light);
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    padding-top: 56px;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 80% 60% at 50% 80%, rgba(45, 90, 39, 0.4) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 20% 30%, rgba(74, 140, 63, 0.15) 0%, transparent 60%);
+  }
+
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(74, 140, 63, 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(74, 140, 63, 0.07) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  .hero-content {
+    position: relative;
+    text-align: center;
+    max-width: 800px;
+    padding: 2rem;
+  }
+
+  .hero-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--green-light);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.3s;
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3.5rem, 8vw, 7rem);
+    font-weight: 400;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    color: var(--warm-white);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.5s;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--green-light);
+  }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    font-weight: 300;
+    color: var(--green-pale);
+    line-height: 1.7;
+    max-width: 520px;
+    margin: 0 auto 2.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.7s;
+  }
+
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.9rem 2rem;
+    background: var(--green-bright);
+    color: var(--warm-white);
+    text-decoration: none;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    border-radius: 4px;
+    transition: all 0.2s;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.9s;
+  }
+
+  .hero-cta:hover {
+    background: var(--green-light);
+    color: var(--green-deep);
+    transform: translateY(-2px);
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 1.2s;
+  }
+
+  .scroll-hint span {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--green-light);
+    opacity: 0.6;
+  }
+
+  .scroll-line {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, var(--green-light), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+
+  /* SECTIONS */
+  section {
+    padding: 5rem 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--green-light);
+    margin-bottom: 0.75rem;
+    opacity: 0.8;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 400;
+    color: var(--warm-white);
+    margin-bottom: 1rem;
+    line-height: 1.1;
+  }
+
+  .section-desc {
+    font-size: 0.95rem;
+    color: var(--green-pale);
+    line-height: 1.8;
+    max-width: 600px;
+    margin-bottom: 3rem;
+  }
+
+  /* DIVIDER */
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border), transparent);
+    margin: 0;
+  }
+
+  /* STAGING SIMULATOR */
+  #simulator {
+    background: rgba(45, 90, 39, 0.1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2.5rem;
+    margin: 2rem 0;
+  }
+
+  .temp-display {
+    display: flex;
+    align-items: flex-end;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .temp-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 5rem;
+    line-height: 1;
+    font-weight: 700;
+    transition: color 0.4s;
+  }
+
+  .temp-unit {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.5rem;
+    color: var(--green-light);
+    padding-bottom: 0.8rem;
+  }
+
+  .temp-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding-bottom: 1rem;
+    opacity: 0.6;
+  }
+
+  .stage-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    font-weight: 500;
+    margin-left: auto;
+    align-self: flex-end;
+    padding-bottom: 1rem;
+    transition: all 0.4s;
+  }
+
+  .slider-container {
+    margin: 1.5rem 0;
+  }
+
+  .slider-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+
+  .slider-labels span {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    opacity: 0.6;
+  }
+
+  input[type="range"] {
+    width: 100%;
+    -webkit-appearance: none;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--border);
+    outline: none;
+    cursor: pointer;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--green-light);
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(126, 198, 122, 0.5);
+    transition: transform 0.2s;
+  }
+
+  input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+  }
+
+  .stage-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+
+  .stage-item {
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    transition: all 0.3s;
+    opacity: 0.35;
+  }
+
+  .stage-item.active {
+    opacity: 1;
+  }
+
+  .stage-item-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .stage-item-name {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+  }
+
+  .stage-item-desc {
+    font-size: 0.75rem;
+    color: var(--green-pale);
+    line-height: 1.4;
+    opacity: 0.8;
+  }
+
+  /* SETPOINTS SECTION */
+  .setpoints-visual {
+    position: relative;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 2rem;
+    margin: 2rem 0;
+    overflow: hidden;
+  }
+
+  .temp-band {
+    position: relative;
+    height: 80px;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    padding: 0 1.5rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    overflow: hidden;
+  }
+
+  .band-label {
+    z-index: 2;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .band-temp {
+    margin-left: auto;
+    z-index: 2;
+    font-size: 1.1rem;
+  }
+
+  /* ENERGY COMPARISON */
+  .comparison-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin: 2rem 0;
+  }
+
+  @media (max-width: 600px) {
+    .comparison-grid { grid-template-columns: 1fr; }
+    nav .nav-links { display: none; }
+    .hero-title { font-size: 3rem; }
+  }
+
+  .comparison-card {
+    border-radius: 10px;
+    padding: 1.75rem;
+    border: 1px solid;
+  }
+
+  .comparison-card.bad {
+    background: rgba(192, 57, 43, 0.08);
+    border-color: rgba(192, 57, 43, 0.3);
+  }
+
+  .comparison-card.good {
+    background: rgba(74, 140, 63, 0.08);
+    border-color: var(--border);
+  }
+
+  .card-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .card-label.bad { color: #e57369; }
+  .card-label.good { color: var(--green-light); }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .card-points {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .card-points li {
+    font-size: 0.85rem;
+    color: var(--green-pale);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    line-height: 1.5;
+  }
+
+  .card-points li::before {
+    content: '—';
+    opacity: 0.5;
+    flex-shrink: 0;
+  }
+
+  /* WAVEFORM */
+  .wave-container {
+    height: 80px;
+    margin: 1rem 0;
+    position: relative;
+  }
+
+  .wave-svg { width: 100%; height: 100%; }
+
+  /* HAF SECTION */
+  .haf-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  .haf-card {
+    background: rgba(45, 90, 39, 0.15);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+  }
+
+  .haf-card-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--green-light);
+    margin-bottom: 0.6rem;
+  }
+
+  .haf-card p {
+    font-size: 0.85rem;
+    color: var(--green-pale);
+    line-height: 1.6;
+  }
+
+  /* HAF DIAGRAM */
+  .haf-diagram {
+    background: rgba(0,0,0,0.25);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .haf-diagram svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* QUIZ */
+  .quiz-card {
+    background: rgba(45, 90, 39, 0.12);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 2rem 0;
+  }
+
+  .quiz-question {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.4;
+  }
+
+  .quiz-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  @media (max-width: 500px) {
+    .quiz-options { grid-template-columns: 1fr; }
+  }
+
+  .quiz-option {
+    padding: 0.9rem 1.1rem;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--cream);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+    line-height: 1.4;
+  }
+
+  .quiz-option:hover:not(:disabled) {
+    background: rgba(74, 140, 63, 0.15);
+    border-color: var(--green-light);
+  }
+
+  .quiz-option.correct {
+    background: rgba(74, 140, 63, 0.2);
+    border-color: var(--green-light);
+    color: var(--green-light);
+  }
+
+  .quiz-option.wrong {
+    background: rgba(192, 57, 43, 0.15);
+    border-color: rgba(192, 57, 43, 0.5);
+    color: #e57369;
+  }
+
+  .quiz-feedback {
+    padding: 0.9rem 1.2rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    display: none;
+  }
+
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct { background: rgba(74, 140, 63, 0.15); color: var(--green-light); }
+  .quiz-feedback.wrong { background: rgba(192, 57, 43, 0.1); color: #e57369; }
+
+  .quiz-nav {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    align-items: center;
+  }
+
+  .btn {
+    padding: 0.6rem 1.4rem;
+    border-radius: 4px;
+    border: none;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-primary {
+    background: var(--green-bright);
+    color: var(--warm-white);
+  }
+
+  .btn-primary:hover { background: var(--green-light); color: var(--green-deep); }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--green-pale);
+  }
+
+  .btn-ghost:hover { border-color: var(--green-light); color: var(--green-light); }
+
+  .quiz-progress {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--green-light);
+    opacity: 0.7;
+    margin-left: auto;
+  }
+
+  /* DIF SECTION */
+  .dif-interactive {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 2rem;
+    margin: 2rem 0;
+  }
+
+  .dif-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  @media (max-width: 500px) { .dif-inputs { grid-template-columns: 1fr; } }
+
+  .input-group label {
+    display: block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--green-light);
+    margin-bottom: 0.75rem;
+  }
+
+  .dif-result {
+    text-align: center;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    transition: all 0.4s;
+  }
+
+  .dif-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+    transition: color 0.4s;
+  }
+
+  .dif-verdict {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .dif-explain {
+    font-size: 0.8rem;
+    color: var(--green-pale);
+    line-height: 1.5;
+  }
+
+  /* SETUP TABLE */
+  .setup-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+    margin: 2rem 0;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .setup-table th {
+    padding: 0.5rem 0.75rem;
+    background: rgba(74, 140, 63, 0.15);
+    color: var(--green-light);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+
+  .setup-table th:first-child { text-align: left; }
+
+  .setup-table td {
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--border);
+    text-align: center;
+    color: var(--green-pale);
+  }
+
+  .setup-table td:first-child { text-align: left; color: var(--cream); }
+
+  .setup-table .check {
+    color: var(--green-light);
+    font-size: 0.9rem;
+  }
+
+  .setup-table .stage-heat { background: rgba(192, 57, 43, 0.07); }
+  .setup-table .stage-cool { background: rgba(74, 127, 165, 0.07); }
+  .setup-table .stage-norm { background: rgba(74, 140, 63, 0.07); }
+
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .tag-heat { background: rgba(192, 57, 43, 0.2); color: #e57369; }
+  .tag-cool { background: rgba(74, 127, 165, 0.2); color: var(--cool-blue-light); }
+  .tag-warn { background: rgba(212, 134, 10, 0.2); color: var(--amber-light); }
+
+  /* INFO CARDS */
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  .info-card {
+    background: rgba(45, 90, 39, 0.12);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.4rem;
+  }
+
+  .info-card-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    color: var(--green-light);
+    line-height: 1;
+    margin-bottom: 0.4rem;
+    opacity: 0.4;
+  }
+
+  .info-card-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--green-light);
+    margin-bottom: 0.5rem;
+  }
+
+  .info-card p {
+    font-size: 0.85rem;
+    color: var(--green-pale);
+    line-height: 1.6;
+  }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 3rem 2rem;
+    border-top: 1px solid var(--border);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--green-light);
+    opacity: 0.4;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.6; transform: scaleY(1); }
+    50% { opacity: 1; transform: scaleY(1.1); }
+  }
+
+  .fade-in {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* highlight problem */
+  .problem-highlight {
+    background: rgba(212, 134, 10, 0.1);
+    border: 1px solid rgba(212, 134, 10, 0.3);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    margin: 1.5rem 0;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .problem-highlight-icon { font-size: 1.3rem; flex-shrink: 0; }
+
+  .problem-highlight-text {
+    font-size: 0.88rem;
+    color: var(--amber-light);
+    line-height: 1.6;
+  }
+
+  .problem-highlight-text strong {
+    display: block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.3rem;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Greenhouse Staging</div>
+  <ul class="nav-links">
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#simulator">Simulator</a></li>
+    <li><a href="#equipment">Equipment</a></li>
+    <li><a href="#setup">Setup</a></li>
+    <li><a href="#dif">DIF</a></li>
+    <li><a href="#quiz">Quiz</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <p class="hero-eyebrow">Climate Control Fundamentals</p>
+    <h1 class="hero-title">Greenhouse<br><em>Staging</em></h1>
+    <p class="hero-sub">How controllers activate equipment in graduated steps to maintain optimal temperatures while minimizing energy use.</p>
+    <a href="#overview" class="hero-cta">Begin Learning →</a>
+  </div>
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</div>
+
+<!-- OVERVIEW -->
+<div id="overview" class="divider"></div>
+<section class="fade-in">
+  <p class="section-label">01 — Core Concept</p>
+  <h2 class="section-title">What is Staging?</h2>
+  <p class="section-desc">Instead of switching all equipment on or off at once, a staging system activates cooling and heating in progressive steps — responding only with what's needed, when it's needed.</p>
+
+  <div class="info-grid">
+    <div class="info-card">
+      <div class="info-card-num">01</div>
+      <div class="info-card-title">Normal (N)</div>
+      <p>The baseline state. HAF circulation fans run continuously. No active heating or cooling engaged.</p>
+    </div>
+    <div class="info-card">
+      <div class="info-card-num">C1–C6</div>
+      <div class="info-card-title">Cooling Stages</div>
+      <p>Graduated cooling from mild (C1: louvers open, light fan) to aggressive (C5–6: all fans + wet pads running).</p>
+    </div>
+    <div class="info-card">
+      <div class="info-card-num">H1–H2</div>
+      <div class="info-card-title">Heating Stages</div>
+      <p>H1 provides mild heat. H2 engages more aggressive heating. Propane or natural gas heaters with convection tubes.</p>
+    </div>
+    <div class="info-card">
+      <div class="info-card-num">↓↓</div>
+      <div class="info-card-title">Why It Matters</div>
+      <p>Prevents temperature overshoot, reduces equipment wear, and significantly lowers energy costs year-round.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ENERGY COMPARISON -->
+<div class="divider"></div>
+<section class="fade-in">
+  <p class="section-label">02 — Energy Impact</p>
+  <h2 class="section-title">Staging Saves Energy</h2>
+  <p class="section-desc">Without staging, equipment switches fully on and off, creating temperature swings. With staging, the system responds proportionally — no overshooting, smaller swings.</p>
+
+  <div class="comparison-grid">
+    <div class="comparison-card bad">
+      <div class="card-label bad">⚠ Without Staging</div>
+      <div class="card-title">High Energy Use</div>
+      <div class="wave-container">
+        <svg class="wave-svg" viewBox="0 0 300 60" preserveAspectRatio="none">
+          <polyline points="0,50 20,10 40,50 60,8 80,52 100,12 120,48 140,6 160,55 180,14 200,50 220,9 240,52 260,11 280,48 300,18" 
+            fill="none" stroke="#e57369" stroke-width="2" stroke-linecap="round"/>
+          <line x1="0" y1="20" x2="300" y2="20" stroke="rgba(229,115,105,0.3)" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="0" y1="45" x2="300" y2="45" stroke="rgba(229,115,105,0.3)" stroke-width="1" stroke-dasharray="4,4"/>
+        </svg>
+      </div>
+      <ul class="card-points">
+        <li>All equipment turns on simultaneously</li>
+        <li>Large temperature swings above and below setpoint</li>
+        <li>Repeated overcorrection cycles</li>
+        <li>High electrical load spikes</li>
+      </ul>
+    </div>
+    <div class="comparison-card good">
+      <div class="card-label good">✓ With Staging</div>
+      <div class="card-title">Low Energy Use</div>
+      <div class="wave-container">
+        <svg class="wave-svg" viewBox="0 0 300 60" preserveAspectRatio="none">
+          <polyline points="0,35 40,33 80,31 120,30 160,30 200,30 240,30 280,30 300,30" 
+            fill="none" stroke="#7ec67a" stroke-width="2" stroke-linecap="round"/>
+          <line x1="0" y1="20" x2="300" y2="20" stroke="rgba(126,198,122,0.3)" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="0" y1="40" x2="300" y2="40" stroke="rgba(126,198,122,0.3)" stroke-width="1" stroke-dasharray="4,4"/>
+        </svg>
+      </div>
+      <ul class="card-points">
+        <li>Equipment activates in incremental stages</li>
+        <li>Temperature stays in the target zone</li>
+        <li>No overshooting the setpoint</li>
+        <li>Only what's needed, when it's needed</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- INTERACTIVE SIMULATOR -->
+<div class="divider"></div>
+<section id="simulator" class="fade-in">
+  <p class="section-label">03 — Interactive</p>
+  <h2 class="section-title">Stage Simulator</h2>
+  <p class="section-desc">Drag the temperature slider to see which equipment activates at each stage. This follows the House A staging sequence — passive cooling first, mechanical last.</p>
+
+  <div id="sim-panel" style="background: rgba(45, 90, 39, 0.1); border: 1px solid var(--border); border-radius: 12px; padding: 2.5rem;">
+    <div class="temp-display">
+      <div class="temp-value" id="sim-temp" style="color: var(--green-light)">72</div>
+      <div class="temp-unit">°F</div>
+      <div class="temp-label">Current Temp</div>
+      <div class="stage-badge" id="stage-badge" style="background: rgba(74,140,63,0.15); color: var(--green-light); border: 1px solid var(--border)">
+        ● Normal
+      </div>
+    </div>
+
+    <div class="slider-container">
+      <div class="slider-labels">
+        <span>≤56°F — H2</span>
+        <span>67°F — Normal</span>
+        <span>76°F — C1</span>
+        <span>84°F — C5</span>
+        <span>86°F+ — C6</span>
+      </div>
+      <input type="range" id="temp-slider" min="50" max="95" value="72" step="1"
+        style="background: linear-gradient(to right, #c0392b 0%, #4a8c3f 40%, #4a7fa5 100%);">
+    </div>
+
+    <div class="stage-grid" id="stage-grid">
+      <!-- filled by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- EQUIPMENT -->
+<div class="divider"></div>
+<section id="equipment" class="fade-in">
+  <p class="section-label">04 — Equipment</p>
+  <h2 class="section-title">Greenhouse Equipment</h2>
+  <p class="section-desc">Understanding each piece of equipment helps configure staging correctly for your specific house layout.</p>
+
+  <div class="haf-cards">
+    <div class="haf-card">
+      <div class="haf-card-title">🌬 HAF Fans</div>
+      <p>Horizontal Air Flow fans run in a <strong style="color:var(--cream)">racetrack pattern</strong> to even out hot and cold spots. Set to "N" (normally on) — they run continuously in the normal stage.</p>
+    </div>
+    <div class="haf-card">
+      <div class="haf-card-title">🔥 Heaters</div>
+      <p>Propane or natural gas unit heaters. Some systems use <strong style="color:var(--cream)">convection tubes (jet tubes)</strong> for more uniform heat distribution across the house.</p>
+    </div>
+    <div class="haf-card">
+      <div class="haf-card-title">💧 Evap Pads</div>
+      <p>Wet pads combined with exhaust fans for evaporative cooling. Most effective in hot, dry conditions. Should activate <strong style="color:var(--cream)">only after louvers and fans</strong> are already running.</p>
+    </div>
+    <div class="haf-card">
+      <div class="haf-card-title">🪟 Louvers</div>
+      <p>Intake vents that should open independently from the pad pump. When wired together, you <strong style="color:var(--cream)">lose control</strong> over humidity management.</p>
+    </div>
+    <div class="haf-card">
+      <div class="haf-card-title">🏠 Ridge Vents</div>
+      <p>Optional passive or active vents at the peak of the greenhouse. Allow hot air to escape naturally — useful as a first-stage cooling response before fans engage.</p>
+    </div>
+    <div class="haf-card">
+      <div class="haf-card-title">☂️ Shade Curtains</div>
+      <p>Automatic curtains reduce solar heat gain, cutting cooling load during peak sun hours. An optional but valuable addition for summer management.</p>
+    </div>
+  </div>
+
+  <!-- HAF diagram -->
+  <div class="haf-diagram">
+    <p style="font-family:'IBM Plex Mono',monospace; font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--green-light); margin-bottom:1rem; opacity:0.8">HAF Fan Placement — Racetrack Pattern</p>
+    <svg viewBox="0 0 500 160">
+      <!-- small greenhouse -->
+      <rect x="20" y="20" width="200" height="120" rx="4" fill="rgba(45,90,39,0.15)" stroke="rgba(74,140,63,0.4)" stroke-width="1.5"/>
+      <text x="120" y="14" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#7ec67a" letter-spacing="2">SMALL — 60' or less</text>
+      <!-- fans small -->
+      <circle cx="50" cy="50" r="10" fill="none" stroke="#7ec67a" stroke-width="1.5"/>
+      <text x="50" y="54" text-anchor="middle" font-size="9" fill="#7ec67a">◑</text>
+      <line x1="60" y1="50" x2="80" y2="50" stroke="#7ec67a" stroke-width="1.5" marker-end="url(#arr)"/>
+      <circle cx="170" cy="110" r="10" fill="none" stroke="#7ec67a" stroke-width="1.5"/>
+      <text x="170" y="114" text-anchor="middle" font-size="9" fill="#7ec67a">◑</text>
+      <line x1="160" y1="110" x2="140" y2="110" stroke="#7ec67a" stroke-width="1.5" marker-end="url(#arr)"/>
+      <!-- racetrack arrow small -->
+      <path d="M65,55 Q120,30 165,55 Q195,80 165,105 Q120,130 65,105 Q35,80 65,55" 
+        fill="none" stroke="rgba(74,140,63,0.25)" stroke-width="1" stroke-dasharray="6,4"/>
+
+      <!-- medium greenhouse -->
+      <rect x="280" y="20" width="200" height="120" rx="4" fill="rgba(45,90,39,0.15)" stroke="rgba(74,140,63,0.4)" stroke-width="1.5"/>
+      <text x="380" y="14" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#7ec67a" letter-spacing="2">MEDIUM — over 60'</text>
+      <!-- fans medium -->
+      <circle cx="310" cy="50" r="10" fill="none" stroke="#7ec67a" stroke-width="1.5"/>
+      <text x="310" y="54" text-anchor="middle" font-size="9" fill="#7ec67a">◑</text>
+      <line x1="320" y1="50" x2="340" y2="50" stroke="#7ec67a" stroke-width="1.5"/>
+      <circle cx="390" cy="50" r="10" fill="none" stroke="#7ec67a" stroke-width="1.5"/>
+      <text x="390" y="54" text-anchor="middle" font-size="9" fill="#7ec67a">◑</text>
+      <line x1="400" y1="50" x2="420" y2="50" stroke="#7ec67a" stroke-width="1.5"/>
+      <circle cx="450" cy="110" r="10" fill="none" stroke="#7ec67a" stroke-width="1.5"/>
+      <text x="450" y="114" text-anchor="middle" font-size="9" fill="#7ec67a">◑</text>
+      <line x1="440" y1="110" x2="420" y2="110" stroke="#7ec67a" stroke-width="1.5"/>
+      <circle cx="360" cy="110" r="10" fill="none" stroke="#7ec67a" stroke-width="1.5"/>
+      <text x="360" y="114" text-anchor="middle" font-size="9" fill="#7ec67a">◑</text>
+      <line x1="350" y1="110" x2="330" y2="110" stroke="#7ec67a" stroke-width="1.5"/>
+      <path d="M325,55 Q380,30 445,55 Q475,80 445,105 Q380,130 325,105 Q295,80 325,55" 
+        fill="none" stroke="rgba(74,140,63,0.25)" stroke-width="1" stroke-dasharray="6,4"/>
+
+      <defs>
+        <marker id="arr" markerWidth="6" markerHeight="6" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#7ec67a"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+</section>
+
+<!-- SETUP / WIRING ISSUE -->
+<div class="divider"></div>
+<section id="setup" class="fade-in">
+  <p class="section-label">05 — Real-World Setup</p>
+  <h2 class="section-title">House B & C — Staging Setup</h2>
+  <p class="section-desc">A look at the actual controller staging table and a critical wiring issue that affects humidity management.</p>
+
+  <table class="setup-table">
+    <thead>
+      <tr>
+        <th>Equipment</th>
+        <th class="stage-heat">H2</th>
+        <th class="stage-heat">H1</th>
+        <th class="stage-norm">N</th>
+        <th class="stage-cool">C1</th>
+        <th class="stage-cool">C2</th>
+        <th class="stage-cool">C3</th>
+        <th class="stage-cool">C4</th>
+        <th class="stage-cool">C5</th>
+        <th class="stage-cool">C6</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Fan East</td>
+        <td></td><td></td><td></td>
+        <td></td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+      </tr>
+      <tr>
+        <td>Fan West</td>
+        <td></td><td></td><td></td><td></td>
+        <td></td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+      </tr>
+      <tr>
+        <td>Heater</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+        <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td style="color:var(--amber-light)">Channel 4 <span class="tag tag-warn">Unused</span></td>
+        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td>Cir. Fans</td>
+        <td></td><td></td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+        <td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td>Pads <span class="tag tag-warn">+ Louvers</span></td>
+        <td></td><td></td><td></td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="problem-highlight">
+    <div class="problem-highlight-icon">⚠️</div>
+    <div class="problem-highlight-text">
+      <strong>Wiring Problem Identified</strong>
+      The pad pump and louvers are wired to the <em>same relay</em> — they always activate together. This prevents separating the cooling stages: in winter, air exchanges always route through the wet pads, adding moisture and increasing fungal pressure even when only ventilation is needed.
+    </div>
+  </div>
+
+  <div class="comparison-grid" style="margin-top:1rem">
+    <div class="comparison-card bad">
+      <div class="card-label bad">⚠ Current Setup — Winter</div>
+      <div class="card-title">Humidity Problem</div>
+      <ul class="card-points">
+        <li>Humidity is already high in winter</li>
+        <li>Every air exchange routes through wet pads</li>
+        <li>Adds moisture unnecessarily</li>
+        <li>Increased fungal disease pressure</li>
+      </ul>
+    </div>
+    <div class="comparison-card good">
+      <div class="card-label good">✓ Better Design (If Rewired)</div>
+      <div class="card-title">Separated Channels</div>
+      <ul class="card-points">
+        <li>C1: Louvers + Fan 1 (dry ventilation)</li>
+        <li>C2: + Fan 2 (more airflow, still dry)</li>
+        <li>C3–C6: Pads ON (only when truly hot)</li>
+        <li>Works correctly in both summer and winter</li>
+      </ul>
+    </div>
+  </div>
+
+  <p style="font-size:0.85rem; color:var(--green-pale); line-height:1.7; margin-top:1.5rem">
+    <strong style="color:var(--cream); font-family:'IBM Plex Mono',monospace; font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase">Solution:</strong>
+    Channel 4 is currently empty and should be rewired to control the louvers independently. This gives the controller the ability to open vents for ventilation (C1) without activating the pad pump — critical for proper humidity management in cooler months.
+  </p>
+</section>
+
+<!-- DIF -->
+<div class="divider"></div>
+<section id="dif" class="fade-in">
+  <p class="section-label">06 — Advanced Control</p>
+  <h2 class="section-title">DIF & Temperature Drop</h2>
+  <p class="section-desc">Staging works alongside setpoints and ramping to give growers precise control over plant growth characteristics.</p>
+
+  <div class="dif-interactive">
+    <p style="font-family:'IBM Plex Mono',monospace; font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--green-light); margin-bottom:1.5rem; opacity:0.8">DIF Calculator</p>
+    <div class="dif-inputs">
+      <div class="input-group">
+        <label>Day Temperature (°F)</label>
+        <input type="range" id="day-temp" min="55" max="90" value="75" step="1">
+        <p style="font-family:'IBM Plex Mono',monospace; font-size:0.8rem; color:var(--cream); margin-top:0.5rem" id="day-val">75°F</p>
+      </div>
+      <div class="input-group">
+        <label>Night Temperature (°F)</label>
+        <input type="range" id="night-temp" min="45" max="80" value="62" step="1">
+        <p style="font-family:'IBM Plex Mono',monospace; font-size:0.8rem; color:var(--cream); margin-top:0.5rem" id="night-val">62°F</p>
+      </div>
+    </div>
+    <div class="dif-result" id="dif-result">
+      <div class="dif-number" id="dif-num">+13</div>
+      <div class="dif-verdict" id="dif-verdict">Positive DIF</div>
+      <div class="dif-explain" id="dif-explain">Plants will elongate and stretch more. Warm days and cool nights promote stem extension.</div>
+    </div>
+  </div>
+
+  <div class="info-grid" style="margin-top:1.5rem">
+    <div class="info-card">
+      <div class="info-card-title">Setpoints</div>
+      <p>Three daily periods: <strong style="color:var(--cream)">Night → DROP → Day</strong>. Each has its own low and high setpoint range that tells the controller when to engage heating or cooling stages.</p>
+    </div>
+    <div class="info-card">
+      <div class="info-card-title">Ramping</div>
+      <p>Controls how <strong style="color:var(--cream)">quickly</strong> the setpoint transitions between periods. A slow ramp avoids shocking plants; a fast ramp is used for DROP before sunrise.</p>
+    </div>
+    <div class="info-card">
+      <div class="info-card-title">Temperature DROP</div>
+      <p>A brief <strong style="color:var(--cream)">cool period starting before sunrise</strong>, held for a few hours after. Creates a negative DIF effect to reduce stretch without keeping nights cold all the time.</p>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<div class="divider"></div>
+<section id="quiz" class="fade-in">
+  <p class="section-label">07 — Knowledge Check</p>
+  <h2 class="section-title">Quiz Yourself</h2>
+  <p class="section-desc">Test your understanding of greenhouse staging concepts.</p>
+
+  <div class="quiz-card" id="quiz-container">
+    <div id="quiz-body">
+      <!-- filled by JS -->
+    </div>
+  </div>
+</section>
+
+<footer>
+  Greenhouse Staging Fundamentals · Climate Control Training
+</footer>
+
+<script>
+// ─── SIMULATOR ───────────────────────────────────────────────────────────────
+const stages = [
+  { id: 'H2',  name: 'Heat Stage 2', icon: '🔥', desc: 'Heater at full capacity', color: '#c0392b', bg: 'rgba(192,57,43,0.12)', border: 'rgba(192,57,43,0.3)' },
+  { id: 'H1',  name: 'Heat Stage 1', icon: '🌡', desc: 'Heater mild / first stage', color: '#e57369', bg: 'rgba(229,115,105,0.1)', border: 'rgba(229,115,105,0.25)' },
+  { id: 'N',   name: 'Normal',       icon: '🌿', desc: 'HAF fans only — baseline', color: '#7ec67a', bg: 'rgba(74,140,63,0.12)', border: 'rgba(74,140,63,0.25)' },
+  { id: 'C1',  name: 'Cool Stage 1', icon: '🏠', desc: 'Ridge vent opens — passive cooling', color: '#c8e6c4', bg: 'rgba(126,198,122,0.08)', border: 'rgba(126,198,122,0.2)' },
+  { id: 'C2',  name: 'Cool Stage 2', icon: '☂️', desc: 'Shade curtain deploys — reduce heat load', color: '#b0d4f0', bg: 'rgba(74,127,165,0.08)', border: 'rgba(74,127,165,0.2)' },
+  { id: 'C3',  name: 'Cool Stage 3', icon: '💨', desc: 'Fan 1 ON — creates negative pressure', color: '#90bfe0', bg: 'rgba(74,127,165,0.12)', border: 'rgba(74,127,165,0.28)' },
+  { id: 'C4',  name: 'Cool Stage 4', icon: '🪟', desc: 'Louvers OPEN — air now actually moves', color: '#70afd6', bg: 'rgba(74,127,165,0.15)', border: 'rgba(74,127,165,0.33)' },
+  { id: 'C5',  name: 'Cool Stage 5', icon: '🌬', desc: 'Fan 2 ON — increase air exchange', color: '#50a0cc', bg: 'rgba(74,127,165,0.18)', border: 'rgba(74,127,165,0.38)' },
+  { id: 'C6',  name: 'Cool Stage 6', icon: '❄️', desc: 'Pads ON — cool incoming air', color: '#a8d4f0', bg: 'rgba(74,127,165,0.22)', border: 'rgba(74,127,165,0.45)' },
+];
+
+// Temperature thresholds for each stage transition
+const stageTemps = { H2: 56, H1: 59, N_max: 76, C1: 76, C2: 78, C3: 80, C4: 82, C5: 84, C6: 86 };
+
+function getActiveStages(temp) {
+  const active = [];
+  if (temp <= 56) { active.push('H2', 'H1'); }
+  else if (temp <= 59) { active.push('H1'); }
+  else if (temp < 76) { active.push('N'); }
+  else {
+    active.push('C1');
+    if (temp >= 78) active.push('C2');
+    if (temp >= 80) active.push('C3');
+    if (temp >= 82) active.push('C4');
+    if (temp >= 84) active.push('C5');
+    if (temp >= 86) active.push('C6');
+  }
+  return active;
+}
+
+function getStageLabel(temp) {
+  if (temp <= 56) return { label: '● H2 Heating', color: '#c0392b', bg: 'rgba(192,57,43,0.15)', border: 'rgba(192,57,43,0.4)' };
+  if (temp <= 59) return { label: '● H1 Heating', color: '#e57369', bg: 'rgba(229,115,105,0.12)', border: 'rgba(229,115,105,0.3)' };
+  if (temp < 76)  return { label: '● Normal', color: '#7ec67a', bg: 'rgba(74,140,63,0.15)', border: 'rgba(74,140,63,0.25)' };
+  if (temp < 78)  return { label: '● C1 — Ridge Vent', color: '#c8e6c4', bg: 'rgba(126,198,122,0.1)', border: 'rgba(126,198,122,0.3)' };
+  if (temp < 80)  return { label: '● C2 — Shade Curtain', color: '#b0d4f0', bg: 'rgba(74,127,165,0.12)', border: 'rgba(74,127,165,0.3)' };
+  if (temp < 82)  return { label: '● C3 — Fan 1 ON', color: '#90bfe0', bg: 'rgba(74,127,165,0.15)', border: 'rgba(74,127,165,0.35)' };
+  if (temp < 84)  return { label: '● C4 — Louvers OPEN', color: '#70afd6', bg: 'rgba(74,127,165,0.17)', border: 'rgba(74,127,165,0.38)' };
+  if (temp < 86)  return { label: '● C5 — Fan 2 ON', color: '#50a0cc', bg: 'rgba(74,127,165,0.2)', border: 'rgba(74,127,165,0.42)' };
+  return { label: '● C6 — Pads ON', color: '#a8d4f0', bg: 'rgba(74,127,165,0.24)', border: 'rgba(74,127,165,0.5)' };
+}
+
+// Build stage grid
+const grid = document.getElementById('stage-grid');
+stages.forEach(s => {
+  const el = document.createElement('div');
+  el.className = 'stage-item';
+  el.id = 'stage-' + s.id;
+  el.style.background = s.bg;
+  el.style.borderColor = s.border;
+  el.innerHTML = `
+    <div class="stage-item-icon">${s.icon}</div>
+    <div class="stage-item-name" style="color:${s.color}">${s.id}</div>
+    <div class="stage-item-desc">${s.desc}</div>
+  `;
+  grid.appendChild(el);
+});
+
+const slider = document.getElementById('temp-slider');
+const tempDisplay = document.getElementById('sim-temp');
+const stageBadge = document.getElementById('stage-badge');
+
+function updateSim(val) {
+  const temp = parseInt(val);
+  tempDisplay.textContent = temp;
+
+  const info = getStageLabel(temp);
+  tempDisplay.style.color = info.color;
+  stageBadge.textContent = info.label;
+  stageBadge.style.color = info.color;
+  stageBadge.style.background = info.bg;
+  stageBadge.style.borderColor = info.border;
+
+  const active = getActiveStages(temp);
+  stages.forEach(s => {
+    const el = document.getElementById('stage-' + s.id);
+    if (active.includes(s.id)) el.classList.add('active');
+    else el.classList.remove('active');
+  });
+}
+
+slider.addEventListener('input', e => updateSim(e.target.value));
+updateSim(slider.value);
+
+// ─── DIF CALCULATOR ──────────────────────────────────────────────────────────
+const dayInput = document.getElementById('day-temp');
+const nightInput = document.getElementById('night-temp');
+const dayVal = document.getElementById('day-val');
+const nightVal = document.getElementById('night-val');
+const difNum = document.getElementById('dif-num');
+const difVerdict = document.getElementById('dif-verdict');
+const difExplain = document.getElementById('dif-explain');
+const difResult = document.getElementById('dif-result');
+
+function updateDIF() {
+  const day = parseInt(dayInput.value);
+  const night = parseInt(nightInput.value);
+  const dif = day - night;
+  dayVal.textContent = day + '°F';
+  nightVal.textContent = night + '°F';
+  difNum.textContent = (dif > 0 ? '+' : '') + dif;
+  
+  if (dif > 5) {
+    difNum.style.color = '#7ec67a';
+    difVerdict.textContent = 'Positive DIF — More Stretch';
+    difVerdict.style.color = '#7ec67a';
+    difExplain.textContent = 'Warm days and cool nights encourage stem elongation. Plants will be taller and more open in structure.';
+    difResult.style.borderColor = 'rgba(74,140,63,0.3)';
+  } else if (dif < -2) {
+    difNum.style.color = '#a8d4f0';
+    difVerdict.textContent = 'Negative DIF — Less Stretch';
+    difVerdict.style.color = '#a8d4f0';
+    difExplain.textContent = 'Cool days and warm nights suppress stem elongation. Plants will be more compact with shorter internodes. Expensive to maintain.';
+    difResult.style.borderColor = 'rgba(74,127,165,0.3)';
+  } else {
+    difNum.style.color = '#f5b53f';
+    difVerdict.textContent = 'Near-Zero DIF — Neutral';
+    difVerdict.style.color = '#f5b53f';
+    difExplain.textContent = 'Day and night temperatures are similar. Minimal effect on stem elongation. Plant height controlled by other factors.';
+    difResult.style.borderColor = 'rgba(212,134,10,0.3)';
+  }
+}
+
+dayInput.addEventListener('input', updateDIF);
+nightInput.addEventListener('input', updateDIF);
+updateDIF();
+
+// ─── QUIZ ─────────────────────────────────────────────────────────────────────
+const questions = [
+  {
+    q: "In the House A staging sequence, what happens at C1?",
+    options: [
+      "Fan 1 turns on, creating negative pressure",
+      "The wet pads activate for evaporative cooling",
+      "The ridge vent opens for passive cooling",
+      "Louvers open and air begins moving"
+    ],
+    correct: 2,
+    explanation: "C1 is the gentlest first response — the ridge vent opens passively, allowing hot air to escape through the top of the greenhouse without any mechanical equipment running. This is the most energy-efficient first step."
+  },
+  {
+    q: "In House A's sequence, Fan 1 turns on at C3 — but the louvers don't open until C4. Why?",
+    options: [
+      "It's a wiring mistake that should be corrected",
+      "Fan 1 first creates negative pressure, then opening louvers lets air rush in effectively",
+      "The louvers need time to warm up before opening",
+      "Fan 1 is used to push air out through the ridge vent at C3"
+    ],
+    correct: 1,
+    explanation: "This is intentional. Running Fan 1 first creates negative pressure inside the greenhouse. When the louvers then open at C4, that pressure differential pulls outside air in forcefully and evenly — much more effective than opening louvers first and hoping air drifts in on its own."
+  },
+    options: [
+      "They only run at night",
+      "They are neutral and have no effect",
+      "They run continuously in the normal/baseline stage",
+      "They can only be manually switched on"
+    ],
+    correct: 2,
+    explanation: "HAF fans are set to 'N' meaning they are normally on — they run continuously to maintain the racetrack airflow pattern that evens out hot and cold spots throughout the greenhouse."
+  },
+  {
+    q: "What is the main problem with wiring the pad pump and louvers to the same relay?",
+    options: [
+      "It causes the heater to short circuit",
+      "You cannot control them independently, losing humidity management in winter",
+      "The fans run too fast",
+      "It only affects the ridge vents"
+    ],
+    correct: 1,
+    explanation: "When pad pump and louvers share one relay, they always activate together. In winter when humidity is already high, air exchanges always run through the wet pads — adding moisture and increasing fungal disease pressure."
+  },
+  {
+    q: "In the House B/C setup, why are circulation fans turned OFF at high cooling stages (C3–C6)?",
+    options: [
+      "To save electricity during peak cooling",
+      "Because circulation fans add heat",
+      "Exhaust fans create strong directional airflow that makes HAF fans counterproductive",
+      "The controller cannot run both at the same time"
+    ],
+    correct: 2,
+    explanation: "At high cooling stages, powerful exhaust fans create strong pad-to-fan airflow. Running HAF circulation fans against this directional flow is counterproductive and wastes energy — the exhaust fans handle all air movement."
+  },
+  {
+    q: "What does a positive DIF mean for plant growth?",
+    options: [
+      "Plants will be more compact with shorter stems",
+      "Plants will grow taller and stretch more",
+      "Flowering will be suppressed",
+      "Root growth is accelerated"
+    ],
+    correct: 1,
+    explanation: "DIF = Day temperature minus Night temperature. A positive DIF (warm days, cool nights) promotes stem elongation and stretch. A negative DIF (cool days, warm nights) suppresses elongation — but is expensive to maintain."
+  },
+  {
+    q: "In House A's staging, why do the pads only activate at C6 — the very last stage?",
+    options: [
+      "Pads are the cheapest to run so they go last",
+      "Full airflow must be established first so the pads cool incoming air effectively",
+      "The controller can only handle pads at the final stage",
+      "Pads require ridge vents to be closed before they work"
+    ],
+    correct: 1,
+    explanation: "The pads are most effective when there is already strong airflow pulling air through them. By C6, both fans are running and louvers are open — air is being drawn through the pad evenly. Turning pads on too early (before airflow is established) wastes water and adds humidity without effective cooling."
+  }
+];
+
+let currentQ = 0;
+let answered = false;
+let score = 0;
+
+function renderQuiz() {
+  const q = questions[currentQ];
+  answered = false;
+  document.getElementById('quiz-body').innerHTML = `
+    <p style="font-family:'IBM Plex Mono',monospace; font-size:0.65rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--green-light); margin-bottom:1rem; opacity:0.7">Question ${currentQ + 1} of ${questions.length}</p>
+    <div class="quiz-question">${q.q}</div>
+    <div class="quiz-options">
+      ${q.options.map((opt, i) => `
+        <button class="quiz-option" onclick="selectAnswer(${i})" id="opt-${i}">${opt}</button>
+      `).join('')}
+    </div>
+    <div class="quiz-feedback" id="quiz-feedback"></div>
+    <div class="quiz-nav">
+      ${currentQ > 0 ? `<button class="btn btn-ghost" onclick="prevQ()">← Back</button>` : ''}
+      <button class="btn btn-primary" id="next-btn" onclick="nextQ()" style="display:none">
+        ${currentQ < questions.length - 1 ? 'Next →' : 'See Results'}
+      </button>
+      <span class="quiz-progress">Score: ${score}/${currentQ}</span>
+    </div>
+  `;
+}
+
+function selectAnswer(idx) {
+  if (answered) return;
+  answered = true;
+  const q = questions[currentQ];
+  const opts = document.querySelectorAll('.quiz-option');
+  opts.forEach((o, i) => {
+    o.disabled = true;
+    if (i === q.correct) o.classList.add('correct');
+    else if (i === idx) o.classList.add('wrong');
+  });
+  if (idx === q.correct) score++;
+  const fb = document.getElementById('quiz-feedback');
+  fb.className = 'quiz-feedback show ' + (idx === q.correct ? 'correct' : 'wrong');
+  fb.textContent = (idx === q.correct ? '✓ Correct! ' : '✗ Not quite. ') + q.explanation;
+  document.getElementById('next-btn').style.display = 'inline-flex';
+  // update score display
+  document.querySelector('.quiz-progress').textContent = `Score: ${score}/${currentQ + 1}`;
+}
+
+function nextQ() {
+  if (currentQ < questions.length - 1) {
+    currentQ++;
+    renderQuiz();
+  } else {
+    showResults();
+  }
+}
+
+function prevQ() {
+  if (currentQ > 0) { currentQ--; score = Math.max(0, score); renderQuiz(); }
+}
+
+function showResults() {
+  const pct = Math.round((score / questions.length) * 100);
+  let msg = pct >= 80 ? 'Excellent understanding of greenhouse staging!' :
+            pct >= 60 ? 'Good foundation — review the equipment section for any gaps.' :
+            'Keep studying — revisit the staging simulator and equipment sections.';
+  document.getElementById('quiz-body').innerHTML = `
+    <div style="text-align:center; padding:1rem 0">
+      <div style="font-family:'Playfair Display',serif; font-size:4rem; color:var(--green-light); line-height:1; margin-bottom:0.5rem">${pct}%</div>
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:0.7rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--green-pale); margin-bottom:1rem">${score} of ${questions.length} correct</div>
+      <p style="font-size:0.9rem; color:var(--green-pale); line-height:1.6; margin-bottom:1.5rem">${msg}</p>
+      <button class="btn btn-primary" onclick="restartQuiz()">Retake Quiz</button>
+    </div>
+  `;
+}
+
+function restartQuiz() { currentQ = 0; score = 0; renderQuiz(); }
+
+renderQuiz();
+
+// ─── SCROLL ANIMATION ────────────────────────────────────────────────────────
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
