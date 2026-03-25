@@ -16,24 +16,46 @@ body {
   margin:0;
 }
 
+/* NAV */
 nav {
   position:fixed;
   top:0; left:0; right:0;
   background:#1a2e1a;
   padding:10px 20px;
   border-bottom:1px solid #333;
+  z-index:10;
 }
 
+/* HERO */
 .hero {
   height:100vh;
   display:flex;
   align-items:center;
   justify-content:center;
   text-align:center;
+  position:relative;
 }
 
 h1 { font-family:'Playfair Display'; }
 
+/* 👇 SCROLL ARROW */
+.scroll-indicator {
+  position:absolute;
+  bottom:30px;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:14px;
+  opacity:0.7;
+  cursor:pointer;
+  animation:bounce 1.5s infinite;
+}
+
+@keyframes bounce {
+  0%,100% { transform:translate(-50%,0); }
+  50% { transform:translate(-50%,10px); }
+}
+
+/* SECTIONS */
 section {
   padding:80px 20px;
   max-width:900px;
@@ -51,6 +73,12 @@ section {
   border:1px solid #444;
   padding:10px;
   opacity:.4;
+}
+
+/* 🔥 HEAT */
+#H1, #H2 {
+  border-color:#c0392b;
+  color:#f5a89a;
 }
 
 .stage-item.active { opacity:1; }
@@ -90,14 +118,24 @@ svg { width:100%; height:150px; }
 
 <nav>Greenhouse Staging</nav>
 
+<!-- HERO -->
+
 <div class="hero">
   <div>
     <h1>Greenhouse Staging</h1>
     <p>Merced College House A</p>
   </div>
+
+  <!-- 👇 DOWN ARROW -->
+
+  <div class="scroll-indicator" onclick="scrollToSim()">
+    ↓ Scroll
+  </div>
 </div>
 
-<section>
+<!-- SIMULATOR -->
+
+<section id="simulator">
 <h2>Simulator</h2>
 
 <div id="temp" style="font-size:40px;">72</div>
@@ -107,25 +145,19 @@ svg { width:100%; height:150px; }
 
 <div class="airflow">
 <svg viewBox="0 0 500 150">
-
-<!-- greenhouse -->
-
 <rect x="20" y="20" width="460" height="110" fill="none" stroke="#666"/>
-
-<!-- arrows -->
 
 <line id="air1" class="air" x1="100" y1="75" x2="200" y2="75"/>
 <line id="air2" class="air" x1="200" y1="75" x2="300" y2="75"/>
 <line id="air3" class="air" x1="300" y1="75" x2="400" y2="75"/>
 
-<!-- cool air -->
-
 <line id="cool1" class="cool" x1="100" y1="95" x2="300" y2="95"/>
-
 </svg>
 </div>
 
 </section>
+
+<!-- QUIZ -->
 
 <section>
 <h2>Quiz</h2>
@@ -135,6 +167,11 @@ svg { width:100%; height:150px; }
 
 <script>
 
+// smooth scroll
+function scrollToSim(){
+  document.getElementById('simulator').scrollIntoView({behavior:'smooth'});
+}
+
 // ===== STAGES =====
 const stages = [
 { id:'H2', label:'H2: Heater full output' },
@@ -143,7 +180,7 @@ const stages = [
 { id:'C1', label:'C1: Ridge vent opens' },
 { id:'C2', label:'C2: Shade deploys' },
 { id:'C3', label:'C3: Fan 1 + Louvers (airflow begins)' },
-{ id:'C4', label:'C4: Fan 2 (more airflow)' },
+{ id:'C4', label:'C4: Fan 2 (increase airflow)' },
 { id:'C5', label:'C5: Pads ON (cool air)' },
 { id:'C6', label:'C6: Continued cooling' }
 ];
@@ -184,7 +221,7 @@ function update(v){
     document.getElementById(s.id).classList.toggle('active',active.includes(s.id));
   });
 
-  // AIRFLOW VISUAL
+  // airflow
   document.getElementById('air1').classList.toggle('active-air', active.includes('C3'));
   document.getElementById('air2').classList.toggle('active-air', active.includes('C4'));
   document.getElementById('air3').classList.toggle('active-air', active.includes('C4'));
@@ -194,7 +231,7 @@ function update(v){
 slider.oninput=e=>update(e.target.value);
 update(72);
 
-// QUIZ
+// ===== QUIZ =====
 const questions=[
 {
 q:"When does airflow begin?",
@@ -207,9 +244,19 @@ options:["Pads","Fan 2 increases airflow","Heater","Vent"],
 correct:1
 },
 {
-q:"What does N mean?",
+q:"What does N represent?",
 options:["Nothing","Circulation fans","Cooling","Heat"],
 correct:1
+},
+{
+q:"Why are pads at C5?",
+options:["Cheap","Need airflow first","Heat","Replace fans"],
+correct:1
+},
+{
+q:"What is C6?",
+options:["Start airflow","Pads","Maintain full cooling","Vent"],
+correct:2
 }
 ];
 
@@ -226,7 +273,7 @@ function ans(idx){
   if(idx===questions[i].correct) score++;
   i++;
   if(i<questions.length) render();
-  else document.getElementById('quiz').innerHTML=`Score: ${score}/${questions.length}`;
+  else document.getElementById('quiz').innerHTML=`<h3>Score: ${score}/${questions.length}</h3>`;
 }
 
 render();
