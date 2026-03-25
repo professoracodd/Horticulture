@@ -6,142 +6,70 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Greenhouse Staging</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=IBM+Plex+Mono&family=IBM+Plex+Sans&display=swap" rel="stylesheet">
 
 <style>
-:root {
-  --green-deep: #1a2e1a;
-  --green-mid: #2d5a27;
-  --green-bright: #4a8c3f;
-  --green-light: #7ec67a;
-  --green-pale: #c8e6c4;
-  --cream: #f5f0e8;
-  --warm-white: #faf8f4;
-  --amber: #d4860a;
-  --amber-light: #f5b53f;
-  --cool-blue: #4a7fa5;
-  --cool-blue-light: #a8d4f0;
-  --heat-red: #c0392b;
-  --heat-light: #f5a89a;
-  --text-dark: #1a1f1a;
-  --text-mid: #3d4a3d;
-  --border: rgba(74, 140, 63, 0.2);
-}
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
 body {
-  background-color: var(--green-deep);
-  color: var(--cream);
-  font-family: 'IBM Plex Sans', sans-serif;
-  min-height: 100vh;
+  background:#1a2e1a;
+  color:#f5f0e8;
+  font-family:'IBM Plex Sans',sans-serif;
+  margin:0;
 }
 
 /* NAV */
 nav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 100;
-  background: rgba(26, 46, 26, 0.95);
-  border-bottom: 1px solid var(--border);
-  padding: 0 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 56px;
-}
-
-.nav-logo {
-  font-family: 'Playfair Display', serif;
-  color: var(--green-light);
-}
-
-.nav-links {
-  display: flex;
-  gap: 0.25rem;
-  list-style: none;
-}
-
-.nav-links a {
-  padding: 0.35rem 0.75rem;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.65rem;
-  color: var(--green-pale);
-  text-decoration: none;
+  position:fixed;
+  top:0; left:0; right:0;
+  background:#1a2e1a;
+  padding:10px 20px;
+  display:flex;
+  justify-content:space-between;
+  border-bottom:1px solid #333;
 }
 
 /* HERO */
 .hero {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-top: 56px;
-  text-align: center;
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
 }
 
-.hero-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 4rem;
-}
+h1 { font-family:'Playfair Display'; font-size:3rem; }
 
-.hero-sub {
-  max-width: 500px;
-  margin: 1rem auto;
-}
-
-/* SECTION */
 section {
-  padding: 5rem 2rem;
-  max-width: 1000px;
-  margin: auto;
+  padding:80px 20px;
+  max-width:900px;
+  margin:auto;
 }
 
-.section-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 2rem;
-  margin-bottom: 1rem;
-}
-
-/* SIMULATOR */
-.temp-value {
-  font-size: 4rem;
-}
-
+/* SIM */
 .stage-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 0.75rem;
-  margin-top: 2rem;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:10px;
 }
 
 .stage-item {
-  padding: 1rem;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  opacity: 0.4;
+  border:1px solid #444;
+  padding:10px;
+  opacity:.4;
 }
 
-.stage-item.active {
-  opacity: 1;
-}
+.stage-item.active { opacity:1; }
 
 /* QUIZ */
 .quiz-option {
-  padding: 0.75rem;
-  border: 1px solid var(--border);
-  margin-bottom: 0.5rem;
-  cursor: pointer;
+  border:1px solid #555;
+  padding:10px;
+  margin:5px 0;
+  cursor:pointer;
 }
 
-.quiz-option.correct { background: green; }
-.quiz-option.wrong { background: red; }
+.correct { background:green; }
+.wrong { background:red; }
 
-footer {
-  text-align: center;
-  padding: 2rem;
-  opacity: 0.5;
-}
 </style>
 
 </head>
@@ -149,56 +77,61 @@ footer {
 <body>
 
 <nav>
-  <div class="nav-logo">Greenhouse Staging</div>
-  <ul class="nav-links">
-    <li><a href="#simulator">Simulator</a></li>
-    <li><a href="#quiz">Quiz</a></li>
-  </ul>
+  <div>Greenhouse Staging</div>
 </nav>
 
 <div class="hero">
   <div>
-    <h1 class="hero-title">Greenhouse Staging</h1>
-    <p class="hero-sub">How controllers activate equipment in steps.</p>
+    <h1>Greenhouse Staging</h1>
+    <p>Merced College House A</p>
   </div>
 </div>
 
-<section id="simulator">
-  <h2 class="section-title">Simulator</h2>
+<section>
+<h2>Simulator</h2>
 
-  <div class="temp-value" id="temp">72</div>
+<div id="temp" style="font-size:40px;">72</div>
+<input type="range" id="slider" min="50" max="95" value="72">
 
-  <input type="range" id="slider" min="50" max="95" value="72">
-
-  <div class="stage-grid" id="grid"></div>
+<div class="stage-grid" id="grid"></div>
 </section>
 
-<section id="quiz">
-  <h2 class="section-title">Quiz</h2>
-  <div id="quiz-body"></div>
+<section>
+<h2>Quiz</h2>
+<p><strong>Answer the questions based on Merced College House A design.</strong></p>
+<div id="quiz"></div>
 </section>
-
-<footer>
-  Greenhouse Staging
-</footer>
 
 <script>
-// ===== SIMULATOR =====
-const stages = ['H2','H1','N','C1','C2','C3','C4','C5','C6'];
+// ===== STAGES =====
+const stages = [
+{ id:'H2', label:'H2: Heater full output' },
+{ id:'H1', label:'H1: Heater low stage' },
+{ id:'N',  label:'N: Circulation fans (HAF) running' },
+{ id:'C1', label:'C1: Ridge vent opens (passive cooling)' },
+{ id:'C2', label:'C2: Shade curtain deploys (reduce heat load)' },
+{ id:'C3', label:'C3: Fan 1 ON (exhaust fan — creates negative pressure)' },
+{ id:'C4', label:'C4: Louvers OPEN (air now actually moves)' },
+{ id:'C5', label:'C5: Fan 2 ON (exhaust fan — increase exchange)' },
+{ id:'C6', label:'C6: Pads ON (cool incoming air)' }
+];
 
 const grid = document.getElementById('grid');
+
 stages.forEach(s=>{
-  const el = document.createElement('div');
-  el.className='stage-item';
-  el.id=s;
-  el.textContent=s;
-  grid.appendChild(el);
+  const d=document.createElement('div');
+  d.className='stage-item';
+  d.id=s.id;
+  d.innerText=s.label;
+  grid.appendChild(d);
 });
 
+// ===== LOGIC =====
 function getStages(t){
   if(t<=56) return ['H2','H1'];
   if(t<=59) return ['H1'];
   if(t<76) return ['N'];
+
   let a=['C1'];
   if(t>=78) a.push('C2');
   if(t>=80) a.push('C3');
@@ -208,14 +141,14 @@ function getStages(t){
   return a;
 }
 
-const slider = document.getElementById('slider');
-const temp = document.getElementById('temp');
+const slider=document.getElementById('slider');
+const temp=document.getElementById('temp');
 
 function update(v){
-  temp.textContent=v;
-  const active = getStages(v);
+  temp.innerText=v;
+  const active=getStages(v);
   stages.forEach(s=>{
-    document.getElementById(s).classList.toggle('active',active.includes(s));
+    document.getElementById(s.id).classList.toggle('active',active.includes(s.id));
   });
 }
 
@@ -225,14 +158,54 @@ update(72);
 // ===== QUIZ =====
 const questions = [
 {
-  q:"What is C1?",
-  options:["Fan","Pads","Vent","Heater"],
-  correct:2
+q:"What is the FIRST cooling response in House A?",
+options:[
+"Fan 1 turns on",
+"Pads turn on",
+"Ridge vent opens",
+"Louvers open"
+],
+correct:2
 },
 {
-  q:"What is N?",
-  options:["Off","Always on fans","Heat","Cooling"],
-  correct:1
+q:"Why does Fan 1 (C3) turn on BEFORE louvers open (C4)?",
+options:[
+"To save electricity",
+"To create negative pressure before airflow begins",
+"Because louvers are slower",
+"No reason"
+],
+correct:1
+},
+{
+q:"What does N (Normal) represent?",
+options:[
+"No equipment running",
+"Circulation (HAF) fans running continuously",
+"Heaters only",
+"Pads only"
+],
+correct:1
+},
+{
+q:"What happens at C5?",
+options:[
+"Louvers open",
+"Pads turn on",
+"Second exhaust fan increases air exchange",
+"Ridge vent opens"
+],
+correct:2
+},
+{
+q:"Why are pads LAST (C6)?",
+options:[
+"They are cheapest",
+"They need airflow already established",
+"They heat the greenhouse",
+"They run at night"
+],
+correct:1
 }
 ];
 
@@ -240,17 +213,17 @@ let i=0,score=0;
 
 function render(){
   const q=questions[i];
-  document.getElementById('quiz-body').innerHTML=`
+  document.getElementById('quiz').innerHTML=`
     <p>${q.q}</p>
-    ${q.options.map((o,idx)=>`<div class="quiz-option" onclick="ans(${idx})">${o}</div>`).join('')}
+    ${q.options.map((o,idx)=>`<div class="quiz-option" onclick="answer(${idx})">${o}</div>`).join('')}
   `;
 }
 
-function ans(idx){
+function answer(idx){
   if(idx===questions[i].correct) score++;
   i++;
   if(i<questions.length) render();
-  else document.getElementById('quiz-body').innerHTML=`Score: ${score}/${questions.length}`;
+  else document.getElementById('quiz').innerHTML=`<h3>Score: ${score}/${questions.length}</h3>`;
 }
 
 render();
