@@ -10,44 +10,58 @@
 
 <style>
 body {
-  background:#1a2e1a;
-  color:#f5f0e8;
-  font-family:'IBM Plex Sans',sans-serif;
   margin:0;
+  font-family:'IBM Plex Sans',sans-serif;
+  color:#f5f0e8;
+  background:#1a2e1a;
 }
 
 /* NAV */
 nav {
   position:fixed;
   top:0; left:0; right:0;
-  background:#1a2e1a;
+  background:rgba(0,0,0,0.5);
   padding:10px 20px;
-  border-bottom:1px solid #333;
   z-index:10;
 }
 
 /* HERO */
 .hero {
   height:100vh;
+  position:relative;
   display:flex;
   align-items:center;
   justify-content:center;
   text-align:center;
-  position:relative;
+  background:url('House-A.png') center/cover no-repeat;
 }
 
-h1 { font-family:'Playfair Display'; }
+.hero::after {
+  content:"";
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,0.5);
+}
 
-/* 👇 SCROLL ARROW */
+.hero-content {
+  position:relative;
+  z-index:2;
+}
+
+h1 {
+  font-family:'Playfair Display';
+  font-size:3.5rem;
+}
+
+/* SCROLL */
 .scroll-indicator {
   position:absolute;
   bottom:30px;
   left:50%;
   transform:translateX(-50%);
-  font-size:14px;
-  opacity:0.7;
   cursor:pointer;
   animation:bounce 1.5s infinite;
+  z-index:2;
 }
 
 @keyframes bounce {
@@ -75,8 +89,8 @@ section {
   opacity:.4;
 }
 
-/* 🔥 HEAT */
-#H1, #H2 {
+/* HEAT */
+#H1,#H2 {
   border-color:#c0392b;
   color:#f5a89a;
 }
@@ -121,15 +135,13 @@ svg { width:100%; height:150px; }
 <!-- HERO -->
 
 <div class="hero">
-  <div>
+  <div class="hero-content">
     <h1>Greenhouse Staging</h1>
-    <p>Merced College House A</p>
+    <p>House A — North (Pad Side)</p>
   </div>
 
-  <!-- 👇 DOWN ARROW -->
-
   <div class="scroll-indicator" onclick="scrollToSim()">
-    ↓ Scroll
+    ↓
   </div>
 </div>
 
@@ -167,71 +179,76 @@ svg { width:100%; height:150px; }
 
 <script>
 
-// smooth scroll
+// scroll
 function scrollToSim(){
   document.getElementById('simulator').scrollIntoView({behavior:'smooth'});
 }
 
-// ===== STAGES =====
-const stages = [
+// STAGES
+const stages=[
 { id:'H2', label:'H2: Heater full output' },
 { id:'H1', label:'H1: Heater low stage' },
-{ id:'N',  label:'N: Circulation fans (HAF)' },
-{ id:'C1', label:'C1: Ridge vent opens' },
-{ id:'C2', label:'C2: Shade deploys' },
-{ id:'C3', label:'C3: Fan 1 + Louvers (airflow begins)' },
-{ id:'C4', label:'C4: Fan 2 (increase airflow)' },
-{ id:'C5', label:'C5: Pads ON (cool air)' },
-{ id:'C6', label:'C6: Continued cooling' }
+{ id:'N', label:'N: HAF (off at C5+)' },
+{ id:'C1', label:'C1: Ridge vent' },
+{ id:'C2', label:'C2: Shade' },
+{ id:'C3', label:'C3: Fan1 + Louvers' },
+{ id:'C4', label:'C4: Pads ON' },
+{ id:'C5', label:'C5: Fan2 ON' },
+{ id:'C6', label:'C6: Continue' }
 ];
 
-// build grid
+// build
 const grid=document.getElementById('grid');
 stages.forEach(s=>{
-  let d=document.createElement('div');
-  d.className='stage-item';
-  d.id=s.id;
-  d.innerText=s.label;
-  grid.appendChild(d);
+ let d=document.createElement('div');
+ d.className='stage-item';
+ d.id=s.id;
+ d.innerText=s.label;
+ grid.appendChild(d);
 });
 
 // logic
 function getStages(t){
-  if(t<=56) return ['H2','H1'];
-  if(t<=59) return ['H1'];
-  if(t<76) return ['N'];
+ if(t<=56) return ['H2','H1'];
+ if(t<=59) return ['H1'];
+ if(t<76) return ['N'];
 
-  let a=['C1'];
-  if(t>=78) a.push('C2');
-  if(t>=80) a.push('C3');
-  if(t>=82) a.push('C4');
-  if(t>=84) a.push('C5');
-  if(t>=86) a.push('C6');
-  return a;
+ let a=[];
+
+ // HAF ON until both exhaust fans
+ if(t<84) a.push('N');
+
+ if(t>=76) a.push('C1');
+ if(t>=78) a.push('C2');
+ if(t>=80) a.push('C3');
+ if(t>=82) a.push('C4');
+ if(t>=84) a.push('C5');
+ if(t>=86) a.push('C6');
+
+ return a;
 }
 
 const slider=document.getElementById('slider');
 const temp=document.getElementById('temp');
 
 function update(v){
-  temp.innerText=v;
-  const active=getStages(v);
+ temp.innerText=v;
+ const active=getStages(v);
 
-  stages.forEach(s=>{
-    document.getElementById(s.id).classList.toggle('active',active.includes(s.id));
-  });
+ stages.forEach(s=>{
+  document.getElementById(s.id).classList.toggle('active',active.includes(s.id));
+ });
 
-  // airflow
-  document.getElementById('air1').classList.toggle('active-air', active.includes('C3'));
-  document.getElementById('air2').classList.toggle('active-air', active.includes('C4'));
-  document.getElementById('air3').classList.toggle('active-air', active.includes('C4'));
-  document.getElementById('cool1').classList.toggle('active-cool', active.includes('C5'));
+ document.getElementById('air1').classList.toggle('active-air',active.includes('C3'));
+ document.getElementById('air2').classList.toggle('active-air',active.includes('C5'));
+ document.getElementById('air3').classList.toggle('active-air',active.includes('C5'));
+ document.getElementById('cool1').classList.toggle('active-cool',active.includes('C4'));
 }
 
 slider.oninput=e=>update(e.target.value);
 update(72);
 
-// ===== QUIZ =====
+// QUIZ
 const questions=[
 {
 q:"When does airflow begin?",
@@ -240,18 +257,18 @@ correct:2
 },
 {
 q:"What happens at C4?",
-options:["Pads","Fan 2 increases airflow","Heater","Vent"],
+options:["Fan2","Pads turn on","Heater","Vent"],
 correct:1
 },
 {
 q:"What does N represent?",
-options:["Nothing","Circulation fans","Cooling","Heat"],
+options:["Nothing","HAF fans","Cooling","Heat"],
 correct:1
 },
 {
-q:"Why are pads at C5?",
-options:["Cheap","Need airflow first","Heat","Replace fans"],
-correct:1
+q:"When do HAF fans turn OFF?",
+options:["C3","C4","C5","C6"],
+correct:2
 },
 {
 q:"What is C6?",
@@ -263,17 +280,17 @@ correct:2
 let i=0,score=0;
 
 function render(){
-  let q=questions[i];
-  document.getElementById('quiz').innerHTML=
-    `<p>${q.q}</p>`+
-    q.options.map((o,idx)=>`<div class="quiz-option" onclick="ans(${idx})">${o}</div>`).join('');
+ let q=questions[i];
+ document.getElementById('quiz').innerHTML=
+ `<p>${q.q}</p>`+
+ q.options.map((o,idx)=>`<div class="quiz-option" onclick="ans(${idx})">${o}</div>`).join('');
 }
 
 function ans(idx){
-  if(idx===questions[i].correct) score++;
-  i++;
-  if(i<questions.length) render();
-  else document.getElementById('quiz').innerHTML=`<h3>Score: ${score}/${questions.length}</h3>`;
+ if(idx===questions[i].correct) score++;
+ i++;
+ if(i<questions.length) render();
+ else document.getElementById('quiz').innerHTML=`<h3>Score: ${score}/${questions.length}</h3>`;
 }
 
 render();
