@@ -3,1465 +3,206 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cover Crops & Green Manures — ATTRA Guide</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<title>Cover Crops & Green Manures</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
 <style>
-  :root {
-    --soil: #3d2b1f;
-    --earth: #6b4c35;
-    --straw: #c9a84c;
-    --sage: #7a9e7e;
-    --leaf: #4a7c59;
-    --sprout: #8bc34a;
-    --sky: #e8f4e8;
-    --cream: #faf8f2;
-    --text: #2a1f15;
-    --muted: #7a6a5a;
-    --white: #ffffff;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--cream);
-    color: var(--text);
-    overflow-x: hidden;
-  }
-
-  /* ── HERO ── */
-  .hero {
-    min-height: 100vh;
-    background:
-      linear-gradient(to bottom, rgba(26,40,20,0.72) 0%, rgba(74,124,89,0.45) 60%, rgba(201,168,76,0.3) 100%),
-      url('https://images.squarespace-cdn.com/content/v1/5f0f1a1d9a2e3b3e8e1b1b1b/1594000000000-ABCDEFGHIJKLMNO/cover-crops.jpg');
-    background-size: cover;
-    background-position: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 40px 20px;
-    position: relative;
-  }
-
-  .hero::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(ellipse at 30% 50%, rgba(74,124,89,0.35) 0%, transparent 60%),
-                radial-gradient(ellipse at 70% 80%, rgba(201,168,76,0.2) 0%, transparent 50%);
-  }
-
-  .hero-badge {
-    background: rgba(201,168,76,0.25);
-    border: 1px solid rgba(201,168,76,0.6);
-    color: var(--straw);
-    font-size: 0.75rem;
-    font-weight: 500;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    padding: 6px 18px;
-    border-radius: 40px;
-    margin-bottom: 28px;
-    position: relative;
-    backdrop-filter: blur(6px);
-  }
-
-  .hero h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(2.8rem, 7vw, 5.5rem);
-    color: var(--white);
-    line-height: 1.1;
-    max-width: 820px;
-    position: relative;
-    margin-bottom: 20px;
-  }
-
-  .hero h1 em {
-    color: var(--straw);
-    font-style: italic;
-  }
-
-  .hero-sub {
-    font-size: 1.1rem;
-    color: rgba(255,255,255,0.82);
-    max-width: 580px;
-    line-height: 1.7;
-    position: relative;
-    margin-bottom: 40px;
-  }
-
-  .hero-quote {
-    background: rgba(255,255,255,0.07);
-    border-left: 3px solid var(--straw);
-    padding: 16px 24px;
-    max-width: 640px;
-    text-align: left;
-    position: relative;
-    backdrop-filter: blur(8px);
-    border-radius: 0 8px 8px 0;
-    margin-bottom: 48px;
-  }
-
-  .hero-quote p {
-    font-family: 'Playfair Display', serif;
-    font-style: italic;
-    color: rgba(255,255,255,0.88);
-    font-size: 0.95rem;
-    line-height: 1.65;
-  }
-
-  .hero-quote cite {
-    display: block;
-    margin-top: 10px;
-    font-size: 0.78rem;
-    color: var(--straw);
-    font-style: normal;
-    letter-spacing: 0.05em;
-  }
-
-  .hero-nav {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    justify-content: center;
-    position: relative;
-  }
-
-  .hero-nav a {
-    padding: 12px 24px;
-    border-radius: 40px;
-    text-decoration: none;
-    font-size: 0.88rem;
-    font-weight: 500;
-    transition: all 0.25s;
-  }
-
-  .btn-primary {
-    background: var(--leaf);
-    color: white;
-  }
-  .btn-primary:hover { background: #3a6347; transform: translateY(-2px); }
-
-  .btn-outline {
-    border: 1px solid rgba(255,255,255,0.5);
-    color: white;
-    backdrop-filter: blur(6px);
-  }
-  .btn-outline:hover { background: rgba(255,255,255,0.12); transform: translateY(-2px); }
-
-  /* ── NAV ── */
-  .sticky-nav {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: rgba(250,248,242,0.95);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(122,158,126,0.25);
-    padding: 0 32px;
-    display: flex;
-    align-items: center;
-    gap: 0;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .sticky-nav::-webkit-scrollbar { display: none; }
-
-  .nav-logo {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.1rem;
-    color: var(--leaf);
-    font-weight: 700;
-    white-space: nowrap;
-    padding: 16px 24px 16px 0;
-    border-right: 1px solid rgba(122,158,126,0.3);
-    margin-right: 16px;
-  }
-
-  .nav-item {
-    padding: 16px 16px;
-    font-size: 0.82rem;
-    font-weight: 500;
-    color: var(--muted);
-    cursor: pointer;
-    white-space: nowrap;
-    border-bottom: 2px solid transparent;
-    transition: all 0.2s;
-    text-decoration: none;
-  }
-  .nav-item:hover, .nav-item.active { color: var(--leaf); border-bottom-color: var(--leaf); }
-
-  /* ── SECTIONS ── */
-  section {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 80px 24px;
-  }
-
-  .section-label {
-    font-size: 0.72rem;
-    font-weight: 500;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--sage);
-    margin-bottom: 14px;
-  }
-
-  .section-title {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(1.8rem, 4vw, 2.8rem);
-    color: var(--soil);
-    line-height: 1.2;
-    margin-bottom: 20px;
-  }
-
-  .section-body {
-    font-size: 1rem;
-    line-height: 1.8;
-    color: #4a3a2a;
-    max-width: 760px;
-  }
-
-  /* ── INTRO GRID ── */
-  .intro-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 48px;
-    align-items: center;
-  }
-
-  @media (max-width: 700px) { .intro-grid { grid-template-columns: 1fr; } }
-
-  .intro-image {
-    border-radius: 12px;
-    overflow: hidden;
-    position: relative;
-  }
-
-  .intro-image img {
-    width: 100%;
-    height: 340px;
-    object-fit: cover;
-    display: block;
-  }
-
-  .intro-image-caption {
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    background: linear-gradient(to top, rgba(26,40,20,0.85), transparent);
-    padding: 20px 16px 14px;
-    font-size: 0.78rem;
-    color: rgba(255,255,255,0.85);
-    font-style: italic;
-  }
-
-  /* ── SOIL HEALTH ── */
-  .soil-bg {
-    background: linear-gradient(135deg, #f0ebe0 0%, #e8f4e8 100%);
-    padding: 80px 0;
-    margin: 0;
-  }
-
-  .soil-bg > section { padding-top: 0; padding-bottom: 0; }
-
-  .benefits-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 24px;
-    margin-top: 48px;
-  }
-
-  .benefit-card {
-    background: white;
-    border-radius: 12px;
-    padding: 28px 24px;
-    border: 1px solid rgba(122,158,126,0.2);
-    transition: all 0.3s;
-    cursor: default;
-  }
-
-  .benefit-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(74,124,89,0.15);
-    border-color: var(--sage);
-  }
-
-  .benefit-icon {
-    width: 48px; height: 48px;
-    border-radius: 12px;
-    background: var(--sky);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.4rem;
-    margin-bottom: 16px;
-  }
-
-  .benefit-card h3 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.05rem;
-    color: var(--soil);
-    margin-bottom: 10px;
-  }
-
-  .benefit-card p { font-size: 0.88rem; line-height: 1.7; color: var(--muted); }
-
-  /* ── NITROGEN ── */
-  .nitrogen-section { background: var(--cream); }
-
-  .nitrogen-split {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 48px;
-    margin-top: 40px;
-    align-items: start;
-  }
-
-  @media (max-width: 700px) { .nitrogen-split { grid-template-columns: 1fr; } }
-
-  .cn-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.88rem;
-  }
-
-  .cn-table th {
-    background: var(--leaf);
-    color: white;
-    padding: 10px 14px;
-    text-align: left;
-    font-weight: 500;
-  }
-
-  .cn-table th:first-child { border-radius: 8px 0 0 0; }
-  .cn-table th:last-child { border-radius: 0 8px 0 0; }
-
-  .cn-table td {
-    padding: 9px 14px;
-    border-bottom: 1px solid rgba(122,158,126,0.15);
-    color: var(--text);
-  }
-
-  .cn-table tr:nth-child(even) td { background: rgba(122,158,126,0.05); }
-  .cn-table tr:hover td { background: rgba(122,158,126,0.12); }
-
-  .ratio-bar-wrap {
-    margin-top: 8px;
-  }
-
-  .ratio-bar {
-    height: 6px;
-    background: rgba(122,158,126,0.15);
-    border-radius: 3px;
-    overflow: hidden;
-  }
-
-  .ratio-fill {
-    height: 100%;
-    border-radius: 3px;
-    background: linear-gradient(to right, var(--leaf), var(--straw));
-    transition: width 1.2s ease;
-  }
-
-  /* ── N CONTRIBUTION BARS ── */
-  .n-bars {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    margin-top: 24px;
-  }
-
-  .n-bar-item { }
-
-  .n-bar-label {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.84rem;
-    margin-bottom: 5px;
-    color: var(--text);
-  }
-
-  .n-bar-track {
-    height: 10px;
-    background: rgba(122,158,126,0.15);
-    border-radius: 5px;
-    overflow: hidden;
-  }
-
-  .n-bar-fill {
-    height: 100%;
-    border-radius: 5px;
-    background: linear-gradient(to right, var(--leaf), var(--sprout));
-    width: 0;
-    transition: width 1.4s cubic-bezier(0.22,1,0.36,1);
-  }
-
-  /* ── STEPS ── */
-  .steps-bg {
-    background: var(--soil);
-    padding: 80px 0;
-    color: white;
-  }
-
-  .steps-bg .section-title { color: white; }
-  .steps-bg .section-label { color: var(--straw); opacity: 0.85; }
-  .steps-bg .section-body { color: rgba(255,255,255,0.75); }
-
-  .steps-row {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 28px;
-    margin-top: 48px;
-  }
-
-  @media (max-width: 700px) { .steps-row { grid-template-columns: 1fr; } }
-
-  .step-card {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 12px;
-    padding: 28px 24px;
-    transition: all 0.3s;
-  }
-
-  .step-card:hover {
-    background: rgba(122,158,126,0.2);
-    border-color: var(--sage);
-    transform: translateY(-3px);
-  }
-
-  .step-num {
-    font-family: 'Playfair Display', serif;
-    font-size: 2.4rem;
-    color: var(--straw);
-    opacity: 0.6;
-    line-height: 1;
-    margin-bottom: 12px;
-  }
-
-  .step-card h3 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.1rem;
-    color: white;
-    margin-bottom: 10px;
-  }
-
-  .step-card p { font-size: 0.88rem; color: rgba(255,255,255,0.7); line-height: 1.7; }
-
-  /* ── COVER CROP SYSTEMS ── */
-  .systems-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: 32px 0 0;
-  }
-
-  .tab-btn {
-    padding: 9px 20px;
-    border-radius: 40px;
-    border: 1px solid rgba(74,124,89,0.3);
-    background: transparent;
-    color: var(--muted);
-    font-size: 0.84rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-family: 'DM Sans', sans-serif;
-  }
-
-  .tab-btn:hover { border-color: var(--leaf); color: var(--leaf); }
-  .tab-btn.active { background: var(--leaf); color: white; border-color: var(--leaf); }
-
-  .tab-panels { margin-top: 32px; }
-
-  .tab-panel {
-    display: none;
-    animation: fadeIn 0.35s ease;
-  }
-
-  .tab-panel.active { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
-  @media (max-width: 700px) { .tab-panel.active { grid-template-columns: 1fr; } }
-
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-
-  .panel-text h3 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.4rem;
-    color: var(--soil);
-    margin-bottom: 14px;
-  }
-
-  .panel-text p { font-size: 0.92rem; line-height: 1.8; color: #4a3a2a; margin-bottom: 14px; }
-
-  .panel-img {
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-  }
-
-  .panel-img img {
-    width: 100%;
-    height: 280px;
-    object-fit: cover;
-    display: block;
-  }
-
-  /* ── TERMINATION METHODS ── */
-  .methods-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 24px;
-    margin-top: 40px;
-  }
-
-  .method-card {
-    border: 1px solid rgba(122,158,126,0.25);
-    border-radius: 12px;
-    overflow: hidden;
-    transition: all 0.3s;
-  }
-
-  .method-card:hover {
-    box-shadow: 0 10px 36px rgba(74,124,89,0.15);
-    transform: translateY(-3px);
-  }
-
-  .method-header {
-    padding: 20px 20px 14px;
-    background: var(--leaf);
-  }
-
-  .method-header h3 {
-    font-family: 'Playfair Display', serif;
-    color: white;
-    font-size: 1.05rem;
-  }
-
-  .method-body { padding: 18px 20px; }
-  .method-body p { font-size: 0.87rem; line-height: 1.7; color: var(--muted); }
-
-  .method-tag {
-    display: inline-block;
-    margin-top: 12px;
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 0.73rem;
-    font-weight: 500;
-    background: var(--sky);
-    color: var(--leaf);
-  }
-
-  /* ── ECONOMICS ── */
-  .econ-bg {
-    background: linear-gradient(135deg, #f5f0e8 0%, #eaf5ea 100%);
-    padding: 80px 0;
-  }
-
-  .econ-cards {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-    margin-top: 40px;
-  }
-
-  @media (max-width: 700px) { .econ-cards { grid-template-columns: 1fr; } }
-
-  .econ-card {
-    background: white;
-    border-radius: 12px;
-    padding: 28px 24px;
-    text-align: center;
-    border: 1px solid rgba(122,158,126,0.2);
-    transition: all 0.3s;
-  }
-
-  .econ-card:hover { box-shadow: 0 8px 32px rgba(74,124,89,0.12); transform: translateY(-3px); }
-
-  .econ-stat {
-    font-family: 'Playfair Display', serif;
-    font-size: 2.5rem;
-    color: var(--leaf);
-    font-weight: 700;
-    margin-bottom: 6px;
-  }
-
-  .econ-card h4 { font-size: 0.9rem; font-weight: 500; color: var(--soil); margin-bottom: 10px; }
-  .econ-card p { font-size: 0.83rem; color: var(--muted); line-height: 1.6; }
-
-  /* ── CASE STUDY ── */
-  .case-study {
-    background: var(--soil);
-    border-radius: 16px;
-    padding: 48px;
-    color: white;
-    margin-top: 60px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .case-study::before {
-    content: '"';
-    font-family: 'Playfair Display', serif;
-    font-size: 18rem;
-    color: rgba(255,255,255,0.04);
-    position: absolute;
-    top: -60px; left: 20px;
-    line-height: 1;
-    pointer-events: none;
-  }
-
-  .case-label {
-    font-size: 0.72rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--straw);
-    margin-bottom: 16px;
-  }
-
-  .case-study h3 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.7rem;
-    margin-bottom: 20px;
-  }
-
-  .case-study p { font-size: 0.92rem; line-height: 1.8; color: rgba(255,255,255,0.78); margin-bottom: 14px; }
-
-  .case-stats {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 24px;
-    margin-top: 28px;
-  }
-
-  .case-stat-item {
-    background: rgba(255,255,255,0.08);
-    border-radius: 10px;
-    padding: 16px 24px;
-    text-align: center;
-    min-width: 130px;
-  }
-
-  .case-stat-num {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.8rem;
-    color: var(--straw);
-  }
-
-  .case-stat-desc { font-size: 0.78rem; color: rgba(255,255,255,0.6); margin-top: 4px; }
-
-  /* ── SPECIES ACCORDION ── */
-  .species-section { background: var(--cream); }
-
-  .accordion { margin-top: 36px; border: 1px solid rgba(122,158,126,0.25); border-radius: 12px; overflow: hidden; }
-
-  .acc-item { border-bottom: 1px solid rgba(122,158,126,0.15); }
-  .acc-item:last-child { border-bottom: none; }
-
-  .acc-header {
-    width: 100%;
-    padding: 20px 24px;
-    background: transparent;
-    border: none;
-    text-align: left;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--soil);
-    transition: background 0.2s;
-  }
-
-  .acc-header:hover { background: rgba(122,158,126,0.06); }
-  .acc-header.open { background: rgba(122,158,126,0.08); color: var(--leaf); }
-
-  .acc-arrow {
-    width: 20px; height: 20px;
-    border-radius: 50%;
-    background: rgba(74,124,89,0.1);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.7rem;
-    color: var(--leaf);
-    transition: transform 0.3s;
-    flex-shrink: 0;
-  }
-
-  .acc-header.open .acc-arrow { transform: rotate(180deg); background: var(--leaf); color: white; }
-
-  .acc-body {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.4s ease;
-  }
-
-  .acc-body-inner {
-    padding: 0 24px 24px;
-    font-size: 0.9rem;
-    line-height: 1.75;
-    color: #4a3a2a;
-  }
-
-  .species-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 14px;
-  }
-
-  .chip {
-    padding: 5px 14px;
-    background: var(--sky);
-    border-radius: 20px;
-    font-size: 0.81rem;
-    color: var(--leaf);
-    font-weight: 500;
-    border: 1px solid rgba(74,124,89,0.2);
-  }
-
-  /* ── HIGH TUNNEL ── */
-  .tunnel-split {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 48px;
-    align-items: center;
-  }
-
-  @media (max-width: 700px) { .tunnel-split { grid-template-columns: 1fr; } }
-
-  .tunnel-img img {
-    width: 100%;
-    height: 320px;
-    object-fit: cover;
-    border-radius: 12px;
-    display: block;
-  }
-
-  .callout {
-    background: rgba(122,158,126,0.1);
-    border-left: 4px solid var(--leaf);
-    border-radius: 0 8px 8px 0;
-    padding: 18px 20px;
-    margin-top: 20px;
-    font-size: 0.9rem;
-    line-height: 1.7;
-    color: #3a4a3a;
-  }
-
-  /* ── FOOTER ── */
-  footer {
-    background: var(--soil);
-    color: rgba(255,255,255,0.65);
-    text-align: center;
-    padding: 40px 24px;
-    font-size: 0.82rem;
-    line-height: 1.7;
-  }
-
-  footer a { color: var(--straw); }
-  footer strong { color: white; }
-
-  /* ── ANIMATIONS ── */
-  .reveal {
-    opacity: 0;
-    transform: translateY(24px);
-    transition: opacity 0.7s ease, transform 0.7s ease;
-  }
-
-  .reveal.visible { opacity: 1; transform: translateY(0); }
-
-  /* ── SCROLLBAR ── */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: var(--cream); }
-  ::-webkit-scrollbar-thumb { background: var(--sage); border-radius: 3px; }
+:root {
+  --soil:#3d2b1f;
+  --leaf:#4a7c59;
+  --cream:#faf8f2;
+  --text:#2a1f15;
+  --muted:#6b5a4a;
+  --white:#ffffff;
+}
+
+/* GLOBAL */
+body {
+  font-family:'DM Sans', sans-serif;
+  background:var(--cream);
+  color:var(--text);
+  margin:0;
+}
+
+/* HERO FIXED */
+.hero {
+  min-height:100vh;
+  background:
+    linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.55)),
+    url('https://images.squarespace-cdn.com/content/v1/5f0f1a1d9a2e3b3e8e1b1b1b/1594000000000-ABCDEFGHIJKLMNO/cover-crops.jpg');
+  background-size:cover;
+  background-position:center;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  padding:40px;
+}
+
+.hero h1 {
+  font-family:'Playfair Display', serif;
+  font-size:clamp(3rem,6vw,5rem);
+  color:white;
+  text-shadow:0 4px 20px rgba(0,0,0,0.6);
+}
+
+.hero-sub {
+  font-size:1.2rem;
+  color:rgba(255,255,255,0.95);
+  max-width:650px;
+  line-height:1.8;
+}
+
+/* READABILITY FIX */
+.section-body {
+  font-size:1.05rem;
+  line-height:1.9;
+  color:#3b2f25;
+  max-width:750px;
+}
+
+/* SECTIONS */
+section {
+  max-width:1100px;
+  margin:auto;
+  padding:80px 20px;
+}
+
+.section-title {
+  font-family:'Playfair Display';
+  font-size:2.4rem;
+  margin-bottom:20px;
+}
+
+/* GRID */
+.intro-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:40px;
+}
+
+@media(max-width:700px){
+  .intro-grid{grid-template-columns:1fr;}
+}
+
+/* IMAGE EMBED */
+.embed-box {
+  position:relative;
+  width:100%;
+  height:0;
+  overflow:hidden;
+  border-radius:12px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.15);
+}
+
+.caption {
+  margin-top:8px;
+  font-size:0.8rem;
+  color:var(--muted);
+  text-align:center;
+  font-style:italic;
+}
+
+/* ACCORDION */
+.acc-header {
+  width:100%;
+  padding:18px;
+  border:none;
+  background:#f2ede6;
+  cursor:pointer;
+  font-size:1rem;
+}
+
+.acc-body {
+  display:none;
+  padding:16px;
+}
+
+.acc-header.open + .acc-body {
+  display:block;
+}
 </style>
 </head>
+
 <body>
 
-<!-- ── HERO ── -->
+<!-- HERO -->
 <header class="hero">
-  <div class="hero-badge">ATTRA Sustainable Agriculture · January 2025</div>
-  <h1>Cover Crops &amp;<br><em>Green Manures</em></h1>
-  <p class="hero-sub">The foundations of good farming — protecting soil, cycling nutrients, and building lasting fertility from the ground up.</p>
-  <div class="hero-quote">
-    <p>"Soil fertility is the condition that results from the operation of Nature's round… there must always be a perfect balance between the processes of growth and the processes of decay."</p>
-    <cite>— Sir Albert Howard, An Agricultural Testament, 1943</cite>
-  </div>
-  <div class="hero-nav">
-    <a href="#soil-health" class="btn-primary">Explore the Guide</a>
-    <a href="https://attra.ncat.org/wp-content/uploads/2025/01/overview-of-cover-crops-and-green-manures.pdf" target="_blank" class="btn-outline">📄 Download PDF</a>
-  </div>
+  <h1>Cover Crops &<br><em>Green Manures</em></h1>
+  <p class="hero-sub">
+    Protect soil, cycle nutrients, and build fertility from the ground up.
+  </p>
 </header>
 
-<!-- ── STICKY NAV ── -->
-<nav class="sticky-nav">
-  <div class="nav-logo">🌱 Cover Crops</div>
-  <a class="nav-item" href="#intro">Introduction</a>
-  <a class="nav-item" href="#soil-health">Soil Health</a>
-  <a class="nav-item" href="#nitrogen">Nitrogen</a>
-  <a class="nav-item" href="#systems">Systems</a>
-  <a class="nav-item" href="#termination">Termination</a>
-  <a class="nav-item" href="#species">Species</a>
-  <a class="nav-item" href="#economics">Economics</a>
-</nav>
-
-<!-- ── INTRODUCTION ── -->
-<section id="intro">
-  <div class="intro-grid reveal">
-    <div>
-      <div class="section-label">Introduction</div>
-      <h2 class="section-title">What Are Cover Crops &amp; Green Manures?</h2>
-      <p class="section-body">Cover crops are any non-cash crop grown in addition to the primary cash crop to keep the soil covered as much of the year as possible. Their benefits include increasing soil organic matter, reducing erosion, improving soil structure, promoting water infiltration, and limiting pest and disease outbreaks.</p>
-      <p class="section-body" style="margin-top:16px;"><strong>Green manuring</strong> involves mowing, crimping, and/or tilling any field or forage crop while green or soon after flowering. High-biomass legume green manures can return <strong>100–200 lbs/acre of nitrogen</strong> to the soil, potentially eliminating synthetic fertilizer needs entirely.</p>
-      <p class="section-body" style="margin-top:16px; font-style:italic; color: var(--muted);">By around 300 BC, the Greeks and Romans were already planting legumes for their soil fertility advantages. Native Americans developed the Three Sisters concept — corn, beans, and squash — for the synergistic benefits of diversity.</p>
-    </div>
-    <div class="intro-image reveal">
-      <img src="https://attra.ncat.org/wp-content/uploads/2021/07/cover-crops-and-green-manures-1920x1080.jpg" 
-           onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Cover_crop_-_hairy_vetch_with_winter_rye_-_soil_erosion_control_%28cropped%29.jpg/640px-Cover_crop_-_hairy_vetch_with_winter_rye_-_soil_erosion_control_%28cropped%29.jpg'"
-           alt="Red clover in annual rye and hairy vetch mix">
-      <div class="intro-image-caption">Red clover in an annual rye and hairy vetch mix — Photo: Lee Rinehart, NCAT</div>
-    </div>
-  </div>
-</section>
-
-<!-- ── SOIL HEALTH ── -->
-<div class="soil-bg" id="soil-health">
+<!-- INTRO -->
 <section>
-  <div class="reveal">
-    <div class="section-label">Soil Health</div>
-    <h2 class="section-title">Organic Matter, Soil Structure &amp; Microbial Life</h2>
-    <p class="section-body">Cover crops provide the biomass (carbon) and diversity needed for soil microorganism populations to thrive. Research across 81 studies found that soil total bacteria and total fungi increased <strong>7% to 31%</strong> when cover crops were used, compared to systems with no cover crop.</p>
-  </div>
-  <div class="benefits-grid">
-    <div class="benefit-card reveal">
-      <div class="benefit-icon">🦠</div>
-      <h3>Microbial Diversity</h3>
-      <p>A greater fungi-to-bacteria ratio is found in cover-cropped systems, indicating a healthier soil food web and improved nutrient cycling capacity.</p>
-    </div>
-    <div class="benefit-card reveal">
-      <div class="benefit-icon">🧲</div>
-      <h3>Soil Aggregation</h3>
-      <p>Glomalin produced by mycorrhizal fungi binds soil particles into aggregates, improving aeration, water infiltration, and root penetration.</p>
-    </div>
-    <div class="benefit-card reveal">
-      <div class="benefit-icon">💧</div>
-      <h3>Water Infiltration</h3>
-      <p>Well-aggregated, cover-cropped soils act like a sponge, absorbing even unprecedented rain events while bare soils generate destructive runoff.</p>
-    </div>
-    <div class="benefit-card reveal">
-      <div class="benefit-icon">🌿</div>
-      <h3>Humus Formation</h3>
-      <p>Increased organic matter influences soil humus — the stable end product of decay — providing a wide range of crop production benefits.</p>
-    </div>
-    <div class="benefit-card reveal">
-      <div class="benefit-icon">🌡️</div>
-      <h3>Soil Temperature</h3>
-      <p>Cover crop mulch reduces extreme soil temperatures, protecting beneficial microbes and creating a more hospitable environment for root growth.</p>
-    </div>
-    <div class="benefit-card reveal">
-      <div class="benefit-icon">🌾</div>
-      <h3>Organic Matter Input</h3>
-      <p>A green manure crop contributes organic matter comparable to 9–13 tons/acre of farmyard manure, maintaining or building soil fertility over time.</p>
-    </div>
-  </div>
-</section>
+<div class="intro-grid">
+
+<div>
+<h2 class="section-title">What Are Cover Crops?</h2>
+<p class="section-body">
+Cover crops are non-cash crops grown to improve soil health, reduce erosion, and enhance nutrient cycling.
+</p>
 </div>
 
-<!-- ── NITROGEN ── -->
-<section id="nitrogen">
-  <div class="reveal">
-    <div class="section-label">Nitrogen Production</div>
-    <h2 class="section-title">Growing Your Own Fertility</h2>
-    <p class="section-body">Leguminous cover crops can accumulate <strong>40 to 200 pounds of nitrogen per acre</strong>. About 50% of that nitrogen becomes available to the following crop. The C:N ratio of plant material governs how quickly nutrients become available to subsequent crops.</p>
-  </div>
+<div>
 
-  <div class="nitrogen-split reveal">
-    <div>
-      <h3 style="font-family:'Playfair Display',serif; font-size:1.2rem; color:var(--soil); margin-bottom:20px;">C:N Ratio of Organic Materials</h3>
-      <p style="font-size:0.85rem; color:var(--muted); margin-bottom:16px;">Optimal range for rapid decomposition: <strong style="color:var(--leaf)">15:1 – 24:1</strong>. Higher ratios "tie up" nitrogen; lower ratios release it quickly.</p>
-      <table class="cn-table">
-        <thead>
-          <tr><th>Material</th><th>C:N Ratio</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>Hairy vetch / alfalfa</td><td>10:1 – 15:1</td></tr>
-          <tr><td>Rye (seedlings)</td><td>12:1 – 15:1</td></tr>
-          <tr><td>Sweet clover</td><td>14:1 – 16:1</td></tr>
-          <tr><td>Grass clippings</td><td>18:1 – 20:1</td></tr>
-          <tr><td>Rye (flowering)</td><td>20:1 – 21:1</td></tr>
-          <tr><td>Fruit waste</td><td>35:1 – 38:1</td></tr>
-          <tr><td>Dry leaves</td><td>50:1 – 56:1</td></tr>
-          <tr><td>Corn stalks</td><td>58:1 – 60:1</td></tr>
-          <tr><td>Straw</td><td>60:1 – 72:1</td></tr>
-          <tr><td>Sawdust</td><td>250:1 – 500:1</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div>
-      <h3 style="font-family:'Playfair Display',serif; font-size:1.2rem; color:var(--soil); margin-bottom:20px;">Nitrogen Contribution by Species (lbs/acre)</h3>
-      <div class="n-bars" id="nBars">
-        <div class="n-bar-item">
-          <div class="n-bar-label"><span>Berseem Clover</span><span>75–220</span></div>
-          <div class="n-bar-track"><div class="n-bar-fill" data-pct="95"></div></div>
-        </div>
-        <div class="n-bar-item">
-          <div class="n-bar-label"><span>Hairy Vetch</span><span>90–200</span></div>
-          <div class="n-bar-track"><div class="n-bar-fill" data-pct="88"></div></div>
-        </div>
-        <div class="n-bar-item">
-          <div class="n-bar-label"><span>White Clover</span><span>80–200</span></div>
-          <div class="n-bar-track"><div class="n-bar-fill" data-pct="86"></div></div>
-        </div>
-        <div class="n-bar-item">
-          <div class="n-bar-label"><span>Sweetclover</span><span>90–170</span></div>
-          <div class="n-bar-track"><div class="n-bar-fill" data-pct="78"></div></div>
-        </div>
-        <div class="n-bar-item">
-          <div class="n-bar-label"><span>Cowpeas</span><span>100–150</span></div>
-          <div class="n-bar-track"><div class="n-bar-fill" data-pct="72"></div></div>
-        </div>
-        <div class="n-bar-item">
-          <div class="n-bar-label"><span>Field Peas</span><span>90–150</span></div>
-          <div class="n-bar-track"><div class="n-bar-fill" data-pct="68"></div></div>
-        </div>
-        <div class="n-bar-item">
-          <div class="n-bar-label"><span>Crimson Clover</span><span>70–130</span></div>
-          <div class="n-bar-track"><div class="n-bar-fill" data-pct="58"></div></div>
-        </div>
-        <div class="n-bar-item">
-          <div class="n-bar-label"><span>Red Clover</span><span>50–120</span></div>
-          <div class="n-bar-track"><div class="n-bar-fill" data-pct="48"></div></div>
-        </div>
-        <div class="n-bar-item">
-          <div class="n-bar-label"><span>Medic</span><span>50–120</span></div>
-          <div class="n-bar-track"><div class="n-bar-fill" data-pct="48"></div></div>
-        </div>
-        <div class="n-bar-item">
-          <div class="n-bar-label"><span>Radish</span><span>50–200</span></div>
-          <div class="n-bar-track"><div class="n-bar-fill" data-pct="60"></div></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ── THREE STEPS ── -->
-<div class="steps-bg">
-<section style="padding-top:0;padding-bottom:0;">
-  <div class="reveal">
-    <div class="section-label">Best Practices</div>
-    <h2 class="section-title">3 Steps for Optimum Nitrogen Carryover</h2>
-    <p class="section-body">Follow these practices to maximize nitrogen transfer from legume cover crops to subsequent cash crops.</p>
-  </div>
-  <div class="steps-row">
-    <div class="step-card reveal">
-      <div class="step-num">01</div>
-      <h3>Inoculate the Seed</h3>
-      <p>Apply the correct <em>Rhizobium</em> bacterial inoculant before planting. Match species to inoculant: use <em>R. leguminosarum</em> bv. Viceae for peas and vetch; bv. Trifolii for clovers; and <em>Sinorhizobium meliloti</em> for alfalfa.</p>
-    </div>
-    <div class="step-card reveal">
-      <div class="step-num">02</div>
-      <h3>Terminate at Bud or Early Flower</h3>
-      <p>Nitrogen content in leaves drops rapidly after flowering as it moves into seeds. Terminate at bud stage or early flower for peak nitrogen contribution to your cash crop.</p>
-    </div>
-    <div class="step-card reveal">
-      <div class="step-num">03</div>
-      <h3>Maintain Good Management</h3>
-      <p>Adequate water, proper soil fertility levels, and correct soil pH are all essential for good nodulation and effective nitrogen fixation throughout the growing season.</p>
-    </div>
-  </div>
-</section>
+<!-- RED CLOVER EMBED -->
+<div class="embed-box" style="padding-top:74%;">
+<iframe loading="lazy"
+style="position:absolute;width:100%;height:100%;top:0;left:0;border:none;"
+src="https://www.canva.com/design/DAHFKW-_zIA/t1kwnQebEOpd5qJN5HKbDQ/view?embed">
+</iframe>
 </div>
 
-<!-- ── COVER CROP SYSTEMS ── -->
-<section id="systems">
-  <div class="reveal">
-    <div class="section-label">Cover Crop Systems</div>
-    <h2 class="section-title">Fitting Covers Into Your Rotation</h2>
-    <p class="section-body">Cover crops can fit into many different cropping systems — between cash crops, interseeded into standing crops, or as full-season sods. Choose your system type to learn more.</p>
-  </div>
+<div class="caption">Red clover in annual rye</div>
 
-  <div class="systems-tabs reveal">
-    <button class="tab-btn active" onclick="showTab('winter')">Winter Cover</button>
-    <button class="tab-btn" onclick="showTab('summer')">Summer Cover</button>
-    <button class="tab-btn" onclick="showTab('smother')">Smother Crops</button>
-    <button class="tab-btn" onclick="showTab('interseed')">Interseeding</button>
-    <button class="tab-btn" onclick="showTab('catch')">Catch Crops</button>
-    <button class="tab-btn" onclick="showTab('forage')">Forage Crops</button>
-  </div>
-
-  <div class="tab-panels reveal">
-    <div class="tab-panel active" id="tab-winter">
-      <div class="panel-text">
-        <h3>Winter Cover Crops</h3>
-        <p>Sown in late summer or autumn, winter cover crops remain in place until spring to provide soil cover during the cold months. Growers often choose legumes for added nitrogen fixation.</p>
-        <p>In northern states, the cover crop must tolerate hard winters. Good choices include hairy vetch, crimson clover, annual rye, and Austrian winter peas (in more southerly regions of the North). They can be established by aerial seeding into maturing cash crops, or by drilling/broadcasting after harvest.</p>
-      </div>
-      <div class="panel-img">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Cover_crop_-_hairy_vetch_with_winter_rye_-_soil_erosion_control_%28cropped%29.jpg/640px-Cover_crop_-_hairy_vetch_with_winter_rye_-_soil_erosion_control_%28cropped%29.jpg"
-             onerror="this.src='https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=600&q=80'"
-             alt="Hairy vetch with winter rye">
-      </div>
-    </div>
-
-    <div class="tab-panel" id="tab-summer">
-      <div class="panel-text">
-        <h3>Summer Cover Crops</h3>
-        <p>Warm-season covers fill a niche in rotations, improve poor soils, or prepare land for perennial crops. Legumes such as cowpeas, soybeans, annual sweet clover, or velvet beans add nitrogen and organic matter.</p>
-        <p>Non-legumes like sorghum-sudangrass, millet, or buckwheat provide biomass, smother weeds, and improve soil tilth. Buckwheat is a fast-growing option that provides excellent pollinator habitat between summer and fall crops.</p>
-      </div>
-      <div class="panel-img">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Buckwheat_field.jpg/640px-Buckwheat_field.jpg"
-             onerror="this.src='https://images.unsplash.com/photo-1586771107445-d3ca888129ce?w=600&q=80'"
-             alt="Buckwheat summer cover crop">
-      </div>
-    </div>
-
-    <div class="tab-panel" id="tab-smother">
-      <div class="panel-text">
-        <h3>Smother Crops</h3>
-        <p>Grown in any season between cash crops, smother crops are used primarily for weed suppression. Weeds flourish on bare soil, but cover crops compete for space and light, shading the soil and reducing weed establishment opportunities.</p>
-        <p>The soil-loosening effect of deep-rooting covers also reduces weed populations that thrive in compacted soils. Field peas are known for their weed-control benefits due to their high biomass productivity.</p>
-      </div>
-      <div class="panel-img">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Hairy_vetch_%28Vicia_villosa%29.jpg/640px-Hairy_vetch_%28Vicia_villosa%29.jpg"
-             onerror="this.src='https://images.unsplash.com/photo-1495107334309-fcf20504a5ab?w=600&q=80'"
-             alt="Smother crop weed suppression">
-      </div>
-    </div>
-
-    <div class="tab-panel" id="tab-interseed">
-      <div class="panel-text">
-        <h3>Interseeding / Intercropping</h3>
-        <p>Cover crops are planted into a standing cash crop and can remain for varying amounts of time. Interseeded covers provide a living mulch to suppress weeds and reduce soil erosion while enhancing fertility.</p>
-        <p>Examples include overseeding hairy vetch into corn at the last cultivation, drilling sweet clover into small grains, or broadcasting annual ryegrass into vegetables. This is particularly useful on smaller farms where all land is in production but a cover crop still needs to get established.</p>
-      </div>
-      <div class="panel-img">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Clover_interseeded_into_corn.jpg/640px-Clover_interseeded_into_corn.jpg"
-             onerror="this.src='https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=600&q=80'"
-             alt="Interseeded cover crop in corn">
-      </div>
-    </div>
-
-    <div class="tab-panel" id="tab-catch">
-      <div class="panel-text">
-        <h3>Catch Crops</h3>
-        <p>Established after harvesting the main crop, catch crops primarily reduce nutrient leaching. For example, planting cereal rye following corn harvest scavenges residual nitrogen, reducing groundwater contamination risk.</p>
-        <p>Annual ryegrass (as opposed to cereal rye) is particularly good at scavenging phosphorus. These double-duty crops function as catch crops and winter covers simultaneously, maximizing their benefit to the farm system.</p>
-      </div>
-      <div class="panel-img">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Cereal_rye_cover_crop.jpg/640px-Cereal_rye_cover_crop.jpg"
-             onerror="this.src='https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=600&q=80'"
-             alt="Cereal rye catch crop">
-      </div>
-    </div>
-
-    <div class="tab-panel" id="tab-forage">
-      <div class="panel-text">
-        <h3>Forage Crops in Rotation</h3>
-        <p>Forage crops function as cover crops when occupying land for pasturage or haying, and as green manures when eventually incorporated or terminated for no-till planting. Research shows grassland soils naturally accumulate organic matter through extensive root systems.</p>
-        <p>A grass-clover ley period equivalent to 30–40% of the crop rotation sequence (3–4 years in a 10-year rotation) is needed to meaningfully increase aggregate stability and soil carbon concentration.</p>
-      </div>
-      <div class="panel-img">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Grass-clover_pasture.jpg/640px-Grass-clover_pasture.jpg"
-             onerror="this.src='https://images.unsplash.com/photo-1500595046743-cd271d694d30?w=600&q=80'"
-             alt="Grass-clover forage sod">
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ── TERMINATION ── -->
-<div style="background: linear-gradient(135deg, #f0ebe0 0%, #e8f4e8 100%); padding: 80px 0;" id="termination">
-<section style="padding-top:0;padding-bottom:0;">
-  <div class="reveal">
-    <div class="section-label">Termination Methods</div>
-    <h2 class="section-title">Terminating Cover Crops for No-Till Mulch</h2>
-    <p class="section-body">Choosing the right termination method depends on your scale, organic certification status, timing, and target cash crop. Each approach has tradeoffs in cost, effectiveness, and ecological impact.</p>
-  </div>
-
-  <div class="methods-grid reveal">
-    <div class="method-card">
-      <div class="method-header"><h3>🌀 Roller-Crimping</h3></div>
-      <div class="method-body">
-        <p>A drum with V-shaped chevron blades rolls over the cover crop, laying it down and crimping stems to interrupt sap flow. Can be combined with planting in a single tractor pass. Best done in hot, dry weather at 50% bloom for legumes.</p>
-        <span class="method-tag">Organic-approved</span>
-        <span class="method-tag">Large &amp; small scale</span>
-      </div>
-    </div>
-    <div class="method-card">
-      <div class="method-header"><h3>🚜 Mowing / Flail Mowing</h3></div>
-      <div class="method-body">
-        <p>Effective for rye when mowed at pollination stage (anthers fully extended). Flail mowers create more uniformly distributed mulch than rotary cutters. Sickle-bar mowers also work but unchopped stalks are harder to plant into.</p>
-        <span class="method-tag">Organic-approved</span>
-        <span class="method-tag">All scales</span>
-      </div>
-    </div>
-    <div class="method-card">
-      <div class="method-header"><h3>🌿 Tilling / Incorporation</h3></div>
-      <div class="method-body">
-        <p>Cover crops can be tilled into the top 2 inches for aerobic decomposition (per Nordell method) or deeper. Promotes faster nutrient release but releases CO₂ and eliminates weed suppression benefits of surface mulch.</p>
-        <span class="method-tag">Fast nutrient release</span>
-        <span class="method-tag">Market gardens</span>
-      </div>
-    </div>
-    <div class="method-card">
-      <div class="method-header"><h3>❄️ Winter Kill</h3></div>
-      <div class="method-body">
-        <p>Plant cold-sensitive species (spring oats, buckwheat, sorghum, winter peas in northern regions) that naturally die at freezing temperatures. Provides a dead mulch through winter. Ideal for early spring planting situations.</p>
-        <span class="method-tag">No equipment needed</span>
-        <span class="method-tag">Low-rainfall regions</span>
-      </div>
-    </div>
-    <div class="method-card">
-      <div class="method-header"><h3>🌾 Undercutting</h3></div>
-      <div class="method-body">
-        <p>A cultivator fitted with sweeps cuts roots just below the soil surface, then a furrower covers them over. Favored by the Nordells, often followed by a spring-tooth harrow. Minimizes disturbance while effectively terminating growth.</p>
-        <span class="method-tag">Minimal disturbance</span>
-        <span class="method-tag">Organic-approved</span>
-      </div>
-    </div>
-    <div class="method-card">
-      <div class="method-header"><h3>🧪 Herbicide</h3></div>
-      <div class="method-body">
-        <p>The most commonly used tool in conventional no-till systems. However, research shows herbicides can disrupt earthworms, inhibit nitrogen fixation and nitrification, and cause site-specific increases in disease. Not allowed in organic production.</p>
-        <span class="method-tag">Conventional only</span>
-        <span class="method-tag">Fastest &amp; lowest cost</span>
-      </div>
-    </div>
-  </div>
-</section>
 </div>
+</div>
+</section>
 
-<!-- ── PLANTING GREEN ── -->
+<!-- PLANTING GREEN -->
 <section>
-  <div class="tunnel-split reveal">
-    <div>
-      <div class="section-label">Advanced Technique</div>
-      <h2 class="section-title">Planting Green</h2>
-      <p class="section-body">Planting green means establishing summer cash crops directly into the standing cover crop <em>before</em> terminating it. Soils under a living cover tend to be slightly drier — a real benefit in wet springs.</p>
-      <p class="section-body" style="margin-top:14px;">This approach allows the cover to accumulate more biomass before termination. Annual rye doesn't grow much in winter but takes off strongly in spring — waiting to terminate maximizes biomass for roller-crimping.</p>
-      <div class="callout">
-        <strong>Rick Clark's System:</strong> On 1,200 certified-organic acres in Indiana, Clark sows corn and soybeans into live-standing rye and clover, then crimps the cover crop 3–30 days after planting. Result: no starter fertilizer, no fungicide, no insecticide, no phosphorus/potassium/nitrogen fertilizer, and <strong>48% less diesel use</strong>.
-      </div>
-    </div>
-    <div class="tunnel-img">
-      <img src="https://extension.psu.edu/media/wysiwyg/field-and-forage-crops/cover-crops/planting-into-rolled-rye.jpg"
-           onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Soybeans_planted_no-till_into_cereal_rye_cover_crop.jpg/640px-Soybeans_planted_no-till_into_cereal_rye_cover_crop.jpg'"
-           alt="Rolling and crimping annual rye and planting soybeans in one pass">
-      <p style="font-size:0.77rem; color:var(--muted); margin-top:8px; text-align:center; font-style:italic;">Rolling and crimping annual rye, planting soybeans in one pass — Photo: Heidi Reed, Penn State</p>
-    </div>
-  </div>
-</section>
+<h2 class="section-title">Planting Green</h2>
 
-<!-- ── SPECIES GUIDE ── -->
-<div style="background: var(--sky);" id="species">
-<section style="background:transparent;">
-  <div class="reveal">
-    <div class="section-label">Species Guide</div>
-    <h2 class="section-title">Common Cover Crop Species</h2>
-    <p class="section-body">Select the right species or mix for your climate, rotation, and goals. Each category offers unique benefits to your farming system.</p>
-  </div>
-
-  <div class="accordion reveal">
-    <div class="acc-item">
-      <button class="acc-header" onclick="toggleAcc(this)">
-        🌾 Grasses
-        <span class="acc-arrow">▼</span>
-      </button>
-      <div class="acc-body">
-        <div class="acc-body-inner">
-          <p>Grasses provide high biomass and carbon for soil organic matter. They pair excellently with legumes — the carbon of grass slows nitrogen release from legumes, better timing nutrient availability for cash crops. Cereal rye is the most winter-hardy and widely adapted.</p>
-          <div class="species-chips">
-            <span class="chip">Cereal rye</span>
-            <span class="chip">Triticale</span>
-            <span class="chip">Wheat</span>
-            <span class="chip">Barley</span>
-            <span class="chip">Millet</span>
-            <span class="chip">Oat</span>
-            <span class="chip">Annual ryegrass</span>
-            <span class="chip">Sorghum-sudangrass</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="acc-item">
-      <button class="acc-header" onclick="toggleAcc(this)">
-        🌻 Broadleaves
-        <span class="acc-arrow">▼</span>
-      </button>
-      <div class="acc-body">
-        <div class="acc-body-inner">
-          <p>Broadleaf cover crops offer diversity in the soil microbiome and can break pest and disease cycles. Buckwheat is a fast-growing favorite that produces abundant flowers attractive to beneficial insects and pollinators. Phacelia is also a top pollinator plant.</p>
-          <div class="species-chips">
-            <span class="chip">Flax</span>
-            <span class="chip">Sunflower</span>
-            <span class="chip">Buckwheat</span>
-            <span class="chip">Safflower</span>
-            <span class="chip">Phacelia</span>
-            <span class="chip">Chicory</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="acc-item">
-      <button class="acc-header" onclick="toggleAcc(this)">
-        🥦 Brassicas
-        <span class="acc-arrow">▼</span>
-      </button>
-      <div class="acc-body">
-        <div class="acc-body-inner">
-          <p>Brassicas are known for their deep-rooting ability (especially radish), which breaks up subsoil compaction. They decompose quickly in spring, releasing nutrients for early crops. Some brassicas have biofumigation properties that help suppress soilborne pathogens and nematodes.</p>
-          <div class="species-chips">
-            <span class="chip">Radish</span>
-            <span class="chip">Turnip</span>
-            <span class="chip">Kale</span>
-            <span class="chip">Canola</span>
-            <span class="chip">Mustard</span>
-            <span class="chip">Camelina</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="acc-item">
-      <button class="acc-header" onclick="toggleAcc(this)">
-        🫛 Legumes
-        <span class="acc-arrow">▼</span>
-      </button>
-      <div class="acc-body">
-        <div class="acc-body-inner">
-          <p>The workhorses of biological nitrogen fixation. Legumes form symbiotic relationships with Rhizobium bacteria in root nodules, converting atmospheric nitrogen into plant-available forms. Always inoculate with the correct bacterial strain before planting for best results.</p>
-          <div class="species-chips">
-            <span class="chip">Field peas</span>
-            <span class="chip">Soybeans</span>
-            <span class="chip">Cowpeas</span>
-            <span class="chip">Hairy vetch</span>
-            <span class="chip">Red clover</span>
-            <span class="chip">Crimson clover</span>
-            <span class="chip">White clover</span>
-            <span class="chip">Berseem clover</span>
-            <span class="chip">Sweet clover</span>
-            <span class="chip">Medic</span>
-            <span class="chip">Sunn hemp</span>
-            <span class="chip">Alfalfa</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="acc-item">
-      <button class="acc-header" onclick="toggleAcc(this)">
-        🌴 Hot &amp; Humid Region Specialists
-        <span class="acc-arrow">▼</span>
-      </button>
-      <div class="acc-body">
-        <div class="acc-body-inner">
-          <p>For subtropical and tropical regions, choose a diverse mix of warm-adapted species. Many of these are multi-purpose: fixing nitrogen, providing biomass, and offering wildlife habitat. ATTRA's <em>Cover Crop Options for Hot and Humid Areas</em> is a key resource for these regions.</p>
-          <div class="species-chips">
-            <span class="chip">Peanut</span>
-            <span class="chip">Pigeon pea</span>
-            <span class="chip">Partridge pea</span>
-            <span class="chip">Sunn hemp</span>
-            <span class="chip">Desmodium</span>
-            <span class="chip">Lablab</span>
-            <span class="chip">Velvet bean</span>
-            <span class="chip">Mung bean</span>
-            <span class="chip">Scarlet runner bean</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+<!-- ROLLER CRIMPER EMBED -->
+<div class="embed-box" style="padding-top:85%;">
+<iframe loading="lazy"
+style="position:absolute;width:100%;height:100%;top:0;left:0;border:none;"
+src="https://www.canva.com/design/DAHFKWgJY6s/o9VSoHJ3f-F0rZWBQeRVFg/view?embed">
+</iframe>
 </div>
 
-<!-- ── CASE STUDY ── -->
+<div class="caption">Rolling and crimping annual rye</div>
+</section>
+
+<!-- SPECIES -->
 <section>
-  <div class="reveal">
-    <div class="section-label">Case Study</div>
-    <h2 class="section-title">Growing Fertility at Three Springs Farm</h2>
-  </div>
-  <div class="case-study reveal">
-    <div class="case-label">Emily Oakley &amp; Michael Appel · Eastern Oklahoma · Certified Organic</div>
-    <h3>90% of Fertility Grown On-Farm</h3>
-    <p>Emily Oakley and Michael Appel cultivate more than 40 different crops and 150 varieties on their small diversified vegetable farm. Their goal: demonstrate the economic viability of small-scale farming while minimizing external fertility inputs.</p>
-    <p>The farm is laid out with three acres of vegetables and three acres in cover at all times. Of four fields, two are in cash crops and two are in fallow cover all year. A common rotation starts with a spring cash crop → summer cover → fall/winter cover → full year in fallow covers → repeat with a different spring crop.</p>
-    <div class="case-stats">
-      <div class="case-stat-item">
-        <div class="case-stat-num">90%</div>
-        <div class="case-stat-desc">of fertility grown on-farm</div>
-      </div>
-      <div class="case-stat-item">
-        <div class="case-stat-num">40+</div>
-        <div class="case-stat-desc">different crop species</div>
-      </div>
-      <div class="case-stat-item">
-        <div class="case-stat-num">150+</div>
-        <div class="case-stat-desc">individual varieties</div>
-      </div>
-      <div class="case-stat-item">
-        <div class="case-stat-num">0</div>
-        <div class="case-stat-desc">synthetic nitrogen used</div>
-      </div>
-    </div>
-  </div>
+<h2 class="section-title">Common Cover Crop Species</h2>
+
+<button class="acc-header">🌾 Grasses</button>
+<div class="acc-body">Rye, wheat, oats</div>
+
+<button class="acc-header">🌻 Broadleaves</button>
+<div class="acc-body">Buckwheat, sunflower</div>
+
+<button class="acc-header">🥦 Brassicas</button>
+<div class="acc-body">Radish, mustard</div>
+
+<button class="acc-header">🫘 Legumes</button>
+<div class="acc-body">Clover, vetch, peas</div>
+
 </section>
-
-<!-- ── ECONOMICS ── -->
-<div class="econ-bg" id="economics">
-<section style="padding-top:0;padding-bottom:0;">
-  <div class="reveal">
-    <div class="section-label">Economics</div>
-    <h2 class="section-title">The Economics of Cover Crops</h2>
-    <p class="section-body">Cover crops involve real costs — seed, equipment, management time — but their benefits in reduced inputs and improved yields often exceed those costs, especially over time as soil health builds.</p>
-  </div>
-
-  <div class="econ-cards">
-    <div class="econ-card reveal">
-      <div class="econ-stat">$15–$35</div>
-      <h4>Typical Seed Cost per Acre</h4>
-      <p>Cover crop seed costs vary widely by species. Mixes cost more but provide greater diversity. Saving seed can reduce costs significantly.</p>
-    </div>
-    <div class="econ-card reveal">
-      <div class="econ-stat">48%</div>
-      <h4>Diesel Reduction (Clark Farm)</h4>
-      <p>Rick Clark's regenerative organic system eliminated most synthetic inputs and cut diesel use by nearly half, with net positive income despite any yield changes.</p>
-    </div>
-    <div class="econ-card reveal">
-      <div class="econ-stat">200 lbs</div>
-      <h4>Max N Replaced per Acre</h4>
-      <p>High-biomass legume green manures can return up to 200 lbs N/acre, potentially offsetting all nitrogen fertilizer needs for a subsequent vegetable or grain crop.</p>
-    </div>
-  </div>
-
-  <div class="reveal" style="margin-top: 40px;">
-    <h3 style="font-family:'Playfair Display',serif; font-size:1.3rem; color:var(--soil); margin-bottom:16px;">Benefits That Pay Back Over Time</h3>
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
-      <div style="background:white; border-radius:10px; padding:20px; border:1px solid rgba(122,158,126,0.2);">
-        <strong style="color:var(--leaf);">Costs to Consider</strong>
-        <ul style="margin-top:10px; padding-left:18px; font-size:0.88rem; color:var(--muted); line-height:1.9;">
-          <li>Cover crop seed</li>
-          <li>Seeding equipment / custom hire</li>
-          <li>Management time and labor</li>
-          <li>Termination equipment / herbicide</li>
-          <li>Potential delayed planting of cash crop</li>
-          <li>Slugs in cool, wet no-till conditions</li>
-        </ul>
-      </div>
-      <div style="background:white; border-radius:10px; padding:20px; border:1px solid rgba(122,158,126,0.2);">
-        <strong style="color:var(--leaf);">Benefits That Offset Costs</strong>
-        <ul style="margin-top:10px; padding-left:18px; font-size:0.88rem; color:var(--muted); line-height:1.9;">
-          <li>Reduced nitrogen fertilizer cost</li>
-          <li>Reduced herbicide and tillage passes</li>
-          <li>Improved soil water-holding capacity</li>
-          <li>Reduced erosion and runoff losses</li>
-          <li>Better crop establishment in improved soil</li>
-          <li>Optional: hay, grazing, or seed income</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</section>
-</div>
-
-<!-- ── SOIL & WATER CONSERVATION ── -->
-<section>
-  <div class="reveal">
-    <div class="section-label">Conservation</div>
-    <h2 class="section-title">Soil &amp; Water Conservation</h2>
-    <p class="section-body">The soil conservation benefits of cover crops extend beyond protecting bare soil during non-crop periods. Cover crop mulch increases water infiltration, reduces surface evaporation, and prevents soil crusting — making farms more resilient to both drought and flood.</p>
-  </div>
-
-  <div class="callout reveal" style="max-width:700px; margin-top:32px; font-size:0.95rem;">
-    <strong>California Floods, January 2023:</strong> Central California received over 10 inches of rain in several weeks. Almond orchards <em>with</em> cover crops had little or no standing water after the event — soils acted as a sponge. Neighboring uncovered orchards couldn't infiltrate the water and suffered severe flooding. At the time, only 4% of California farmland acres were in cover crops.
-  </div>
-</section>
-
-<!-- ── FOOTER ── -->
-<footer>
-  <p><strong>Source:</strong> Lee Rinehart, NCAT Agriculture Specialist. "Overview of Cover Crops and Green Manures." ATTRA Sustainable Agriculture, January 2025. IP024.</p>
-  <p style="margin-top:8px;">Published by the <strong>National Center for Appropriate Technology (NCAT)</strong> through the ATTRA Sustainable Agriculture program under a cooperative agreement with USDA Rural Development.</p>
-  <p style="margin-top:8px;"><a href="https://attra.ncat.org" target="_blank">attra.ncat.org</a> · 800-346-9140</p>
-  <p style="margin-top:16px; font-size:0.75rem; opacity:0.6;">Interactive website based on publicly available ATTRA educational content. All credit to NCAT / ATTRA.</p>
-</footer>
 
 <script>
-  // ── Tab system ──
-  function showTab(id) {
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('tab-' + id).classList.add('active');
-    event.target.classList.add('active');
-  }
-
-  // ── Accordion ──
-  function toggleAcc(btn) {
-    const body = btn.nextElementSibling;
-    const isOpen = btn.classList.contains('open');
-    // close all
-    document.querySelectorAll('.acc-header').forEach(h => {
-      h.classList.remove('open');
-      h.nextElementSibling.style.maxHeight = '0';
-    });
-    if (!isOpen) {
-      btn.classList.add('open');
-      body.style.maxHeight = body.scrollHeight + 'px';
-    }
-  }
-
-  // ── Scroll reveal ──
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        // Animate N bars if the bars section is visible
-        if (entry.target.id === 'nBars' || entry.target.contains(document.getElementById('nBars'))) {
-          animateBars();
-        }
-      }
-    });
-  }, { threshold: 0.12 });
-
-  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-  // ── N bar animation ──
-  let barsAnimated = false;
-  function animateBars() {
-    if (barsAnimated) return;
-    barsAnimated = true;
-    document.querySelectorAll('.n-bar-fill').forEach(bar => {
-      const pct = bar.getAttribute('data-pct');
-      setTimeout(() => { bar.style.width = pct + '%'; }, 200);
-    });
-  }
-
-  // Also trigger on scroll to N section
-  const nSection = document.getElementById('nitrogen');
-  const barObs = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) animateBars(); });
-  }, { threshold: 0.3 });
-  barObs.observe(nSection);
-
-  // ── Active nav on scroll ──
-  const sections = document.querySelectorAll('section[id], div[id]');
-  const navItems = document.querySelectorAll('.nav-item');
-
-  window.addEventListener('scroll', () => {
-    let current = '';
-    sections.forEach(sec => {
-      if (window.scrollY >= sec.offsetTop - 100) current = sec.id;
-    });
-    navItems.forEach(item => {
-      item.classList.remove('active');
-      if (item.getAttribute('href') === '#' + current) item.classList.add('active');
-    });
+document.querySelectorAll(".acc-header").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    btn.classList.toggle("open");
   });
+});
 </script>
+
 </body>
 </html>
