@@ -34,7 +34,7 @@
   /* ── HERO ── */
   .hero {
     min-height: 100vh;
-    /* Darkened the linear-gradient for better text contrast */
+    /* Darkened overlay (0.85) for maximum text readability */
     background:
       linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, rgba(26,40,20,0.7) 60%, rgba(26,40,20,0.8) 100%),
       url('https://images.squarespace-cdn.com/content/v1/5f0f1a1d9a2e3b3e8e1b1b1b/1594000000000-ABCDEFGHIJKLMNO/cover-crops.jpg');
@@ -65,7 +65,7 @@
     max-width: 820px;
     position: relative;
     margin-bottom: 20px;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5); /* Added shadow for readability */
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
   }
 
   .hero h1 em {
@@ -75,7 +75,7 @@
 
   .hero-sub {
     font-size: 1.1rem;
-    color: white; /* Changed from rgba for higher contrast */
+    color: white;
     max-width: 580px;
     line-height: 1.7;
     position: relative;
@@ -84,7 +84,7 @@
   }
 
   .hero-quote {
-    background: rgba(0,0,0,0.3); /* Darkened background */
+    background: rgba(0,0,0,0.3);
     border-left: 3px solid var(--straw);
     padding: 16px 24px;
     max-width: 640px;
@@ -445,19 +445,6 @@
 
   .panel-text p { font-size: 0.92rem; line-height: 1.8; color: #4a3a2a; margin-bottom: 14px; }
 
-  .panel-img {
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-  }
-
-  .panel-img img {
-    width: 100%;
-    height: 280px;
-    object-fit: cover;
-    display: block;
-  }
-
   /* ── TERMINATION METHODS ── */
   .methods-grid {
     display: grid;
@@ -760,7 +747,10 @@
       <div style="position: relative; width: 100%; height: 0; padding-top: 74.0741%; padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden; border-radius: 8px; will-change: transform;">
         <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;" src="https://www.canva.com/design/DAHFKW-_zIA/t1kwnQebEOpd5qJN5HKbDQ/view?embed" allowfullscreen="allowfullscreen" allow="fullscreen"></iframe>
       </div>
-      <a href="https://www.canva.com/design/DAHFKW-_zIA/t1kwnQebEOpd5qJN5HKbDQ/view?utm_content=DAHFKW-_zIA&amp;utm_campaign=designshare&amp;utm_medium=embeds&amp;utm_source=link" target="_blank" rel="noopener" style="font-size:0.77rem; color:var(--muted); text-decoration:none;">Cover Crop by The Codds</a>
+      <p style="font-size: 0.85rem; color: var(--muted); margin-top: 10px; line-height: 1.5;">
+        <strong>Red clover in annual rye</strong> is an excellent winter cover crop mix. The rye scavenges nitrogen and protects the soil, while the clover adds nitrogen for the following crop. 
+        <span style="display: block; font-size: 0.75rem; margin-top: 4px; opacity: 0.8;">Photo: The Codds</span>
+      </p>
     </div>
   </div>
 </section>
@@ -929,68 +919,50 @@
 
   <div class="tab-panels reveal">
     <div class="tab-panel active" id="tab-winter">
-      <div class="panel-text">
+      <div class="panel-text" style="grid-column: span 2;">
         <h3>Winter Cover Crops</h3>
         <p>Sown in late summer or autumn, winter cover crops remain in place until spring to provide soil cover during the cold months. Growers often choose legumes for added nitrogen fixation.</p>
-        <p>In northern states, the cover crop must tolerate hard winters. Good choices include hairy vetch, crimson clover, annual rye, and Austrian winter peas (in more southerly regions of the North). They can be established by aerial seeding into maturing cash crops, or by drilling/broadcasting after harvest.</p>
-      </div>
-      <div class="panel-img">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Cover_crop_-_hairy_vetch_with_winter_rye_-_soil_erosion_control_%28cropped%29.jpg/640px-Cover_crop_-_hairy_vetch_with_winter_rye_-_soil_erosion_control_%28cropped%29.jpg" alt="Hairy vetch with winter rye">
+        <p>In northern states, the cover crop must tolerate hard winters. Good choices include hairy vetch, crimson clover, annual rye, and Austrian winter peas. They can be established by aerial seeding into maturing cash crops, or by drilling/broadcasting after harvest.</p>
       </div>
     </div>
 
     <div class="tab-panel" id="tab-summer">
-      <div class="panel-text">
+      <div class="panel-text" style="grid-column: span 2;">
         <h3>Summer Cover Crops</h3>
         <p>Warm-season covers fill a niche in rotations, improve poor soils, or prepare land for perennial crops. Legumes such as cowpeas, soybeans, annual sweet clover, or velvet beans add nitrogen and organic matter.</p>
         <p>Non-legumes like sorghum-sudangrass, millet, or buckwheat provide biomass, smother weeds, and improve soil tilth. Buckwheat is a fast-growing option that provides excellent pollinator habitat between summer and fall crops.</p>
       </div>
-      <div class="panel-img">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Buckwheat_field.jpg/640px-Buckwheat_field.jpg" alt="Buckwheat summer cover crop">
-      </div>
     </div>
 
     <div class="tab-panel" id="tab-smother">
-      <div class="panel-text">
+      <div class="panel-text" style="grid-column: span 2;">
         <h3>Smother Crops</h3>
         <p>Grown in any season between cash crops, smother crops are used primarily for weed suppression. Weeds flourish on bare soil, but cover crops compete for space and light, shading the soil and reducing weed establishment opportunities.</p>
         <p>The soil-loosening effect of deep-rooting covers also reduces weed populations that thrive in compacted soils. Field peas are known for their weed-control benefits due to their high biomass productivity.</p>
       </div>
-      <div class="panel-img">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Hairy_vetch_%28Vicia_villosa%29.jpg/640px-Hairy_vetch_%28Vicia_villosa%29.jpg" alt="Smother crop weed suppression">
-      </div>
     </div>
 
     <div class="tab-panel" id="tab-interseed">
-      <div class="panel-text">
+      <div class="panel-text" style="grid-column: span 2;">
         <h3>Interseeding / Intercropping</h3>
         <p>Cover crops are planted into a standing cash crop and can remain for varying amounts of time. Interseeded covers provide a living mulch to suppress weeds and reduce soil erosion while enhancing fertility.</p>
-        <p>Examples include overseeding hairy vetch into corn at the last cultivation, drilling sweet clover into small grains, or broadcasting annual ryegrass into vegetables. This is particularly useful on smaller farms where all land is in production but a cover crop still needs to get established.</p>
-      </div>
-      <div class="panel-img">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Clover_interseeded_into_corn.jpg/640px-Clover_interseeded_into_corn.jpg" alt="Interseeded cover crop in corn">
+        <p>Examples include overseeding hairy vetch into corn at the last cultivation, drilling sweet clover into small grains, or broadcasting annual ryegrass into vegetables. This is particularly useful on smaller farms where all land is in production.</p>
       </div>
     </div>
 
     <div class="tab-panel" id="tab-catch">
-      <div class="panel-text">
+      <div class="panel-text" style="grid-column: span 2;">
         <h3>Catch Crops</h3>
         <p>Established after harvesting the main crop, catch crops primarily reduce nutrient leaching. For example, planting cereal rye following corn harvest scavenges residual nitrogen, reducing groundwater contamination risk.</p>
-        <p>Annual ryegrass (as opposed to cereal rye) is particularly good at scavenging phosphorus. These double-duty crops function as catch crops and winter covers simultaneously, maximizing their benefit to the farm system.</p>
-      </div>
-      <div class="panel-img">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Cereal_rye_cover_crop.jpg/640px-Cereal_rye_cover_crop.jpg" alt="Cereal rye catch crop">
+        <p>Annual ryegrass is particularly good at scavenging phosphorus. These double-duty crops function as catch crops and winter covers simultaneously, maximizing their benefit to the farm system.</p>
       </div>
     </div>
 
     <div class="tab-panel" id="tab-forage">
-      <div class="panel-text">
+      <div class="panel-text" style="grid-column: span 2;">
         <h3>Forage Crops in Rotation</h3>
-        <p>Forage crops function as cover crops when occupying land for pasturage or haying, and as green manures when eventually incorporated or terminated for no-till planting. Research shows grassland soils naturally accumulate organic matter through extensive root systems.</p>
+        <p>Forage crops function as cover crops when occupying land for pasturage or haying, and as green manures when eventually incorporated or terminated for no-till planting. Grassland soils naturally accumulate organic matter through extensive root systems.</p>
         <p>A grass-clover ley period equivalent to 30–40% of the crop rotation sequence (3–4 years in a 10-year rotation) is needed to meaningfully increase aggregate stability and soil carbon concentration.</p>
-      </div>
-      <div class="panel-img">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Grass-clover_pasture.jpg/640px-Grass-clover_pasture.jpg" alt="Grass-clover forage sod">
       </div>
     </div>
   </div>
@@ -1072,7 +1044,10 @@
       <div style="position: relative; width: 100%; height: 0; padding-top: 85.1064%; padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden; border-radius: 8px; will-change: transform;">
         <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;" src="https://www.canva.com/design/DAHFKWgJY6s/o9VSoHJ3f-F0rZWBQeRVFg/view?embed" allowfullscreen="allowfullscreen" allow="fullscreen"></iframe>
       </div>
-      <a href="https://www.canva.com/design/DAHFKWgJY6s/o9VSoHJ3f-F0rZWBQeRVFg/view?utm_content=DAHFKWgJY6s&amp;utm_campaign=designshare&amp;utm_medium=embeds&amp;utm_source=link" target="_blank" rel="noopener" style="font-size:0.77rem; color:var(--muted); text-decoration:none;">Rolling Crimping by The Codds</a>
+      <p style="font-size: 0.85rem; color: var(--muted); margin-top: 10px; line-height: 1.5;">
+        <strong>Rolling and crimping annual rye</strong> into a thick mulch for no-till organic production. This method provides season-long weed suppression and moisture retention.
+        <span style="display: block; font-size: 0.75rem; margin-top: 4px; opacity: 0.8;">Photo: The Codds</span>
+      </p>
     </div>
   </div>
 </section>
@@ -1150,7 +1125,7 @@
 
     <div class="acc-item">
       <button class="acc-header" onclick="toggleAcc(this)">
-        🫛 Legumes
+        <span style="margin-right: 10px;">🫘</span> Legumes
         <span class="acc-arrow">▼</span>
       </button>
       <div class="acc-body">
@@ -1206,7 +1181,7 @@
     <h2 class="section-title">Growing Fertility at Three Springs Farm</h2>
   </div>
   <div class="case-study reveal">
-    <div class="case-label">Emily Oakley &amp; Michael Appel · Eastern Oklahoma · Certified Organic</div>
+    <div class="case-label">Emily Oakley & Michael Appel · Eastern Oklahoma · Certified Organic</div>
     <h3>90% of Fertility Grown On-Farm</h3>
     <p>Emily Oakley and Michael Appel cultivate more than 40 different crops and 150 varieties on their small diversified vegetable farm. Their goal: demonstrate the economic viability of small-scale farming while minimizing external fertility inputs.</p>
     <p>The farm is laid out with three acres of vegetables and three acres in cover at all times. Of four fields, two are in cash crops and two are in fallow cover all year. A common rotation starts with a spring cash crop → summer cover → fall/winter cover → full year in fallow covers → repeat with a different spring crop.</p>
@@ -1290,7 +1265,7 @@
 <section>
   <div class="reveal">
     <div class="section-label">Conservation</div>
-    <h2 class="section-title">Soil &amp; Water Conservation</h2>
+    <h2 class="section-title">Soil & Water Conservation</h2>
     <p class="section-body">The soil conservation benefits of cover crops extend beyond protecting bare soil during non-crop periods. Cover crop mulch increases water infiltration, reduces surface evaporation, and prevents soil crusting — making farms more resilient to both drought and flood.</p>
   </div>
 
@@ -1300,7 +1275,7 @@
 </section>
 
 <footer>
-  <p><strong>Source:</strong> Lee Rinehart, NCAT Agriculture Specialist. "Overview of Cover Crops and Green Manures." ATTRA Sustainable Agriculture, January 2025. IP024.</p>
+  <p><strong>Source:</strong> Lee Rinehart, NCAT Agriculture Specialist. "Overview of Cover Crops and Green Manures." ATTRA Sustainable Agriculture. IP024.</p>
   <p style="margin-top:8px;">Published by the <strong>National Center for Appropriate Technology (NCAT)</strong> through the ATTRA Sustainable Agriculture program under a cooperative agreement with USDA Rural Development.</p>
   <p style="margin-top:8px;"><a href="https://attra.ncat.org" target="_blank">attra.ncat.org</a> · 800-346-9140</p>
 </footer>
