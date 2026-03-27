@@ -16,36 +16,32 @@ body {
   background:#1a2e1a;
 }
 
-/* NAV */
-nav {
-  position:fixed;
-  top:0; left:0; right:0;
-  background:rgba(0,0,0,0.5);
-  padding:10px 20px;
-  z-index:10;
-}
-
-/* HERO WITH YOUR IMAGE */
 .hero {
-  height:100vh;
   position:relative;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  background:url('https://raw.githubusercontent.com/professoracodd/Horticulture/main/house-a.png') center/cover no-repeat;
+  height:100vh;
+  overflow:hidden;
 }
 
-.hero::after {
-  content:"";
+/* IMAGE */
+.hero img {
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+/* OVERLAY */
+.overlay {
   position:absolute;
   inset:0;
   background:rgba(0,0,0,0.5);
 }
 
 .hero-content {
-  position:relative;
-  z-index:2;
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  text-align:center;
 }
 
 h1 {
@@ -54,14 +50,13 @@ h1 {
 }
 
 /* SCROLL */
-.scroll-indicator {
+.scroll {
   position:absolute;
   bottom:30px;
   left:50%;
   transform:translateX(-50%);
   cursor:pointer;
   animation:bounce 1.5s infinite;
-  z-index:2;
 }
 
 @keyframes bounce {
@@ -69,230 +64,34 @@ h1 {
   50% { transform:translate(-50%,10px); }
 }
 
-/* SECTIONS */
-section {
-  padding:80px 20px;
-  max-width:900px;
-  margin:auto;
-}
-
-/* STAGES */
-.stage-grid {
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
-  gap:10px;
-}
-
-.stage-item {
-  border:1px solid #444;
-  padding:10px;
-  opacity:.4;
-}
-
-/* HEAT */
-#H1,#H2 {
-  border-color:#c0392b;
-  color:#f5a89a;
-}
-
-.stage-item.active { opacity:1; }
-
-/* AIRFLOW */
-.airflow {
-  margin-top:30px;
-  background:#111;
-  border:1px solid #444;
-  padding:20px;
-}
-
-svg { width:100%; height:150px; }
-
-.air { stroke:#7ec67a; stroke-width:3; opacity:0; }
-.cool { stroke:#4fc3f7; stroke-width:3; opacity:0; }
-
-.active-air { opacity:1; }
-.active-cool { opacity:1; }
-
-/* QUIZ */
-.quiz-option {
-  border:1px solid #555;
-  padding:10px;
-  margin:5px 0;
-  cursor:pointer;
-}
-
-.correct { background:green; }
-.wrong { background:red; }
-
 </style>
 
 </head>
 
 <body>
 
-<nav>Greenhouse Staging</nav>
-
-<!-- HERO -->
-
 <div class="hero">
+
+  <!-- 🔥 FORCE IMAGE DISPLAY -->
+
+  <img src="https://raw.githubusercontent.com/professoracodd/Horticulture/main/house-a.png">
+
+  <div class="overlay"></div>
+
   <div class="hero-content">
     <h1>Greenhouse Staging</h1>
-    <p>House A — North (Pad Side)</p>
+    <p>House A — Pad Side</p>
   </div>
 
-  <div class="scroll-indicator" onclick="scrollToSim()">↓</div>
+  <div class="scroll" onclick="document.getElementById('sim').scrollIntoView({behavior:'smooth'})">
+    ↓
+  </div>
+
 </div>
 
-<!-- SIMULATOR -->
-
-<section id="simulator">
-<h2>Simulator</h2>
-
-<div id="temp" style="font-size:40px;">72</div>
-<input type="range" id="slider" min="50" max="95" value="72">
-
-<div class="stage-grid" id="grid"></div>
-
-<div class="airflow">
-<svg viewBox="0 0 500 150">
-<rect x="20" y="20" width="460" height="110" fill="none" stroke="#666"/>
-
-<line id="air1" class="air" x1="100" y1="75" x2="200" y2="75"/>
-<line id="air2" class="air" x1="200" y1="75" x2="300" y2="75"/>
-<line id="air3" class="air" x1="300" y1="75" x2="400" y2="75"/>
-
-<line id="cool1" class="cool" x1="100" y1="95" x2="300" y2="95"/>
-</svg>
-</div>
-
+<section id="sim" style="padding:100px; text-align:center;">
+<h2>If you see the photo above, it's fixed.</h2>
 </section>
-
-<!-- QUIZ -->
-
-<section>
-<h2>Quiz</h2>
-<p><strong>Answer based on Merced College House A design.</strong></p>
-<div id="quiz"></div>
-</section>
-
-<script>
-
-// scroll
-function scrollToSim(){
-  document.getElementById('simulator').scrollIntoView({behavior:'smooth'});
-}
-
-// STAGES
-const stages=[
-{ id:'H2', label:'H2: Heater full output' },
-{ id:'H1', label:'H1: Heater low stage' },
-{ id:'N', label:'N: HAF (off at C5+)' },
-{ id:'C1', label:'C1: Ridge vent' },
-{ id:'C2', label:'C2: Shade' },
-{ id:'C3', label:'C3: Fan1 + Louvers' },
-{ id:'C4', label:'C4: Pads ON' },
-{ id:'C5', label:'C5: Fan2 ON' },
-{ id:'C6', label:'C6: Continue' }
-];
-
-// build grid
-const grid=document.getElementById('grid');
-stages.forEach(s=>{
- let d=document.createElement('div');
- d.className='stage-item';
- d.id=s.id;
- d.innerText=s.label;
- grid.appendChild(d);
-});
-
-// logic
-function getStages(t){
- if(t<=56) return ['H2','H1'];
- if(t<=59) return ['H1'];
- if(t<76) return ['N'];
-
- let a=[];
-
- if(t<84) a.push('N');
-
- if(t>=76) a.push('C1');
- if(t>=78) a.push('C2');
- if(t>=80) a.push('C3');
- if(t>=82) a.push('C4');
- if(t>=84) a.push('C5');
- if(t>=86) a.push('C6');
-
- return a;
-}
-
-const slider=document.getElementById('slider');
-const temp=document.getElementById('temp');
-
-function update(v){
- temp.innerText=v;
- const active=getStages(v);
-
- stages.forEach(s=>{
-  document.getElementById(s.id).classList.toggle('active',active.includes(s.id));
- });
-
- document.getElementById('air1').classList.toggle('active-air',active.includes('C3'));
- document.getElementById('air2').classList.toggle('active-air',active.includes('C5'));
- document.getElementById('air3').classList.toggle('active-air',active.includes('C5'));
- document.getElementById('cool1').classList.toggle('active-cool',active.includes('C4'));
-}
-
-slider.oninput=e=>update(e.target.value);
-update(72);
-
-// QUIZ
-const questions=[
-{
-q:"When does airflow begin?",
-options:["C1","C2","C3","C5"],
-correct:2
-},
-{
-q:"What happens at C4?",
-options:["Fan2","Pads turn on","Heater","Vent"],
-correct:1
-},
-{
-q:"What does N represent?",
-options:["Nothing","HAF fans","Cooling","Heat"],
-correct:1
-},
-{
-q:"When do HAF fans turn OFF?",
-options:["C3","C4","C5","C6"],
-correct:2
-},
-{
-q:"What is C6?",
-options:["Start airflow","Pads","Maintain full cooling","Vent"],
-correct:2
-}
-];
-
-let i=0,score=0;
-
-function render(){
- let q=questions[i];
- document.getElementById('quiz').innerHTML=
- `<p>${q.q}</p>`+
- q.options.map((o,idx)=>`<div class="quiz-option" onclick="ans(${idx})">${o}</div>`).join('');
-}
-
-function ans(idx){
- if(idx===questions[i].correct) score++;
- i++;
- if(i<questions.length) render();
- else document.getElementById('quiz').innerHTML=`<h3>Score: ${score}/${questions.length}</h3>`;
-}
-
-render();
-
-</script>
 
 </body>
 </html>
