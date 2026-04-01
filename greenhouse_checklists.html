@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Nursery Greenhouse Checklists</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --green-dark: #1a3a2a;
+    --green-mid: #2d6a4f;
+    --green-light: #52b788;
+    --green-pale: #d8f3dc;
+    --green-ultra: #f0faf2;
+    --amber: #e9a619;
+    --amber-pale: #fef9ec;
+    --red: #c0392b;
+    --red-pale: #fdecea;
+    --gray-100: #f5f5f2;
+    --gray-200: #e8e8e3;
+    --gray-400: #b0b0a8;
+    --gray-600: #6b6b63;
+    --gray-800: #2c2c28;
+    --white: #ffffff;
+    --font: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+    --radius: 10px;
+    --radius-lg: 16px;
+    --shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: var(--gray-100); color: var(--gray-800); min-height: 100vh; font-size: 14px; line-height: 1.6; }
+
+  /* ── CONFIG BANNER ── */
+  .config-banner {
+    background: #fff8e1;
+    border-bottom: 2px solid var(--amber);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: #5a4000;
+  }
+  .config-banner strong { font-weight: 600; }
+  .config-banner input {
+    flex: 1;
+    max-width: 560px;
+    font-family: var(--mono);
+    font-size: 12px;
+    border: 1px solid #f0d080;
+    border-radius: 6px;
+    padding: 5px 10px;
+    background: white;
+    color: var(--gray-800);
+    outline: none;
+  }
+  .config-banner input:focus { border-color: var(--amber); }
+  .btn-save-url {
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: none;
+    background: var(--amber);
+    color: white;
+    cursor: pointer;
+  }
+  .btn-save-url:hover { background: #c8890a; }
+  .config-banner.connected { background: var(--green-ultra); border-color: var(--green-light); color: var(--green-mid); }
+
+  /* ── HEADER ── */
+  .site-header {
+    background: var(--green-dark); color: white;
+    padding: 16px 24px;
+    display: flex; align-items: center; gap: 14px;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  .site-header .logo { width: 34px; height: 34px; background: var(--green-light); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .site-header h1 { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
+  .site-header p { font-size: 12px; opacity: 0.55; }
+  .header-date { margin-left: auto; font-family: var(--mono); font-size: 11px; opacity: 0.65; background: rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 6px; }
+
+  /* ── TABS ── */
+  .container { max-width: 1000px; margin: 0 auto; padding: 22px 18px; }
+  .tab-nav { display: flex; gap: 4px; background: var(--white); border-radius: var(--radius-lg); padding: 5px; box-shadow: var(--shadow); margin-bottom: 18px; flex-wrap: wrap; border: 1px solid var(--gray-200); }
+  .tab-btn { flex: 1; min-width: 90px; padding: 8px 12px; border: none; background: none; cursor: pointer; font-family: var(--font); font-size: 13px; font-weight: 500; color: var(--gray-600); border-radius: 8px; transition: all 0.15s; white-space: nowrap; text-align: center; }
+  .tab-btn:hover { background: var(--gray-100); color: var(--gray-800); }
+  .tab-btn.active { background: var(--green-dark); color: white; }
+  .tab-btn.history-tab.active { background: #3b3b35; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ── CONTROL BAR ── */
+  .control-bar { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 14px 18px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-bottom: 14px; box-shadow: var(--shadow); }
+  .control-group { display: flex; align-items: center; gap: 8px; }
+  .control-group label { font-size: 11px; font-weight: 600; color: var(--gray-600); text-transform: uppercase; letter-spacing: 0.06em; }
+  .control-bar input[type="date"], .control-bar input[type="text"] { font-family: var(--font); font-size: 13px; border: 1px solid var(--gray-200); border-radius: 7px; padding: 6px 10px; background: var(--gray-100); color: var(--gray-800); outline: none; transition: border-color 0.15s; }
+  .control-bar input:focus { border-color: var(--green-light); background: white; }
+  .control-bar input[type="text"] { width: 68px; text-transform: uppercase; font-family: var(--mono); font-weight: 500; }
+
+  /* ── SUBMIT BUTTON ── */
+  .btn-submit {
+    margin-left: auto;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 20px;
+    border-radius: 8px;
+    border: none;
+    background: var(--green-mid);
+    color: white;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-submit:hover { background: var(--green-dark); }
+  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-submit.submitting { background: var(--gray-400); }
+  .btn-submit.success { background: #27ae60; }
+  .btn-submit.error { background: var(--red); }
+
+  /* ── PROGRESS ── */
+  .progress-wrap { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 14px 18px; margin-bottom: 14px; box-shadow: var(--shadow); display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .progress-info { flex: 1; min-width: 160px; }
+  .progress-info .pct { font-size: 26px; font-weight: 600; color: var(--green-mid); font-family: var(--mono); }
+  .progress-info .pct-label { font-size: 12px; color: var(--gray-600); }
+  .progress-bar-outer { flex: 2; min-width: 180px; }
+  .progress-bar-track { height: 8px; background: var(--gray-200); border-radius: 4px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: var(--green-light); border-radius: 4px; transition: width 0.4s ease; }
+  .progress-counts { font-size: 12px; color: var(--gray-600); margin-top: 5px; display: flex; justify-content: space-between; }
+
+  /* ── SECTION CARD ── */
+  .section-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); margin-bottom: 10px; overflow: hidden; box-shadow: var(--shadow); }
+  .section-header { padding: 10px 16px; background: var(--green-ultra); border-bottom: 1px solid var(--green-pale); display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+  .section-header h3 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--green-mid); flex: 1; }
+  .section-header .collapse-icon { font-size: 11px; color: var(--gray-400); transition: transform 0.2s; }
+  .section-header.collapsed .collapse-icon { transform: rotate(-90deg); }
+  .section-body.collapsed { display: none; }
+
+  /* ── TABLE ── */
+  table { width: 100%; border-collapse: collapse; }
+  thead th { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray-600); padding: 8px 13px; text-align: left; background: #fafaf8; border-bottom: 1px solid var(--gray-200); }
+  tbody tr { transition: background 0.1s; }
+  tbody tr:hover { background: var(--gray-100); }
+  tbody tr:not(:last-child) td { border-bottom: 1px solid var(--gray-200); }
+  td { padding: 10px 13px; vertical-align: middle; }
+  .item-name { font-weight: 500; font-size: 13px; }
+  .item-desc { font-size: 11px; color: var(--gray-600); margin-top: 2px; }
+
+  /* ── BADGES ── */
+  .badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; white-space: nowrap; font-family: var(--mono); }
+  .badge-freq { background: var(--gray-100); color: var(--gray-600); border: 1px solid var(--gray-200); }
+  .badge-due { background: var(--amber-pale); color: #8a5e00; border: 1px solid #f0d080; }
+  .badge-notdue { background: var(--gray-100); color: var(--gray-400); border: 1px solid var(--gray-200); }
+
+  /* ── ACTION BUTTONS ── */
+  .action-wrap { display: flex; gap: 6px; align-items: center; }
+  .btn-check, .btn-na { border: 1px solid var(--gray-200); background: none; padding: 5px 12px; border-radius: 7px; font-size: 12px; font-weight: 500; cursor: pointer; font-family: var(--font); color: var(--gray-600); transition: all 0.15s; white-space: nowrap; }
+  .btn-check:hover { border-color: var(--green-light); color: var(--green-mid); background: var(--green-ultra); }
+  .btn-na:hover { border-color: var(--gray-400); color: var(--gray-800); background: var(--gray-100); }
+  .btn-check.done { background: var(--green-pale); border-color: var(--green-light); color: var(--green-mid); }
+  .btn-na.na-active { background: var(--gray-200); border-color: var(--gray-400); color: var(--gray-600); text-decoration: line-through; }
+
+  /* ── HISTORY ── */
+  .history-top { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+  .history-top select, .history-top input[type="date"] { font-family: var(--font); font-size: 13px; border: 1px solid var(--gray-200); border-radius: 7px; padding: 7px 10px; background: var(--white); color: var(--gray-800); outline: none; cursor: pointer; }
+  .history-top select:focus, .history-top input:focus { border-color: var(--green-light); }
+  .btn-small { font-family: var(--font); font-size: 12px; font-weight: 500; padding: 7px 13px; border-radius: 7px; border: 1px solid var(--gray-200); background: var(--white); cursor: pointer; color: var(--gray-800); transition: all 0.15s; }
+  .btn-small:hover { background: var(--gray-100); }
+  .btn-small.export { background: var(--green-dark); color: white; border-color: var(--green-dark); margin-left: auto; }
+  .btn-small.export:hover { background: var(--green-mid); border-color: var(--green-mid); }
+  .summary-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .summary-tile { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 13px 15px; text-align: center; box-shadow: var(--shadow); }
+  .summary-tile .num { font-size: 24px; font-weight: 600; font-family: var(--mono); color: var(--green-mid); }
+  .summary-tile .lbl { font-size: 11px; color: var(--gray-600); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
+  .log-table-wrap { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); overflow: auto; box-shadow: var(--shadow); }
+  .log-table { min-width: 580px; }
+  .log-table thead th { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray-600); padding: 9px 13px; background: #fafaf8; border-bottom: 1px solid var(--gray-200); text-align: left; }
+  .log-table tbody tr:not(:last-child) td { border-bottom: 1px solid var(--gray-200); }
+  .log-table td { padding: 9px 13px; font-size: 13px; vertical-align: middle; }
+  .log-table tr:hover td { background: var(--gray-100); }
+  .status-done { color: var(--green-mid); font-weight: 600; }
+  .status-na { color: var(--gray-400); }
+  .status-skip { color: var(--red); }
+  .empty-state { text-align: center; padding: 48px 24px; color: var(--gray-400); }
+  .empty-state .icon { font-size: 36px; margin-bottom: 10px; }
+
+  /* ── MODAL ── */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--white); border-radius: var(--radius-lg); width: 100%; max-width: 540px; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 12px 40px rgba(0,0,0,0.25); overflow: hidden; }
+  .modal-header { padding: 15px 18px; background: var(--green-dark); color: white; display: flex; justify-content: space-between; align-items: center; }
+  .modal-header h2 { font-size: 15px; font-weight: 500; }
+  .modal-header .modal-sub { font-size: 12px; opacity: 0.6; }
+  .btn-close { background: none; border: none; color: white; font-size: 20px; cursor: pointer; line-height: 1; padding: 2px 4px; opacity: 0.7; }
+  .btn-close:hover { opacity: 1; }
+  .modal-body { overflow-y: auto; padding: 14px 18px; }
+  .modal-section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--gray-600); margin: 14px 0 6px; }
+  .modal-item { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--gray-200); font-size: 13px; }
+  .modal-item:last-child { border-bottom: none; }
+  .modal-item-status { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; font-family: var(--mono); }
+  .modal-status-done { background: var(--green-pale); color: var(--green-mid); }
+  .modal-status-na { background: var(--gray-200); color: var(--gray-600); }
+  .modal-status-none { background: var(--red-pale); color: var(--red); }
+
+  @media (max-width: 600px) {
+    .site-header { padding: 12px 14px; }
+    .container { padding: 14px 10px; }
+    thead th:nth-child(2), td:nth-child(2) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── CONFIG BANNER ── -->
+<div class="config-banner" id="config-banner">
+  <strong>⚙️ Setup:</strong> Paste your Google Apps Script Web App URL here:
+  <input type="text" id="script-url-input" placeholder="https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec" />
+  <button class="btn-save-url" onclick="saveScriptUrl()">Save</button>
+</div>
+
+<header class="site-header">
+  <div class="logo">🌿</div>
+  <div>
+    <h1>Nursery Greenhouse Checklists</h1>
+    <p>Houses A · B · C · Section D</p>
+  </div>
+  <div class="header-date" id="header-date"></div>
+</header>
+
+<div class="container">
+  <nav class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('house-a',this)">🏡 House A</button>
+    <button class="tab-btn" onclick="switchTab('house-b',this)">🏡 House B</button>
+    <button class="tab-btn" onclick="switchTab('house-c',this)">🏡 House C</button>
+    <button class="tab-btn" onclick="switchTab('section-d',this)">🌳 Section D</button>
+    <button class="tab-btn history-tab" onclick="switchTab('history',this)">📋 History</button>
+  </nav>
+
+  <div id="house-a" class="panel active"></div>
+  <div id="house-b" class="panel"></div>
+  <div id="house-c" class="panel"></div>
+  <div id="section-d" class="panel"></div>
+  <div id="history" class="panel"></div>
+</div>
+
+<!-- ── DETAIL MODAL ── -->
+<div class="modal-overlay" id="detail-modal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <h2 id="modal-title">Checklist Detail</h2>
+        <div class="modal-sub" id="modal-sub"></div>
+      </div>
+      <button class="btn-close" onclick="document.getElementById('detail-modal').classList.remove('open')">&#x2715;</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════
+//  CONFIGURATION — paste your Apps Script URL in the banner
+//  or set it directly here:
+// ════════════════════════════════════════════════════════
+let SCRIPT_URL = localStorage.getItem('gs_script_url') || '';
+
+function saveScriptUrl() {
+  const val = document.getElementById('script-url-input').value.trim();
+  if (!val.startsWith('https://script.google.com')) {
+    alert('Please enter a valid Google Apps Script URL starting with https://script.google.com');
+    return;
+  }
+  SCRIPT_URL = val;
+  localStorage.setItem('gs_script_url', val);
+  updateConfigBanner();
+}
+
+function updateConfigBanner() {
+  const banner = document.getElementById('config-banner');
+  if (SCRIPT_URL) {
+    banner.innerHTML = `<strong>✅ Connected</strong> — Submissions will be saved to Google Sheets. &nbsp;<a href="#" onclick="resetUrl()" style="color:var(--green-mid);font-size:12px;">Change URL</a>`;
+    banner.classList.add('connected');
+  } else {
+    document.getElementById('script-url-input').value = '';
+  }
+}
+
+function resetUrl() {
+  SCRIPT_URL = '';
+  localStorage.removeItem('gs_script_url');
+  location.reload();
+}
+
+// ════════════════════════════════════════════════════════
+//  HOUSE DATA
+// ════════════════════════════════════════════════════════
+const HOUSES = {
+  'house-a': {
+    label: 'Greenhouse A',
+    sections: [
+      { name: 'Irrigation system', items: [
+        { id: 'a-irr-1', name: 'Filters', desc: 'Check filters', freq: 1 },
+        { id: 'a-irr-2', name: 'Emitters', desc: 'Algae, clogs, or leaks', freq: 1 },
+        { id: 'a-irr-3', name: 'Boom', desc: 'Check for leaks', freq: 5 },
+      ]},
+      { name: 'Plant care', items: [
+        { id: 'a-pc-1', name: 'Irrigation', desc: 'Hand watering needs', freq: 5 },
+        { id: 'a-pc-2', name: 'Watering signs', desc: 'Signs of over- or under-watering', freq: 5 },
+      ]},
+      { name: 'Propagation', items: [
+        { id: 'a-prop-1', name: 'Root development', desc: 'Cuttings under mist', freq: 1 },
+        { id: 'a-prop-2', name: 'Seed germination', desc: 'Check germination progress', freq: 1 },
+        { id: 'a-prop-3', name: 'Pruning', desc: 'Flowers on unrooted cuttings, untopped rooted cuttings', freq: 1 },
+      ]},
+      { name: 'Pests', items: [
+        { id: 'a-pest-1', name: 'Sticky tape', desc: 'Needs changing or not', freq: 1 },
+        { id: 'a-pest-2', name: 'Plants', desc: 'Scout — insects, fungal outbreaks', freq: 5 },
+        { id: 'a-pest-3', name: 'Weeds', desc: 'Containers, under benches, outside edge of house', freq: 5 },
+      ]},
+      { name: 'System', items: [
+        { id: 'a-sys-1', name: 'Heater', desc: 'Verify operation', freq: 5 },
+        { id: 'a-sys-2', name: 'Louvers', desc: 'Verify all open/close', freq: 5 },
+        { id: 'a-sys-3', name: 'Pads/pump', desc: 'Inspect for algae, check filters, verify operation', freq: 5 },
+        { id: 'a-sys-4', name: 'Circulation fans', desc: 'Verify air circulation', freq: 5 },
+        { id: 'a-sys-5', name: 'Exhaust fans', desc: 'Verify operation', freq: 5 },
+        { id: 'a-sys-6', name: 'Shade', desc: 'Verify operation', freq: 1 },
+        { id: 'a-sys-7', name: 'Ridge vents', desc: 'Verify operation', freq: 1 },
+      ]},
+    ]
+  },
+  'house-b': {
+    label: 'Greenhouse B',
+    sections: [
+      { name: 'Irrigation system', items: [
+        { id: 'b-irr-1', name: 'Filters', desc: 'Check filters', freq: 1 },
+        { id: 'b-irr-2', name: 'Emitters', desc: 'Algae, clogs, or leaks', freq: 1 },
+        { id: 'b-irr-3', name: 'Feeder tubing', desc: 'Check for leaks', freq: 5 },
+      ]},
+      { name: 'Plant care', items: [
+        { id: 'b-pc-1', name: 'Irrigation', desc: 'Hand watering needs', freq: 5 },
+        { id: 'b-pc-2', name: 'Watering signs', desc: 'Signs of over- or under-watering', freq: 5 },
+      ]},
+      { name: 'Propagation', items: [
+        { id: 'b-prop-1', name: 'Root development', desc: 'Cuttings under mist', freq: 1 },
+        { id: 'b-prop-2', name: 'Seed germination', desc: 'Check germination progress', freq: 1 },
+        { id: 'b-prop-3', name: 'Pruning', desc: 'Flowers on unrooted cuttings, untopped rooted cuttings', freq: 1 },
+      ]},
+      { name: 'Pests', items: [
+        { id: 'b-pest-1', name: 'Sticky tape', desc: 'Needs changing or not', freq: 1 },
+        { id: 'b-pest-2', name: 'Plants', desc: 'Scout — insects, fungal outbreaks', freq: 5 },
+        { id: 'b-pest-3', name: 'Weeds', desc: 'Containers, under benches, outside edge of house', freq: 5 },
+      ]},
+      { name: 'System', items: [
+        { id: 'b-sys-1', name: 'Heater', desc: 'Verify operation', freq: 5 },
+        { id: 'b-sys-2', name: 'Louvers', desc: 'Verify all open/close', freq: 5 },
+        { id: 'b-sys-3', name: 'Pads/pump', desc: 'Inspect for algae, check filters, verify operation', freq: 5 },
+        { id: 'b-sys-4', name: 'Circulation fans', desc: 'Verify air circulation', freq: 5 },
+        { id: 'b-sys-5', name: 'Exhaust fans', desc: 'Verify operation', freq: 5 },
+        { id: 'b-sys-6', name: 'Temperature', desc: 'Verify temperature is correct on Link-4', freq: 1 },
+      ]},
+    ]
+  },
+  'house-c': {
+    label: 'Greenhouse C',
+    sections: [
+      { name: 'Irrigation system', items: [
+        { id: 'c-irr-1', name: 'Filters', desc: 'Check filters', freq: 1 },
+        { id: 'c-irr-2', name: 'Emitters', desc: 'Algae, clogs, or leaks', freq: 1 },
+        { id: 'c-irr-3', name: 'Feeder tubing', desc: 'Check for leaks', freq: 5 },
+      ]},
+      { name: 'Plant care', items: [
+        { id: 'c-pc-1', name: 'Irrigation', desc: 'Hand watering needs', freq: 5 },
+        { id: 'c-pc-2', name: 'Watering signs', desc: 'Signs of over- or under-watering', freq: 5 },
+      ]},
+      { name: 'Propagation', items: [
+        { id: 'c-prop-1', name: 'Root development', desc: 'Cuttings under mist', freq: 1 },
+        { id: 'c-prop-2', name: 'Seed germination', desc: 'Check germination progress', freq: 1 },
+        { id: 'c-prop-3', name: 'Pruning', desc: 'Flowers on unrooted cuttings, untopped rooted cuttings', freq: 1 },
+      ]},
+      { name: 'Pests', items: [
+        { id: 'c-pest-1', name: 'Sticky tape', desc: 'Needs changing or not', freq: 1 },
+        { id: 'c-pest-2', name: 'Plants', desc: 'Scout — insects, fungal outbreaks', freq: 5 },
+        { id: 'c-pest-3', name: 'Weeds', desc: 'Containers, under benches, outside edge of house', freq: 5 },
+      ]},
+      { name: 'System', items: [
+        { id: 'c-sys-1', name: 'Heater', desc: 'Verify operation', freq: 5 },
+        { id: 'c-sys-2', name: 'Louvers', desc: 'Verify all open/close', freq: 5 },
+        { id: 'c-sys-3', name: 'Pads/pump', desc: 'Inspect for algae, check filters, verify operation', freq: 5 },
+        { id: 'c-sys-4', name: 'Circulation fans', desc: 'Verify air circulation', freq: 5 },
+        { id: 'c-sys-5', name: 'Exhaust fans', desc: 'Verify operation', freq: 5 },
+        { id: 'c-sys-6', name: 'Temperature', desc: 'Verify temperature is correct on Link-4', freq: 1 },
+      ]},
+    ]
+  },
+  'section-d': {
+    label: 'Section D (Outdoor)',
+    sections: [
+      { name: 'Irrigation system', items: [
+        { id: 'd-irr-1', name: 'Filter', desc: 'Check filters', freq: 1 },
+        { id: 'd-irr-2', name: 'Emitters', desc: 'Clogs or leaks', freq: 1 },
+      ]},
+      { name: 'Plant care', items: [
+        { id: 'd-pc-1', name: 'Irrigation', desc: 'Hand watering needs — especially after class', freq: 5 },
+        { id: 'd-pc-2', name: 'Watering signs', desc: 'Signs of over- or under-watering', freq: 5 },
+        { id: 'd-pc-3', name: 'Plant growth', desc: 'Nutrient deficiencies', freq: 1 },
+        { id: 'd-pc-4', name: 'Propagation', desc: 'Succulents/hardwood cuttings root development', freq: 1 },
+        { id: 'd-pc-5', name: 'Pruning', desc: 'Plants class has already pruned this semester', freq: 2 },
+      ]},
+      { name: 'Pests', items: [
+        { id: 'd-pest-1', name: 'Plants', desc: 'Scout — insects, fungal outbreaks', freq: 5 },
+        { id: 'd-pest-2', name: 'Weeds', desc: 'No weeds under benches, in pots or in walkways', freq: 5 },
+      ]},
+      { name: 'Logistics', items: [
+        { id: 'd-log-1', name: 'Labels', desc: 'Missing or breaking labels', freq: 2 },
+        { id: 'd-log-2', name: 'Consolidation', desc: 'Varieties that are separated from each other', freq: 1 },
+        { id: 'd-log-3', name: 'Inventory', desc: 'Newly added plant varieties', freq: 1 },
+        { id: 'd-log-4', name: 'Organization', desc: 'Blocks of plants, labels', freq: 5 },
+        { id: 'd-log-5', name: 'Dump', desc: 'Dead plants and free bench', freq: 1 },
+        { id: 'd-log-6', name: 'Shade', desc: 'Inspect bungees and shade for any needed repairs', freq: 1 },
+      ]},
+    ]
+  }
+};
+
+const DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+// ════════════════════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════════════════════
+function getToday() { return new Date().toISOString().split('T')[0]; }
+function getDOW(d) { return new Date(d + 'T12:00:00').getDay(); }
+function isDue(freq, d) {
+  const dow = getDOW(d);
+  if (freq === 5) return dow >= 1 && dow <= 5;
+  if (freq === 3) return [1,3,5].includes(dow);
+  if (freq === 2) return [2,4].includes(dow);
+  if (freq === 1) return dow === 1;
+  return true;
+}
+function freqLabel(f) { return f===1?'1x/week':f===2?'2x/week':f===3?'3x/week':'5x/week'; }
+function stateKey(h,d) { return `chk_${h}_${d}`; }
+function loadState(h,d) { try { return JSON.parse(localStorage.getItem(stateKey(h,d))||'{}'); } catch(e){return{};} }
+function persistState(h,d,s) { try { localStorage.setItem(stateKey(h,d), JSON.stringify(s)); } catch(e){} }
+
+const currentDates = {};
+Object.keys(HOUSES).forEach(h => { currentDates[h] = getToday(); });
+
+// ════════════════════════════════════════════════════════
+//  RENDER CHECKLIST
+// ════════════════════════════════════════════════════════
+function renderPanel(houseId) {
+  const house = HOUSES[houseId];
+  const date = currentDates[houseId];
+  const state = loadState(houseId, date);
+  const panel = document.getElementById(houseId);
+
+  const allItems = house.sections.flatMap(s => s.items);
+  const dueItems = allItems.filter(i => isDue(i.freq, date));
+  const completedDue = dueItems.filter(i => state[i.id]==='done'||state[i.id]==='na').length;
+  const pct = dueItems.length > 0 ? Math.round((completedDue/dueItems.length)*100) : 0;
+  const dayName = DAY_NAMES[getDOW(date)];
+  const initials = localStorage.getItem(`ini_${houseId}_${date}`) || '';
+
+  let html = `
+    <div class="control-bar">
+      <div class="control-group">
+        <label>Date</label>
+        <input type="date" id="date-${houseId}" value="${date}" onchange="changeDate('${houseId}',this.value)" />
+      </div>
+      <div class="control-group">
+        <label>Initials</label>
+        <input type="text" id="initials-${houseId}" maxlength="4" placeholder="JD" value="${initials}"
+          oninput="localStorage.setItem('ini_${houseId}_${date}',this.value.toUpperCase())" />
+      </div>
+      <button class="btn-submit" id="submit-btn-${houseId}" onclick="submitChecklist('${houseId}')">
+        &#8679; Submit to Sheets
+      </button>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-info">
+        <div class="pct">${pct}%</div>
+        <div class="pct-label">${dayName} &mdash; due items addressed</div>
+      </div>
+      <div class="progress-bar-outer">
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" style="width:${pct}%"></div>
+        </div>
+        <div class="progress-counts">
+          <span>${completedDue} of ${dueItems.length} due items addressed</span>
+          <span>${allItems.length} total items</span>
+        </div>
+      </div>
+    </div>
+  `;
+
+  house.sections.forEach((sec, si) => {
+    html += `
+      <div class="section-card">
+        <div class="section-header" onclick="toggleSection('${houseId}-sec-${si}',this)">
+          <h3>${sec.name}</h3>
+          <span class="collapse-icon">&#9660;</span>
+        </div>
+        <div class="section-body" id="${houseId}-sec-${si}">
+          <table>
+            <thead><tr>
+              <th style="width:38%">Item</th>
+              <th style="width:14%">Frequency</th>
+              <th style="width:13%">Today</th>
+              <th>Action</th>
+            </tr></thead><tbody>`;
+    sec.items.forEach(item => {
+      const due = isDue(item.freq, date);
+      const st = state[item.id] || 'none';
+      html += `<tr>
+        <td>
+          <div class="item-name">${item.name}</div>
+          <div class="item-desc">${item.desc}</div>
+        </td>
+        <td><span class="badge badge-freq">${freqLabel(item.freq)}</span></td>
+        <td><span class="badge ${due?'badge-due':'badge-notdue'}">${due?'Due':'Not due'}</span></td>
+        <td>
+          <div class="action-wrap">
+            <button class="btn-check ${st==='done'?'done':''}" onclick="toggleItem('${houseId}','${item.id}','done')">
+              ${st==='done'?'&#10003; Done':'Mark done'}
+            </button>
+            <button class="btn-na ${st==='na'?'na-active':''}" onclick="toggleItem('${houseId}','${item.id}','na')">N/A</button>
+          </div>
+        </td>
+      </tr>`;
+    });
+    html += `</tbody></table></div></div>`;
+  });
+
+  panel.innerHTML = html;
+}
+
+function toggleSection(bodyId, header) {
+  const body = document.getElementById(bodyId);
+  if (!body) return;
+  const c = body.classList.toggle('collapsed');
+  header.classList.toggle('collapsed', c);
+}
+
+function toggleItem(houseId, itemId, action) {
+  const date = currentDates[houseId];
+  const state = loadState(houseId, date);
+  state[itemId] = state[itemId] === action ? undefined : action;
+  if (!state[itemId]) delete state[itemId];
+  persistState(houseId, date, state);
+  renderPanel(houseId);
+}
+
+function changeDate(houseId, val) {
+  currentDates[houseId] = val;
+  renderPanel(houseId);
+}
+
+// ════════════════════════════════════════════════════════
+//  SUBMIT TO GOOGLE SHEETS
+// ════════════════════════════════════════════════════════
+async function submitChecklist(houseId) {
+  if (!SCRIPT_URL) {
+    alert('Please paste your Google Apps Script URL in the setup banner at the top of the page first.');
+    return;
+  }
+
+  const date = currentDates[houseId];
+  const house = HOUSES[houseId];
+  const state = loadState(houseId, date);
+  const initials = (localStorage.getItem(`ini_${houseId}_${date}`) || '').toUpperCase();
+
+  if (!initials) {
+    alert('Please enter your initials before submitting.');
+    document.getElementById('initials-' + houseId)?.focus();
+    return;
+  }
+
+  const allItems = house.sections.flatMap(s => s.items);
+  const dueItems = allItems.filter(i => isDue(i.freq, date));
+  const itemsDone = dueItems.filter(i => state[i.id]==='done').length;
+  const itemsNA = dueItems.filter(i => state[i.id]==='na').length;
+  const itemsDue = dueItems.length;
+  const itemsSkipped = Math.max(0, itemsDue - itemsDone - itemsNA);
+  const completionPct = itemsDue > 0 ? Math.round(((itemsDone+itemsNA)/itemsDue)*100) + '%' : '0%';
+
+  // Per-section done counts
+  const sectionCounts = house.sections.map(sec =>
+    sec.items.filter(i => state[i.id]==='done' || state[i.id]==='na').length
+  );
+
+  // Full item detail string
+  const itemDetail = allItems.map(i => {
+    const st = state[i.id] || 'not checked';
+    return `${i.name}:${st}`;
+  }).join(' | ');
+
+  const payload = {
+    date,
+    house: house.label,
+    initials,
+    dayOfWeek: DAY_NAMES[getDOW(date)],
+    itemsDue,
+    itemsDone,
+    itemsNA,
+    itemsSkipped,
+    completionPct,
+    sectionCounts,
+    itemDetail
+  };
+
+  const btn = document.getElementById(`submit-btn-${houseId}`);
+  btn.disabled = true;
+  btn.classList.add('submitting');
+  btn.textContent = 'Submitting…';
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    // no-cors means we can't read the response, but if no error was thrown it worked
+    btn.classList.remove('submitting');
+    btn.classList.add('success');
+    btn.textContent = '✓ Submitted!';
+
+    // Save to local log too
+    saveToLocalLog(houseId, date, state, initials);
+
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.classList.remove('success');
+      btn.innerHTML = '&#8679; Submit to Sheets';
+    }, 3000);
+
+  } catch (err) {
+    btn.classList.remove('submitting');
+    btn.classList.add('error');
+    btn.textContent = '✗ Failed — try again';
+    btn.disabled = false;
+    setTimeout(() => {
+      btn.classList.remove('error');
+      btn.innerHTML = '&#8679; Submit to Sheets';
+    }, 3000);
+  }
+}
+
+function saveToLocalLog(houseId, date, state, initials) {
+  try {
+    let log = JSON.parse(localStorage.getItem('chk_log')||'[]');
+    log = log.filter(e => !(e.house===houseId && e.date===date));
+    log.unshift({ house: houseId, date, state, initials, savedAt: new Date().toISOString() });
+    if (log.length > 500) log = log.slice(0, 500);
+    localStorage.setItem('chk_log', JSON.stringify(log));
+  } catch(e) {}
+}
+
+// ════════════════════════════════════════════════════════
+//  HISTORY (local cache)
+// ════════════════════════════════════════════════════════
+function renderHistory() {
+  const panel = document.getElementById('history');
+  const log = JSON.parse(localStorage.getItem('chk_log')||'[]');
+  const hf = document.getElementById('hf-house')?.value || 'all';
+  const df = document.getElementById('hf-date')?.value || '';
+  const filtered = log.filter(e => (hf==='all'||e.house===hf) && (!df||e.date===df));
+
+  const totalDone = log.reduce((s,e) => s+Object.values(e.state||{}).filter(v=>v==='done').length, 0);
+  const uniqueDays = new Set(log.map(e=>e.date)).size;
+  const uniqueWorkers = new Set(log.map(e=>e.initials).filter(Boolean)).size;
+
+  let html = `
+    <div class="summary-row">
+      <div class="summary-tile"><div class="num">${log.length}</div><div class="lbl">Submissions</div></div>
+      <div class="summary-tile"><div class="num">${totalDone}</div><div class="lbl">Items done</div></div>
+      <div class="summary-tile"><div class="num">${uniqueDays}</div><div class="lbl">Days logged</div></div>
+      <div class="summary-tile"><div class="num">${uniqueWorkers}</div><div class="lbl">Workers</div></div>
+    </div>
+    <div class="history-top">
+      <select id="hf-house" onchange="renderHistory()">
+        <option value="all">All houses</option>
+        <option value="house-a" ${hf==='house-a'?'selected':''}>House A</option>
+        <option value="house-b" ${hf==='house-b'?'selected':''}>House B</option>
+        <option value="house-c" ${hf==='house-c'?'selected':''}>House C</option>
+        <option value="section-d" ${hf==='section-d'?'selected':''}>Section D</option>
+      </select>
+      <input type="date" id="hf-date" value="${df}" onchange="renderHistory()" />
+      <button class="btn-small" onclick="renderHistory()">Clear filters</button>
+      <button class="btn-small export" onclick="exportCSV()">&#8595; Export CSV</button>
+    </div>
+    <div class="log-table-wrap">`;
+
+  if (!filtered.length) {
+    html += `<div class="empty-state"><div class="icon">📋</div><p>${!log.length ? 'No submissions yet. Complete and submit a checklist to start tracking.' : 'No entries match the current filters.'}</p></div>`;
+  } else {
+    html += `<table class="log-table"><thead><tr>
+      <th>Date</th><th>House</th><th>Initials</th><th>Done</th><th>N/A</th><th>Skipped</th><th></th>
+    </tr></thead><tbody>`;
+    filtered.forEach(entry => {
+      const house = HOUSES[entry.house];
+      const label = house ? house.label : entry.house;
+      const st = entry.state || {};
+      const done = Object.values(st).filter(v=>v==='done').length;
+      const na = Object.values(st).filter(v=>v==='na').length;
+      const dueCount = house ? house.sections.flatMap(s=>s.items).filter(i=>isDue(i.freq,entry.date)).length : null;
+      const skipped = dueCount !== null ? Math.max(0, dueCount-done-na) : '?';
+      html += `<tr>
+        <td>${entry.date}</td>
+        <td>${label}</td>
+        <td style="font-family:var(--mono);font-weight:600">${entry.initials||'—'}</td>
+        <td class="status-done">${done}</td>
+        <td class="status-na">${na}</td>
+        <td class="${skipped>0?'status-skip':''}">${skipped}</td>
+        <td><button class="btn-small" style="font-size:11px;padding:4px 10px" onclick="openDetail('${entry.house}','${entry.date}')">View</button></td>
+      </tr>`;
+    });
+    html += `</tbody></table>`;
+  }
+  html += `</div>`;
+  panel.innerHTML = html;
+}
+
+function openDetail(houseId, date) {
+  const house = HOUSES[houseId];
+  if (!house) return;
+  const state = loadState(houseId, date);
+  const initials = localStorage.getItem(`ini_${houseId}_${date}`) || '';
+  document.getElementById('modal-title').textContent = house.label;
+  document.getElementById('modal-sub').textContent = `${date}${initials?' · '+initials:''}`;
+  let body = '';
+  house.sections.forEach(sec => {
+    body += `<div class="modal-section-title">${sec.name}</div>`;
+    sec.items.forEach(item => {
+      const st = state[item.id] || 'none';
+      const cls = st==='done'?'modal-status-done':st==='na'?'modal-status-na':'modal-status-none';
+      const lbl = st==='done'?'Done':st==='na'?'N/A':'Not checked';
+      body += `<div class="modal-item"><span>${item.name}</span><span class="modal-item-status ${cls}">${lbl}</span></div>`;
+    });
+  });
+  document.getElementById('modal-body').innerHTML = body;
+  document.getElementById('detail-modal').classList.add('open');
+}
+
+function closeModal(e) {
+  if (e.target===document.getElementById('detail-modal'))
+    document.getElementById('detail-modal').classList.remove('open');
+}
+
+function exportCSV() {
+  const log = JSON.parse(localStorage.getItem('chk_log')||'[]');
+  if (!log.length) { alert('No data to export yet.'); return; }
+  const rows = [['Date','House','Initials','Section','Item Name','Frequency','Status']];
+  log.forEach(entry => {
+    const house = HOUSES[entry.house];
+    if (!house) return;
+    house.sections.forEach(sec => {
+      sec.items.forEach(item => {
+        rows.push([entry.date, house?house.label:entry.house, entry.initials||'', sec.name, item.name, freqLabel(item.freq), (entry.state||{})[item.id]||'not checked']);
+      });
+    });
+  });
+  const csv = rows.map(r => r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob([csv],{type:'text/csv'})), download: 'greenhouse_log.csv' });
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+function switchTab(id, btn) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  if (id==='history') renderHistory();
+}
+
+// ── Init ──
+document.getElementById('header-date').textContent =
+  new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+updateConfigBanner();
+if (SCRIPT_URL) document.getElementById('script-url-input') && (document.getElementById('script-url-input').value = SCRIPT_URL);
+Object.keys(HOUSES).forEach(h => renderPanel(h));
+</script>
+</body>
+</html>
