@@ -33,7 +33,6 @@
     align-items: center;
   }
 
-  /* ─── HEADER ─────────────────────────────── */
   .site-header {
     width: 100%;
     background: var(--navy-dark);
@@ -55,33 +54,13 @@
     pointer-events: none;
   }
 
-  .logo-embed-wrap {
+  .logo-img {
     width: 100%;
-    max-width: 500px;
-    position: relative;
-    height: 0;
-    /* Taller padding-top makes iframe overflow — overflow:hidden then crops the Canva control bar */
-    padding-top: 32.9%;
-    overflow: hidden;
-    margin-top: 6px;
-  }
-  .logo-embed-wrap iframe {
-    position: absolute;
-    /* Render at original ratio inside the taller container so logo isn't stretched */
-    width: 100%;
-    height: 100%;
-    top: 0; left: 0;
-    border: none; padding: 0; margin: 0;
-    pointer-events: none;
-  }
-  /* Cover the Canva control bar with a navy strip matching the header */
-  .logo-embed-wrap::after {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 60px;
-    z-index: 10;
-    background: var(--navy-dark);
+    max-width: 420px;
+    height: auto;
+    display: block;
+    margin: 14px auto 10px;
+    padding: 0 16px;
   }
 
   .site-title {
@@ -104,7 +83,6 @@
     margin-bottom: 16px;
   }
 
-  /* ─── MAIN ───────────────────────────────── */
   .main {
     width: 100%;
     max-width: 460px;
@@ -115,7 +93,6 @@
     gap: 16px;
   }
 
-  /* ─── SETUP NOTE ─────────────────────────── */
   .api-note {
     background: rgba(201,162,39,0.1);
     border: 1px solid rgba(201,162,39,0.3);
@@ -132,7 +109,6 @@
   .api-note ol { padding-left: 18px; margin-top: 6px; }
   .api-note ol li { margin-bottom: 4px; }
 
-  /* ─── CARDS ──────────────────────────────── */
   .card {
     background: var(--cream);
     border-radius: 18px;
@@ -153,7 +129,6 @@
     color: var(--gold-light);
   }
 
-  /* ─── CAMERA ZONE ────────────────────────── */
   .camera-body { padding: 24px 22px 22px; }
 
   .drop-zone {
@@ -234,7 +209,6 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ─── RESULT BODY ────────────────────────── */
   .result-body { padding: 22px 22px 22px; }
 
   .gold-bar { width: 44px; height: 3px; background: var(--gold); border-radius: 2px; margin-bottom: 16px; }
@@ -321,36 +295,19 @@
     line-height: 1.5; margin-bottom: 14px;
   }
 
-  /* ─── MOBILE OPTIMIZATIONS ──────────────── */
-
-  /* Prevent iOS double-tap zoom on buttons */
   button, a { touch-action: manipulation; }
-
-  /* Minimum 48px tap targets for all interactive elements */
   .scan-btn  { min-height: 52px; font-size: 15px; }
   .reset-btn { min-height: 48px; }
   .google-link { min-height: 48px; display: flex; align-items: center; justify-content: center; }
   .change-overlay { min-height: 36px; display: flex; align-items: center; }
-
-  /* Larger drop zone on mobile for easier tapping */
   .drop-zone { min-height: 180px; }
-
-  /* Bigger bloom photos on small screens */
   .photos-grid { gap: 10px; }
   .photo-tile { border-radius: 12px; }
-
-  /* Larger plant name for outdoor readability */
   .plant-name { font-size: 28px; }
   .plant-sci  { font-size: 16px; }
-
-  /* Smooth scroll to results */
   html { scroll-behavior: smooth; }
-
-  /* Safe area padding for notched phones (iPhone X+) */
   .site-footer { padding-bottom: calc(28px + env(safe-area-inset-bottom)); }
   .main { padding-bottom: calc(48px + env(safe-area-inset-bottom)); }
-
-  /* High contrast improvements for outdoor sunlight */
   .drop-label { font-size: 17px; }
   .drop-sub   { font-size: 13px; }
   .id-label   { font-size: 11px; }
@@ -365,7 +322,6 @@
     .result-body { padding: 18px 16px 18px; }
   }
 
-  /* ─── FOOTER ─────────────────────────────── */
   .site-footer {
     width: 100%; text-align: center;
     padding: 14px 20px 28px;
@@ -377,35 +333,19 @@
 </head>
 <body>
 
-<!-- ── HEADER ── -->
 <header class="site-header">
-  <div class="logo-embed-wrap">
-    <iframe loading="lazy"
-      src="https://www.canva.com/design/DAHF1tvcqnM/9XAp70b92bt4BUH2he5dcg/view?embed"
-      allowfullscreen="allowfullscreen" allow="fullscreen"></iframe>
-  </div>
+  <img class="logo-img" src="https://professoracodd.github.io/Horticulture/env-hort_subident-goldhor.png" alt="Merced College Environmental Horticulture"/>
   <div class="site-title">Flower Finder</div>
   <div class="site-tagline">Photograph a label — discover the bloom</div>
 </header>
 
-<!-- ── MAIN ── -->
 <main class="main">
 
-  <!-- Setup instructions (hidden once key is saved) -->
-  <div class="api-note" id="apiNote" style="display:none;">
-    <strong>One-time setup — get your free Gemini API key:</strong>
-    <ol>
-      <li>Go to <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a></li>
-      <li>Sign in with a Google account &amp; click <strong>Create API key</strong></li>
-      <li>Copy the key and paste it in place of <code>YOUR_GEMINI_KEY</code> in this file</li>
-      <li>Save &amp; upload to GitHub — done! No credit card needed.</li>
-    </ol>
-  </div>
+  <div class="api-note" id="apiNote" style="display:none;"></div>
 
-  <!-- Scanner card -->
   <div class="card">
     <div class="card-header">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c9a227" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#cda535" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
         <circle cx="12" cy="13" r="4"/>
       </svg>
@@ -437,10 +377,9 @@
     </div>
   </div>
 
-  <!-- Result card -->
   <div class="card" id="resultCard" style="display:none;">
     <div class="card-header">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c9a227" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#cda535" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/>
         <polyline points="9 12 11 14 15 10"/>
       </svg>
@@ -456,20 +395,10 @@
 </footer>
 
 <script>
-  // ─────────────────────────────────────────────────────────────────
-  //  Paste your free Gemini API key from aistudio.google.com/apikey
-  // ─────────────────────────────────────────────────────────────────
   const GEMINI_KEY = 'AIzaSyByFN3TLQsDO5JhlwGgxbiNUKMe7k4WVZI';
-  // ─────────────────────────────────────────────────────────────────
-
   const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
-  const SEARCH_URL  = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
 
   let imageBase64 = null, imageMimeType = 'image/jpeg';
-
-  if (GEMINI_KEY && GEMINI_KEY !== 'YOUR_GEMINI_KEY') {
-    document.getElementById('apiNote').style.display = 'none';
-  }
 
   function triggerCamera() { document.getElementById('fileInput').click(); }
 
@@ -492,13 +421,11 @@
     reader.readAsDataURL(file);
   }
 
-  // ── Step 1: Read the plant label with Gemini vision ──────────────
   async function scanLabel() {
     if (!imageBase64) return;
     const btn = document.getElementById('scanBtn');
     btn.disabled = true;
     btn.innerHTML = '<div class="spinner"></div> Reading label...';
-
     const rc = document.getElementById('resultCard');
     const rb = document.getElementById('resultBody');
     rc.style.display = 'block';
@@ -511,12 +438,8 @@
         body: JSON.stringify({
           contents: [{
             parts: [
-              {
-                inline_data: { mime_type: imageMimeType, data: imageBase64 }
-              },
-              {
-                text: 'This is a plant label or nursery tag. Extract ONLY the plant name — common name and/or scientific/botanical name. Ignore ALL descriptions, care instructions, watering schedules, prices, barcodes, pot sizes, and any other text. Reply with ONLY valid JSON, no markdown, no extra text: {"commonName":"...","scientificName":"...","searchQuery":"..."} where searchQuery is the best Google Images search phrase to find gorgeous flowering/in-bloom photos of this specific plant (e.g. "Echinacea purpurea Magnus in bloom"). If no plant name is visible at all, return {"error":"No plant name found"}.'
-              }
+              { inline_data: { mime_type: imageMimeType, data: imageBase64 } },
+              { text: 'This is a plant label or nursery tag. Extract ONLY the plant name — common name and/or scientific/botanical name. Ignore ALL descriptions, care instructions, watering schedules, prices, barcodes, pot sizes, and any other text. Reply with ONLY valid JSON, no markdown, no extra text: {"commonName":"...","scientificName":"...","searchQuery":"..."} where searchQuery is the best Google Images search phrase to find gorgeous flowering/in-bloom photos of this specific plant. If no plant name is visible at all, return {"error":"No plant name found"}.' }
             ]
           }],
           generationConfig: { temperature: 0.1, maxOutputTokens: 256 }
@@ -524,116 +447,75 @@
       });
 
       const data = await res.json();
-      if (!res.ok) {
-        const msg = data?.error?.message || 'API error. Check your Gemini key.';
-        showError(msg); return;
-      }
-
+      if (!res.ok) { showError(data?.error?.message || 'API error.'); return; }
       let txt = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
       txt = txt.replace(/```json|```/g, '').trim();
       const parsed = JSON.parse(txt);
-
-      if (parsed.error) {
-        showError(parsed.error + ' — try a clearer, well-lit photo focused on the plant name.'); return;
-      }
-
+      if (parsed.error) { showError(parsed.error + ' — try a clearer photo focused on the plant name.'); return; }
       showResult(parsed);
-
     } catch(err) {
-      console.error(err);
       showError('Could not read the label. Please try again with a clearer photo.');
     } finally {
       btn.disabled = false;
-      btn.innerHTML = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg> Identify this plant`;
+      btn.innerHTML = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg> Identify this plant';
     }
   }
 
   function shimmerTile() {
-    return `<div class="photo-tile"><div class="photo-shimmer">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9a227" stroke-width="1.5">
-        <path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z"/>
-        <circle cx="12" cy="9" r="2.5"/>
-      </svg></div></div>`;
+    return '<div class="photo-tile"><div class="photo-shimmer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b8922a" stroke-width="1.5"><path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z"/><circle cx="12" cy="9" r="2.5"/></svg></div></div>';
   }
 
   function showResult(plant) {
     const name = plant.commonName || plant.scientificName || 'Unknown plant';
-    const sci  = plant.scientificName
-      ? `<div class="plant-sci">${plant.scientificName}</div>`
-      : '<div style="margin-bottom:20px"></div>';
+    const sci  = plant.scientificName ? '<div class="plant-sci">' + plant.scientificName + '</div>' : '<div style="margin-bottom:20px"></div>';
     const q    = plant.searchQuery || name + ' flower bloom';
     const gUrl = 'https://www.google.com/search?q=' + encodeURIComponent(q) + '&tbm=isch';
 
-    document.getElementById('resultBody').innerHTML = `
-      <div class="gold-bar"></div>
-      <div class="id-label">Plant identified</div>
-      <div class="plant-name">${name}</div>
-      ${sci}
-      <div class="blooms-header">In bloom</div>
-      <div class="photos-grid" id="photosGrid">
-        ${[1,2,3].map(shimmerTile).join('')}
-      </div>
-      <a class="google-link" href="${gUrl}" target="_blank">Search more bloom photos &rarr;</a>
-      <button class="reset-btn" onclick="resetApp()">Scan another plant</button>
-    `;
+    document.getElementById('resultBody').innerHTML =
+      '<div class="gold-bar"></div>' +
+      '<div class="id-label">Plant identified</div>' +
+      '<div class="plant-name">' + name + '</div>' +
+      sci +
+      '<div class="blooms-header">In bloom</div>' +
+      '<div class="photos-grid" id="photosGrid">' + [1,2,3].map(shimmerTile).join('') + '</div>' +
+      '<a class="google-link" href="' + gUrl + '" target="_blank">Search more bloom photos &rarr;</a>' +
+      '<button class="reset-btn" onclick="resetApp()">Scan another plant</button>';
+
     document.getElementById('resultCard').style.display = 'block';
-    // Scroll results into view smoothly on mobile
     setTimeout(() => {
       document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 150);
     loadPhotos(q);
   }
 
-  // ── Step 2: Use Gemini with Google Search grounding for photos ───
   async function loadPhotos(query) {
     try {
-      // Ask Gemini to find image URLs using its search grounding
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{
-                text: `Search the web for "${query}" and find 3 direct image URLs (ending in .jpg, .jpeg, .png, or .webp) from gardening, botanical, or nursery websites showing this plant flowering. Return ONLY a raw JSON array of exactly 3 URLs, no markdown, no explanation, no extra text. Example: ["https://example.com/a.jpg","https://example.com/b.jpg","https://example.com/c.jpg"]`
-              }]
-            }],
-            tools: [{ google_search: {} }],
-            generationConfig: { temperature: 0.1, maxOutputTokens: 512 }
-          })
-        }
-      );
-
+      const res = await fetch(GEMINI_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: 'Search the web for "' + query + '" and find 3 direct image URLs (ending in .jpg, .jpeg, .png, or .webp) from gardening, botanical, or nursery websites showing this plant flowering. Return ONLY a raw JSON array of exactly 3 URLs, no markdown, no explanation. Example: ["https://a.com/a.jpg","https://b.com/b.jpg","https://c.com/c.jpg"]' }] }],
+          tools: [{ google_search: {} }],
+          generationConfig: { temperature: 0.1, maxOutputTokens: 512 }
+        })
+      });
       const data = await res.json();
-      let txt = (data?.candidates?.[0]?.content?.parts || [])
-        .map(p => p.text || '').join('').replace(/```json|```/g, '').trim();
-
+      let txt = (data?.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('').replace(/```json|```/g, '').trim();
       let urls = [];
       try { urls = JSON.parse(txt); } catch(e) {
-        // Fallback: scrape any image URLs from the response
         const m = txt.match(/https?:\/\/[^\s"',\]\[<>]+\.(jpg|jpeg|png|webp)(\?[^\s"',\]\[<>]*)?/gi);
         if (m) urls = [...new Set(m)].slice(0, 3);
       }
-
       const grid = document.getElementById('photosGrid');
       if (!grid || !urls || !urls.length) return;
-
-      grid.innerHTML = urls.map((url, i) => `
-        <div class="photo-tile">
-          <img src="${url}" alt="Bloom ${i+1}" loading="lazy"
-            onerror="this.parentElement.innerHTML='<div class=\\'photo-shimmer\\'><svg width=\\'20\\' height=\\'20\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'#bbb\\' stroke-width=\\'1.5\\'><line x1=\\'18\\' y1=\\'6\\' x2=\\'6\\' y2=\\'18\\'/><line x1=\\'6\\' y1=\\'6\\' x2=\\'18\\' y2=\\'18\\'/></svg></div>'"/>
-        </div>`).join('');
-
-    } catch(err) {
-      console.error('Photo search failed:', err);
-    }
+      grid.innerHTML = urls.map((url, i) =>
+        '<div class="photo-tile"><img src="' + url + '" alt="Bloom ' + (i+1) + '" loading="lazy" onerror="this.parentElement.innerHTML=\'<div class=\\\'photo-shimmer\\\'></div>\'"/></div>'
+      ).join('');
+    } catch(err) { console.error('Photo search failed:', err); }
   }
 
   function showError(msg) {
-    document.getElementById('resultBody').innerHTML = `
-      <div class="error-box">${msg}</div>
-      <button class="reset-btn" onclick="resetApp()">Try again</button>`;
+    document.getElementById('resultBody').innerHTML = '<div class="error-box">' + msg + '</div><button class="reset-btn" onclick="resetApp()">Try again</button>';
     document.getElementById('resultCard').style.display = 'block';
   }
 
