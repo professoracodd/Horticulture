@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<title>Merced College Flower Finder</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Spectral:ital,wght@0,600;1,400&family=Open+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --navy:       #1b3a6b;
+    --navy-dark:  #122850;
+    --navy-mid:   #1e4080;
+    --gold:       #b8922a;
+    --gold-light: #cda535;
+    --gold-pale:  #f2e4be;
+    --cream:      #faf9f5;
+    --white:      #ffffff;
+    --muted:      #5a6880;
+    --border:     rgba(27,58,107,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Open Sans', sans-serif;
+    background: var(--navy-dark);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ─── HEADER ─────────────────────────────── */
+  .site-header {
+    width: 100%;
+    background: var(--navy-dark);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-bottom: 3px solid var(--gold);
+    position: relative;
+    overflow: hidden;
+    padding-bottom: 4px;
+  }
+
+  .site-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 70px;
+    background: radial-gradient(ellipse at 50% 130%, rgba(201,162,39,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .logo-embed-wrap {
+    width: 100%;
+    max-width: 500px;
+    position: relative;
+    height: 0;
+    /* Taller padding-top makes iframe overflow — overflow:hidden then crops the Canva control bar */
+    padding-top: 32.9%;
+    overflow: hidden;
+    margin-top: 6px;
+  }
+  .logo-embed-wrap iframe {
+    position: absolute;
+    /* Render at original ratio inside the taller container so logo isn't stretched */
+    width: 100%;
+    height: 100%;
+    top: 0; left: 0;
+    border: none; padding: 0; margin: 0;
+    pointer-events: none;
+  }
+  /* Cover the Canva control bar with a navy strip matching the header */
+  .logo-embed-wrap::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 60px;
+    z-index: 10;
+    background: var(--navy-dark);
+  }
+
+  .site-title {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    color: var(--gold-light);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-align: center;
+    margin: 4px 20px 2px;
+  }
+
+  .site-tagline {
+    font-family: 'Spectral', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: rgba(255,255,255,0.55);
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  /* ─── MAIN ───────────────────────────────── */
+  .main {
+    width: 100%;
+    max-width: 460px;
+    padding: 20px 16px 48px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* ─── SETUP NOTE ─────────────────────────── */
+  .api-note {
+    background: rgba(201,162,39,0.1);
+    border: 1px solid rgba(201,162,39,0.3);
+    border-radius: 14px; padding: 14px 16px;
+    font-size: 12.5px; color: rgba(255,255,255,0.75);
+    line-height: 1.75;
+  }
+  .api-note strong { color: var(--gold-light); font-weight: 600; }
+  .api-note a { color: var(--gold-light); }
+  .api-note code {
+    background: rgba(0,0,0,0.35); border-radius: 4px;
+    padding: 1px 6px; font-size: 11.5px; color: #ffd97a;
+  }
+  .api-note ol { padding-left: 18px; margin-top: 6px; }
+  .api-note ol li { margin-bottom: 4px; }
+
+  /* ─── CARDS ──────────────────────────────── */
+  .card {
+    background: var(--cream);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.45), 0 0 0 1px rgba(201,162,39,0.25);
+  }
+
+  .card-header {
+    background: var(--navy);
+    padding: 10px 18px 9px;
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .card-header-title {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700; font-size: 12px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--gold-light);
+  }
+
+  /* ─── CAMERA ZONE ────────────────────────── */
+  .camera-body { padding: 24px 22px 22px; }
+
+  .drop-zone {
+    width: 100%;
+    border: 2px dashed rgba(27,58,107,0.3);
+    border-radius: 14px;
+    background: var(--white);
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    overflow: hidden; position: relative;
+    min-height: 155px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .drop-zone:hover { border-color: var(--gold); background: #fffdf5; }
+  .drop-zone.has-image { border-style: solid; border-color: var(--navy); min-height: unset; }
+
+  .drop-inner {
+    display: flex; flex-direction: column;
+    align-items: center; gap: 12px;
+    padding: 26px 20px; text-align: center;
+  }
+
+  .cam-circle {
+    width: 62px; height: 62px;
+    background: var(--gold-pale); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .drop-label {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700; font-size: 15px; color: var(--navy);
+  }
+
+  .drop-sub {
+    font-size: 12px; color: var(--muted);
+    font-weight: 300; line-height: 1.5; max-width: 210px;
+  }
+
+  .preview-img {
+    width: 100%; max-height: 240px;
+    object-fit: cover; display: block; border-radius: 12px;
+  }
+
+  .change-overlay {
+    position: absolute; bottom: 10px; right: 10px;
+    background: rgba(18,40,80,0.78);
+    color: var(--gold-light);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    border-radius: 6px; padding: 4px 10px; cursor: pointer;
+  }
+
+  #fileInput { display: none; }
+
+  .scan-btn {
+    width: 100%; margin-top: 14px;
+    background: var(--navy); color: var(--gold-light);
+    border: none; border-radius: 12px; padding: 15px 20px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700; font-size: 13px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+    box-shadow: 0 4px 16px rgba(18,40,80,0.25);
+  }
+  .scan-btn:hover  { background: var(--navy-mid); box-shadow: 0 6px 20px rgba(18,40,80,0.35); }
+  .scan-btn:active { transform: scale(0.98); }
+  .scan-btn:disabled { background: #8a9ab8; cursor: not-allowed; transform: none; box-shadow: none; color: rgba(255,255,255,0.55); }
+
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(201,162,39,0.3);
+    border-top-color: var(--gold-light);
+    border-radius: 50%;
+    animation: spin 0.75s linear infinite; flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ─── RESULT BODY ────────────────────────── */
+  .result-body { padding: 22px 22px 22px; }
+
+  .gold-bar { width: 44px; height: 3px; background: var(--gold); border-radius: 2px; margin-bottom: 16px; }
+
+  .id-label {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700; font-size: 10px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 4px;
+  }
+
+  .plant-name {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800; font-size: 26px;
+    color: var(--navy-dark); line-height: 1.1; margin-bottom: 4px;
+  }
+
+  .plant-sci {
+    font-family: 'Spectral', serif;
+    font-style: italic; font-size: 15px;
+    color: var(--muted); margin-bottom: 20px;
+  }
+
+  .blooms-header {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700; font-size: 10px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--navy); margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .blooms-header::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .photos-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px; margin-bottom: 16px;
+  }
+
+  .photo-tile {
+    aspect-ratio: 1; border-radius: 10px;
+    overflow: hidden; background: var(--gold-pale);
+  }
+  .photo-tile img {
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
+    transition: transform 0.3s;
+  }
+  .photo-tile img:hover { transform: scale(1.06); }
+
+  .photo-shimmer {
+    width: 100%; height: 100%;
+    background: linear-gradient(135deg, #f0e8c8, #e0d4a8);
+    display: flex; align-items: center; justify-content: center;
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+  .google-link {
+    display: block; text-align: center;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 13px; font-weight: 600;
+    color: var(--navy); text-decoration: none;
+    padding: 10px; border: 1.5px solid var(--navy);
+    border-radius: 10px; margin-bottom: 12px;
+    transition: background 0.2s, color 0.2s;
+  }
+  .google-link:hover { background: var(--navy); color: var(--gold-light); }
+
+  .reset-btn {
+    width: 100%; background: none;
+    border: 1.5px solid var(--gold); color: var(--navy);
+    border-radius: 10px; padding: 11px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700; font-size: 12px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .reset-btn:hover { background: var(--gold-pale); }
+
+  .error-box {
+    background: #fff3f3; border: 1px solid #f5c0c0;
+    border-radius: 12px; padding: 14px 18px;
+    font-size: 13px; color: #b03030;
+    line-height: 1.5; margin-bottom: 14px;
+  }
+
+  /* ─── MOBILE OPTIMIZATIONS ──────────────── */
+
+  /* Prevent iOS double-tap zoom on buttons */
+  button, a { touch-action: manipulation; }
+
+  /* Minimum 48px tap targets for all interactive elements */
+  .scan-btn  { min-height: 52px; font-size: 15px; }
+  .reset-btn { min-height: 48px; }
+  .google-link { min-height: 48px; display: flex; align-items: center; justify-content: center; }
+  .change-overlay { min-height: 36px; display: flex; align-items: center; }
+
+  /* Larger drop zone on mobile for easier tapping */
+  .drop-zone { min-height: 180px; }
+
+  /* Bigger bloom photos on small screens */
+  .photos-grid { gap: 10px; }
+  .photo-tile { border-radius: 12px; }
+
+  /* Larger plant name for outdoor readability */
+  .plant-name { font-size: 28px; }
+  .plant-sci  { font-size: 16px; }
+
+  /* Smooth scroll to results */
+  html { scroll-behavior: smooth; }
+
+  /* Safe area padding for notched phones (iPhone X+) */
+  .site-footer { padding-bottom: calc(28px + env(safe-area-inset-bottom)); }
+  .main { padding-bottom: calc(48px + env(safe-area-inset-bottom)); }
+
+  /* High contrast improvements for outdoor sunlight */
+  .drop-label { font-size: 17px; }
+  .drop-sub   { font-size: 13px; }
+  .id-label   { font-size: 11px; }
+  .blooms-header { font-size: 11px; }
+
+  @media (max-width: 390px) {
+    .site-title  { font-size: 19px; }
+    .site-tagline { font-size: 13px; }
+    .plant-name  { font-size: 24px; }
+    .scan-btn    { font-size: 14px; }
+    .camera-body { padding: 18px 16px 18px; }
+    .result-body { padding: 18px 16px 18px; }
+  }
+
+  /* ─── FOOTER ─────────────────────────────── */
+  .site-footer {
+    width: 100%; text-align: center;
+    padding: 14px 20px 28px;
+    font-size: 11px; font-family: 'Open Sans', sans-serif;
+    color: rgba(255,255,255,0.28); letter-spacing: 0.07em;
+    border-top: 1px solid rgba(201,162,39,0.12);
+  }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header class="site-header">
+  <div class="logo-embed-wrap">
+    <iframe loading="lazy"
+      src="https://www.canva.com/design/DAHF1tvcqnM/9XAp70b92bt4BUH2he5dcg/view?embed"
+      allowfullscreen="allowfullscreen" allow="fullscreen"></iframe>
+  </div>
+  <div class="site-title">Flower Finder</div>
+  <div class="site-tagline">Photograph a label — discover the bloom</div>
+</header>
+
+<!-- ── MAIN ── -->
+<main class="main">
+
+  <!-- Setup instructions (hidden once key is saved) -->
+  <div class="api-note" id="apiNote" style="display:none;">
+    <strong>One-time setup — get your free Gemini API key:</strong>
+    <ol>
+      <li>Go to <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a></li>
+      <li>Sign in with a Google account &amp; click <strong>Create API key</strong></li>
+      <li>Copy the key and paste it in place of <code>YOUR_GEMINI_KEY</code> in this file</li>
+      <li>Save &amp; upload to GitHub — done! No credit card needed.</li>
+    </ol>
+  </div>
+
+  <!-- Scanner card -->
+  <div class="card">
+    <div class="card-header">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c9a227" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+        <circle cx="12" cy="13" r="4"/>
+      </svg>
+      <span class="card-header-title">Step 1 — Photograph the plant label</span>
+    </div>
+    <div class="camera-body">
+      <div class="drop-zone" id="dropZone" onclick="triggerCamera()">
+        <div class="drop-inner" id="dropDefault">
+          <div class="cam-circle">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#1b3a6b" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+          </div>
+          <div class="drop-label">Tap to open camera</div>
+          <div class="drop-sub">Works with pot tags, nursery labels, and seed packets — we find the plant name automatically</div>
+        </div>
+        <img id="previewImg" class="preview-img" style="display:none;" alt="Plant label"/>
+        <div class="change-overlay" id="changeOverlay" style="display:none;"
+             onclick="triggerCamera();event.stopPropagation();">Change photo</div>
+      </div>
+      <input type="file" id="fileInput" accept="image/*" capture="environment" onchange="handleImage(event)"/>
+      <button class="scan-btn" id="scanBtn" onclick="scanLabel()" style="display:none;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        Identify this plant
+      </button>
+    </div>
+  </div>
+
+  <!-- Result card -->
+  <div class="card" id="resultCard" style="display:none;">
+    <div class="card-header">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c9a227" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/>
+        <polyline points="9 12 11 14 15 10"/>
+      </svg>
+      <span class="card-header-title">Step 2 — Plant identified</span>
+    </div>
+    <div class="result-body" id="resultBody"></div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  Merced College &nbsp;·&nbsp; Environmental Horticulture &nbsp;·&nbsp; Plant Sale
+</footer>
+
+<script>
+  // ─────────────────────────────────────────────────────────────────
+  //  Paste your free Gemini API key from aistudio.google.com/apikey
+  // ─────────────────────────────────────────────────────────────────
+  const GEMINI_KEY = 'AIzaSyByFN3TLQsDO5JhlwGgxbiNUKMe7k4WVZI';
+  // ─────────────────────────────────────────────────────────────────
+
+  const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
+  const SEARCH_URL  = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
+
+  let imageBase64 = null, imageMimeType = 'image/jpeg';
+
+  if (GEMINI_KEY && GEMINI_KEY !== 'YOUR_GEMINI_KEY') {
+    document.getElementById('apiNote').style.display = 'none';
+  }
+
+  function triggerCamera() { document.getElementById('fileInput').click(); }
+
+  function handleImage(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    imageMimeType = file.type || 'image/jpeg';
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      imageBase64 = ev.target.result.split(',')[1];
+      const img = document.getElementById('previewImg');
+      img.src = ev.target.result;
+      img.style.display = 'block';
+      document.getElementById('dropDefault').style.display = 'none';
+      document.getElementById('dropZone').classList.add('has-image');
+      document.getElementById('changeOverlay').style.display = 'block';
+      document.getElementById('scanBtn').style.display = 'flex';
+      document.getElementById('resultCard').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // ── Step 1: Read the plant label with Gemini vision ──────────────
+  async function scanLabel() {
+    if (!imageBase64) return;
+    const btn = document.getElementById('scanBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner"></div> Reading label...';
+
+    const rc = document.getElementById('resultCard');
+    const rb = document.getElementById('resultBody');
+    rc.style.display = 'block';
+    rb.innerHTML = '<div style="text-align:center;padding:28px 0;font-size:14px;color:#5a6880;font-family:\'Open Sans\',sans-serif;">Identifying plant name...</div>';
+
+    try {
+      const res = await fetch(GEMINI_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [
+              {
+                inline_data: { mime_type: imageMimeType, data: imageBase64 }
+              },
+              {
+                text: 'This is a plant label or nursery tag. Extract ONLY the plant name — common name and/or scientific/botanical name. Ignore ALL descriptions, care instructions, watering schedules, prices, barcodes, pot sizes, and any other text. Reply with ONLY valid JSON, no markdown, no extra text: {"commonName":"...","scientificName":"...","searchQuery":"..."} where searchQuery is the best Google Images search phrase to find gorgeous flowering/in-bloom photos of this specific plant (e.g. "Echinacea purpurea Magnus in bloom"). If no plant name is visible at all, return {"error":"No plant name found"}.'
+              }
+            ]
+          }],
+          generationConfig: { temperature: 0.1, maxOutputTokens: 256 }
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        const msg = data?.error?.message || 'API error. Check your Gemini key.';
+        showError(msg); return;
+      }
+
+      let txt = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      txt = txt.replace(/```json|```/g, '').trim();
+      const parsed = JSON.parse(txt);
+
+      if (parsed.error) {
+        showError(parsed.error + ' — try a clearer, well-lit photo focused on the plant name.'); return;
+      }
+
+      showResult(parsed);
+
+    } catch(err) {
+      console.error(err);
+      showError('Could not read the label. Please try again with a clearer photo.');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg> Identify this plant`;
+    }
+  }
+
+  function shimmerTile() {
+    return `<div class="photo-tile"><div class="photo-shimmer">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9a227" stroke-width="1.5">
+        <path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z"/>
+        <circle cx="12" cy="9" r="2.5"/>
+      </svg></div></div>`;
+  }
+
+  function showResult(plant) {
+    const name = plant.commonName || plant.scientificName || 'Unknown plant';
+    const sci  = plant.scientificName
+      ? `<div class="plant-sci">${plant.scientificName}</div>`
+      : '<div style="margin-bottom:20px"></div>';
+    const q    = plant.searchQuery || name + ' flower bloom';
+    const gUrl = 'https://www.google.com/search?q=' + encodeURIComponent(q) + '&tbm=isch';
+
+    document.getElementById('resultBody').innerHTML = `
+      <div class="gold-bar"></div>
+      <div class="id-label">Plant identified</div>
+      <div class="plant-name">${name}</div>
+      ${sci}
+      <div class="blooms-header">In bloom</div>
+      <div class="photos-grid" id="photosGrid">
+        ${[1,2,3].map(shimmerTile).join('')}
+      </div>
+      <a class="google-link" href="${gUrl}" target="_blank">Search more bloom photos &rarr;</a>
+      <button class="reset-btn" onclick="resetApp()">Scan another plant</button>
+    `;
+    document.getElementById('resultCard').style.display = 'block';
+    // Scroll results into view smoothly on mobile
+    setTimeout(() => {
+      document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 150);
+    loadPhotos(q);
+  }
+
+  // ── Step 2: Use Gemini with Google Search grounding for photos ───
+  async function loadPhotos(query) {
+    try {
+      // Ask Gemini to find image URLs using its search grounding
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{
+                text: `Search the web for "${query}" and find 3 direct image URLs (ending in .jpg, .jpeg, .png, or .webp) from gardening, botanical, or nursery websites showing this plant flowering. Return ONLY a raw JSON array of exactly 3 URLs, no markdown, no explanation, no extra text. Example: ["https://example.com/a.jpg","https://example.com/b.jpg","https://example.com/c.jpg"]`
+              }]
+            }],
+            tools: [{ google_search: {} }],
+            generationConfig: { temperature: 0.1, maxOutputTokens: 512 }
+          })
+        }
+      );
+
+      const data = await res.json();
+      let txt = (data?.candidates?.[0]?.content?.parts || [])
+        .map(p => p.text || '').join('').replace(/```json|```/g, '').trim();
+
+      let urls = [];
+      try { urls = JSON.parse(txt); } catch(e) {
+        // Fallback: scrape any image URLs from the response
+        const m = txt.match(/https?:\/\/[^\s"',\]\[<>]+\.(jpg|jpeg|png|webp)(\?[^\s"',\]\[<>]*)?/gi);
+        if (m) urls = [...new Set(m)].slice(0, 3);
+      }
+
+      const grid = document.getElementById('photosGrid');
+      if (!grid || !urls || !urls.length) return;
+
+      grid.innerHTML = urls.map((url, i) => `
+        <div class="photo-tile">
+          <img src="${url}" alt="Bloom ${i+1}" loading="lazy"
+            onerror="this.parentElement.innerHTML='<div class=\\'photo-shimmer\\'><svg width=\\'20\\' height=\\'20\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'#bbb\\' stroke-width=\\'1.5\\'><line x1=\\'18\\' y1=\\'6\\' x2=\\'6\\' y2=\\'18\\'/><line x1=\\'6\\' y1=\\'6\\' x2=\\'18\\' y2=\\'18\\'/></svg></div>'"/>
+        </div>`).join('');
+
+    } catch(err) {
+      console.error('Photo search failed:', err);
+    }
+  }
+
+  function showError(msg) {
+    document.getElementById('resultBody').innerHTML = `
+      <div class="error-box">${msg}</div>
+      <button class="reset-btn" onclick="resetApp()">Try again</button>`;
+    document.getElementById('resultCard').style.display = 'block';
+  }
+
+  function resetApp() {
+    imageBase64 = null;
+    document.getElementById('previewImg').style.display = 'none';
+    document.getElementById('dropDefault').style.display = 'flex';
+    document.getElementById('dropZone').classList.remove('has-image');
+    document.getElementById('changeOverlay').style.display = 'none';
+    document.getElementById('scanBtn').style.display = 'none';
+    document.getElementById('resultCard').style.display = 'none';
+    document.getElementById('resultBody').innerHTML = '';
+    document.getElementById('fileInput').value = '';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
