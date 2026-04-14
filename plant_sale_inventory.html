@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Merced College Plant Sale — Inventory</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f2eb;
+    --surface: #fffdf8;
+    --border: #d6d0c4;
+    --border-light: #e8e3d8;
+    --text: #2a2620;
+    --text-muted: #7a7268;
+    --text-faint: #a8a098;
+    --accent: #4a7c59;
+
+    --lc-c-bg: #f5d96b;
+    --lc-c-text: #5a4500;
+    --lc-e-bg: #b8d98d;
+    --lc-e-text: #2a4a18;
+    --lc-o-bg: #f0ede6;
+    --lc-o-text: #4a4640;
+    --lc-o-border: #c8c3b8;
+    --lc-s-bg: #7ecfbc;
+    --lc-s-text: #0d4a3a;
+    --ca-bg: #ddefd4;
+    --ca-text: #2a4a18;
+  }
+
+  body {
+    font-family: 'DM Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 2rem 2rem 1.5rem;
+  }
+
+  header h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 2rem;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+  }
+
+  header p {
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .legend {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .legend-dot {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 500;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .controls {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 2rem;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  input[type="text"], select {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    padding: 7px 12px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+    height: 34px;
+  }
+
+  input[type="text"] { flex: 1; min-width: 200px; }
+  select { min-width: 160px; cursor: pointer; }
+
+  input[type="text"]:focus, select:focus {
+    border-color: var(--accent);
+  }
+
+  .stats {
+    margin-left: auto;
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+  }
+
+  .stat {
+    text-align: right;
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .stat strong {
+    display: block;
+    font-size: 18px;
+    font-family: 'Fraunces', serif;
+    font-weight: 300;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  .table-wrap {
+    padding: 1.5rem 2rem;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  thead {
+    background: #edeae2;
+  }
+
+  th {
+    text-align: left;
+    padding: 9px 12px;
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    transition: color 0.1s;
+  }
+
+  th:hover { color: var(--text); }
+  th.sort-asc::after { content: ' ↑'; }
+  th.sort-desc::after { content: ' ↓'; }
+
+  td {
+    padding: 7px 12px;
+    border-bottom: 1px solid var(--border-light);
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  tbody tr:hover td {
+    background: #f7f4ec;
+  }
+
+  .botanical {
+    font-style: italic;
+    color: var(--text-muted);
+    font-size: 11px;
+  }
+
+  .loc {
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+  }
+
+  .qty {
+    font-weight: 500;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .lc-c { background: var(--lc-c-bg); color: var(--lc-c-text); }
+  .lc-e { background: var(--lc-e-bg); color: var(--lc-e-text); }
+  .lc-o { background: var(--lc-o-bg); color: var(--lc-o-text); border: 1px solid var(--lc-o-border); }
+  .lc-s { background: var(--lc-s-bg); color: var(--lc-s-text); }
+  .ca { background: var(--ca-bg); color: var(--ca-text); }
+
+  .water { color: var(--text-muted); font-size: 11px; }
+
+  .empty {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-faint);
+    font-style: italic;
+  }
+
+  @media (max-width: 768px) {
+    header, .controls, .table-wrap { padding-left: 1rem; padding-right: 1rem; }
+    .stats { display: none; }
+    th:nth-child(2), td:nth-child(2),
+    th:nth-child(7), td:nth-child(7) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Merced College Plant Sale</h1>
+  <p>Inventory — 23,738 plants</p>
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot lc-c">C</span> Custom / Corn</div>
+    <div class="legend-item"><span class="legend-dot lc-e">E</span> Edibles</div>
+    <div class="legend-item"><span class="legend-dot lc-o">O</span> Ornamentals</div>
+    <div class="legend-item"><span class="legend-dot lc-s">S</span> Succulents</div>
+    <div class="legend-item"><span class="legend-dot ca">CA</span> California Native</div>
+  </div>
+</header>
+
+<div class="controls">
+  <input type="text" id="search" placeholder="Search name, location…" />
+  <select id="lcFilter">
+    <option value="">All categories</option>
+    <option value="C">C — Custom / Corn</option>
+    <option value="E">E — Edibles</option>
+    <option value="O">O — Ornamentals</option>
+    <option value="S">S — Succulents</option>
+  </select>
+  <select id="sizeFilter">
+    <option value="">All sizes</option>
+    <option value='3.5"'>3.5"</option>
+    <option value="#1">#1</option>
+    <option value="Plug Tray">Plug Tray</option>
+  </select>
+  <select id="caFilter">
+    <option value="">Cal native: all</option>
+    <option value="CA">CA natives only</option>
+  </select>
+  <select id="sortMode">
+    <option value="customer">Sort: by bench (customer)</option>
+    <option value="staff">Sort: by label code (staff)</option>
+  </select>
+  <div class="stats">
+    <div class="stat"><strong id="statRows">—</strong>items</div>
+    <div class="stat"><strong id="statQty">—</strong>total qty</div>
+  </div>
+</div>
+
+<div class="table-wrap">
+<table>
+  <thead>
+    <tr>
+      <th data-col="common">Common name</th>
+      <th data-col="botanical">Botanical name</th>
+      <th data-col="size">Size</th>
+      <th data-col="location">Location</th>
+      <th data-col="qty">Qty</th>
+      <th data-col="lc">LC</th>
+      <th data-col="water">Water</th>
+      <th data-col="ca">Cal native</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<script>
+const raw = [
+["Glass Gem Corn","Zea mays 'Glass Gem'","Plug Tray","D6",15,"C","M",""],
+["Painted Mountain Corn","Zea mays 'Painted Mountain'","Plug Tray","D6",3,"C","M",""],
+["Mini Blue Popcorn","Zea mays 'Mini Blue Popcorn'","Plug Tray","D6",3,"C","M",""],
+["KS Supersweet Corn","Zea mays (Super Sweet Corn)","Plug Tray","D6",6,"C","M",""],
+["Custom Arrangement","Succulent Arrangements","#1","Register",68,"C","L",""],
+["Golden Oregano","Origanum vulgare 'Aureum'","3.5\"","D1",75,"E","L",""],
+["Dill","Anethum graveolens (Dill)","3.5\"","D1",75,"E","M",""],
+["Sour Mandarin Orange","Citrus reticulata 'Sour Mandarin'","3.5\"","D1",25,"E","M",""],
+["Cilantro (Coriander)","Coriandrum sativum (Cilantro)","3.5\"","D1",200,"E","M",""],
+["Seascape Strawberry","Fragaria 'Seascape'","3.5\"","D1",350,"E","M",""],
+["Mojito Mint","Mentha 'Mojito'","3.5\"","D1",150,"E","M",""],
+["Orange Mint","Mentha 'Orange'","3.5\"","D1",50,"E","M",""],
+["Spearmint","Mentha spicata (Spearmint)","3.5\"","D1",100,"E","M",""],
+["Chocolate Mint","Mentha x piperita 'Chocolate'","3.5\"","D1",150,"E","M",""],
+["Hot and Spicy Oregano","Origanum 'Hot and Spicy'","3.5\"","D1",75,"E","L",""],
+["Greek Oregano","Origanum vulgare 'Greek'","3.5\"","D1",50,"E","L",""],
+["Giant of Italy Parsley","Petroselinum crispum 'Giant of Italy'","3.5\"","D1/D2",100,"E","M",""],
+["Berggarten Variegated Sage","Salvia officinalis 'Berggarten Variegated'","3.5\"","D1",100,"E","M",""],
+["Berggarten Sage","Salvia officinalis 'Berggarten'","3.5\"","D1",50,"E","M",""],
+["Silver Queen Thyme","Thymus 'Silver Queen'","3.5\"","D1",75,"E","L",""],
+["English Thyme","Thymus vulgaris 'English'","3.5\"","D1",75,"E","L",""],
+["French Thyme","Thymus vulgaris 'French'","3.5\"","D1",50,"E","L",""],
+["Lemon Thyme","Thymus x citriodorus 'Lemon'","3.5\"","D1",50,"E","M",""],
+["Ace Bell Pepper","Capsicum annuum 'Ace'","3.5\"","D2",75,"E","M",""],
+["Anaheim Pepper","Capsicum annuum 'Anaheim'","3.5\"","D2",75,"E","M",""],
+["Doux D'Espagne Sweet Pepper","Capsicum annuum 'Doux D'Espagne'","3.5\"","D2",75,"E","M",""],
+["Jalafuego Jalapeño","Capsicum annuum 'Jalafuego'","3.5\"","D2/D3",75,"E","M",""],
+["Mini Bell Mix Pepper","Capsicum annuum 'Mini Bell Mix'","3.5\"","D2",25,"E","M",""],
+["Nadapeño (Heatless Jalapeño)","Capsicum annuum 'Nadapeño'","3.5\"","D2",25,"E","M",""],
+["Olympus Bell Pepper","Capsicum annuum 'Olympus'","3.5\"","D2",50,"E","M",""],
+["Red Knight Bell Pepper","Capsicum annuum 'Red Knight'","3.5\"","D2",50,"E","M",""],
+["Tabasco Pepper","Capsicum annuum 'Tabasco'","3.5\"","D2",125,"E","M",""],
+["Chiltepin (Wild Chile)","Capsicum annuum var. glabriusculum","3.5\"","D2",25,"E","M",""],
+["Apocalypse Scorpion Pepper","Capsicum chinense 'Apocalypse Scorpion'","3.5\"","D2",75,"E","M",""],
+["Biquinho Red (Sweety Drop) Pepper","Capsicum chinense 'Biquinho Red'","3.5\"","D2",50,"E","M",""],
+["Habanada (Heatless Habanero)","Capsicum chinense 'Habanada'","3.5\"","D2",50,"E","M",""],
+["Habanero Pepper","Capsicum chinense 'Habanero'","3.5\"","D2",150,"E","M",""],
+["Chinese Sweet Basil","Ocimum basilicum 'Chinese Sweet'","3.5\"","D2",125,"E","M",""],
+["Cinnamon Basil","Ocimum basilicum 'Cinnamon'","3.5\"","D2",100,"E","M",""],
+["Genovese Basil","Ocimum basilicum 'Genovese'","3.5\"","D2",175,"E","M",""],
+["Lime Basil","Ocimum basilicum 'Lime'","3.5\"","D2",200,"E","M",""],
+["Thai Basil","Ocimum basilicum 'Thai'","3.5\"","D2",150,"E","M",""],
+["Broadleaf Sage","Salvia officinalis 'Broadleaf'","3.5\"","D2",75,"E","M",""],
+["Altiplano Serrano Pepper","Capsicum annuum 'Altiplano Serrano'","3.5\"","D3",100,"E","M",""],
+["Cayenne Pepper","Capsicum annuum 'Cayenne'","3.5\"","D3",150,"E","M",""],
+["Craigs Grande Jalapeño","Capsicum annuum 'Craigs Grande Jalapeño'","3.5\"","D3",75,"E","M",""],
+["Fresno Pepper","Capsicum annuum 'Fresno'","3.5\"","D3",25,"E","M",""],
+["Jalapeño Pepper","Capsicum annuum 'Jalapeño'","3.5\"","D3",175,"E","M",""],
+["Pantera Jalapeño","Capsicum annuum 'Pantera Jalapeño'","3.5\"","D3",225,"E","M",""],
+["Thai Chili Pepper","Capsicum annuum 'Thai'","3.5\"","D3",50,"E","M",""],
+["Amish Paste Tomato","Solanum lycopersicum 'Amish Paste'","3.5\"","D3",100,"E","M",""],
+["Brad's Atomic Grape Tomato","Solanum lycopersicum 'Brad's Atomic Grape'","#1","D3/D5",150,"E","M",""],
+["Cherokee Purple Tomato","Solanum lycopersicum 'Cherokee Purple'","3.5\"","D3",125,"E","M",""],
+["Heidi Tomato","Solanum lycopersicum 'Heidi'","3.5\"","D3",50,"E","M",""],
+["Martino's Roma Tomato","Solanum lycopersicum 'Martino's Roma'","3.5\"","D3",25,"E","M",""],
+["Orange Jazz Tomato","Solanum lycopersicum 'Orange Jazz'","3.5\"","D3",25,"E","M",""],
+["Ozark Pink Tomato","Solanum lycopersicum 'Ozark Pink'","3.5\"","D3",200,"E","M",""],
+["Prairie Fire Tomato","Solanum lycopersicum 'Prairie Fire'","3.5\"","D3",50,"E","M",""],
+["Spoon Tomato","Solanum lycopersicum 'Spoon'","3.5\"","D3",50,"E","M",""],
+["Super Sweet 100 Tomato","Solanum lycopersicum 'Super Sweet 100'","3.5\"","D3",200,"E","M",""],
+["E-Tender Eggplant","Solanum melongena 'E-Tender'","3.5\"","D3",25,"E","M",""],
+["Shinkansen Eggplant","Solanum melongena 'Shinkansen'","3.5\"","D3",50,"E","M",""],
+["Thanos Eggplant","Solanum melongena 'Thanos'","3.5\"","D3",25,"E","M",""],
+["Leelanau Sweetglo Watermelon","Citrullus lanatus 'Leelanau Sweetglo'","3.5\"","D4",50,"E","M",""],
+["Golden Crispy Melon","Cucumis melo 'Golden Crispy'","3.5\"","D4",25,"E","M",""],
+["Squash (Unknown Variety)","Cucurbita (Variety Unknown)","3.5\"","D4",25,"E","M",""],
+["Jarrahdale Pumpkin","Cucurbita maxima 'Jarrahdale'","3.5\"","D4",25,"E","M",""],
+["Atlas Butternut Squash","Cucurbita moschata 'Atlas Butternut'","3.5\"","D4",25,"E","M",""],
+["Rampicante Squash","Cucurbita moschata 'Rampicante'","3.5\"","D4",50,"E","M",""],
+["Tahitian Butternut Squash","Cucurbita moschata 'Tahitian Butternut'","3.5\"","D4",50,"E","M",""],
+["Waltham Butternut Squash","Cucurbita moschata 'Waltham Butternut'","3.5\"","D4",100,"E","M",""],
+["Casperita Pumpkin","Cucurbita pepo 'Casperita'","3.5\"","D4",25,"E","M",""],
+["Golden Crookneck Squash","Cucurbita pepo 'Golden Crookneck'","3.5\"","D4",75,"E","M",""],
+["Gray Zucchini","Cucurbita pepo 'Gray Zucchini'","3.5\"","D4",75,"E","M",""],
+["Green Machine Zucchini","Cucurbita pepo 'Green Machine'","3.5\"","D4",100,"E","M",""],
+["Spaghetti Squash","Cucurbita pepo 'Spaghetti'","3.5\"","D4",25,"E","M",""],
+["Yellow Zucchini","Cucurbita pepo 'Yellow Zucchini'","3.5\"","D4",100,"E","M",""],
+["Ace 55 Tomato","Solanum lycopersicum 'Ace 55'","3.5\"","D4",50,"E","M",""],
+["Blue Beauty Tomato","Solanum lycopersicum 'Blue Beauty'","3.5\"","D4",150,"E","M",""],
+["New Girl Tomato","Solanum lycopersicum 'New Girl'","3.5\"","D4",225,"E","M",""],
+["Principe Borghese Tomato","Solanum lycopersicum 'Principe Borghese'","3.5\"","D4",125,"E","M",""],
+["Red Montage Tomato","Solanum lycopersicum 'Red Montage'","3.5\"","D4",50,"E","M",""],
+["San Marzano Tomato","Solanum lycopersicum 'San Marzano'","#1","D4/D5",245,"E","M",""],
+["Sun Gold Tomato","Solanum lycopersicum 'Sun Gold'","3.5\"","D4",225,"E","M",""],
+["Blacktail Mountain Watermelon","Citrullus lanatus 'Blacktail Mountain'","3.5\"","D5",50,"E","M",""],
+["Crimson Sweet Watermelon","Citrullus lanatus 'Crimson Sweet'","3.5\"","D5",100,"E","M",""],
+["Diplomat Galia Melon","Cucumis melo 'Diplomat'","3.5\"","D5",100,"E","M",""],
+["Sarah's Choice Cantaloupe","Cucumis melo 'Sarah's Choice'","3.5\"","D5",100,"E","M",""],
+["Armenian Cucumber","Cucumis melo var. flexuosus","3.5\"","D5",75,"E","M",""],
+["Lemon Cucumber","Cucumis sativus 'Lemon'","3.5\"","D5",75,"E","M",""],
+["Mojito Slicing Cucumber","Cucumis sativus 'Mojito'","3.5\"","D5",50,"E","M",""],
+["Colorado Red Star Artichoke","Cynara scolymus 'Colorado Red Star'","3.5\"","D5",50,"E","M",""],
+["Luffa (Sponge Gourd)","Luffa aegyptiaca","3.5\"","D5",50,"E","M",""],
+["Cucamelon (Mexican Sour Gherkin)","Melothria scabra","3.5\"","D5",50,"E","M",""],
+["Pinto Bean","Phaseolus vulgaris 'Pinto'","3.5\"","D5",50,"E","M",""],
+["Provider Green Bean","Phaseolus vulgaris 'Provider'","3.5\"","D5",100,"E","M",""],
+["Atlas Tomato","Solanum lycopersicum 'Atlas'","#1","D5",50,"E","M",""],
+["Big Beef Tomato","Solanum lycopersicum 'Big Beef'","#1","D5",20,"E","M",""],
+["Big Rainbow Tomato","Solanum lycopersicum 'Big Rainbow'","#1","D5",25,"E","M",""],
+["Italian Roma Tomato","Solanum lycopersicum 'Italian Roma'","#1","D5",25,"E","M",""],
+["Pink Berkeley Tie-Dye Tomato","Solanum lycopersicum 'Pink Berkeley Tie-Dye'","#1","D5",45,"E","M",""],
+["Chinese Red Noodle Bean","Vigna unguiculata 'Chinese Red Noodle'","3.5\"","D5",25,"E","M",""],
+["French Tarragon","Artemisia dracunculus","#1","D6",35,"E","M","CA"],
+["Sour Mandarin Orange","Citrus reticulata 'Sour Mandarin'","#1","D6",10,"E","M",""],
+["Sweet Alyssum","Lobularia maritima","3.5\"","D6",75,"O","M",""],
+["Apple Mint","Mentha 'Apple'","#1","D6",1,"E","M",""],
+["Kentucky Colonel Spearmint","Mentha 'Kentucky Colonel'","#1","D6",75,"E","M",""],
+["Mojito Mint","Mentha 'Mojito'","#1","D6",100,"E","M",""],
+["Spearmint","Mentha spicata (Spearmint)","3.5\"","D6",40,"E","M",""],
+["Chocolate Mint","Mentha x piperita 'Chocolate'","#1","D6",30,"E","M",""],
+["Common Oregano","Origanum vulgare","#1","D6",2,"E","L",""],
+["Geranium (Citrosum)","Pelargonium 'Citrosum'","3.5\"","D6",25,"O","M",""],
+["Unknown (Acmella)","Acmella oleracea","3.5\"","D7",25,"O","M",""],
+["Carpet Bugle","Ajuga reptans 'Pink Lightning'","3.5\"","D7",150,"O","M",""],
+["Chocolate Cosmos","Cosmos 'Cherry Chocolate'","3.5\"","D7",50,"O","M",""],
+["Dymondia","Dymondia margaretae 'Silver Carpet'","3.5\"","D7",50,"O","L","CA"],
+["California Fuchsia","Epilobium 'Marin Pink'","3.5\"","D7",50,"O","L","CA"],
+["Red Rod Emu Bush","Eremophila maculata","3.5\"","D7",25,"O","L",""],
+["Bowles Mauve Wallflower","Erysimum 'Glow Golden'","3.5\"","D7",50,"O","L",""],
+["Great Blanket Flower","Gaillardia 'Sunset Orange Ruffles'","3.5\"","D7",50,"O","M",""],
+["New Gold Lantana","Lantana 'Bright Pink'","3.5\"","D7",75,"O","L",""],
+["Meerlo Lavender","Lavandula intermedia 'Provence'","3.5\"","D7",50,"O","L",""],
+["Western Marsh Rosemary","Limonium suworowii","3.5\"","D7",50,"O","L",""],
+["Scarlet Bee Balm","Monarda fistulosa","3.5\"","D7",25,"O","M",""],
+["Coyote Mint","Monardella villosa 'Russian River'","3.5\"","D7",75,"O","VL","CA"],
+["Majestic Beauty Indian Hawthorn","Rhaphiolepis indica","3.5\"","D7",25,"O","M",""],
+["Phyllis Fancy Sage","Salvia 'Scarlet Bicolor'","3.5\"","D7",25,"O","M",""],
+["White Sage","Salvia apiana","3.5\"","D7",100,"O","L","CA"],
+["Phyllis Fancy Sage","Salvia spathacea","3.5\"","D7",25,"O","M","CA"],
+["Lamb's Ear","Stachys 'Summer Crush'","3.5\"","D7",100,"O","M",""],
+["Marigold","Tagetes patula","3.5\"","D7",50,"O","L",""],
+["Zinnia","Zinnia 'Persian Carpet'","3.5\"","D7",25,"O","M",""],
+["Zinnia","Zinnia 'Queen Lime Blush'","3.5\"","D7",175,"O","M",""],
+["Blue Hummingbird Mint","Agastache 'Beelicious Pink'","3.5\"","D8",50,"O","M",""],
+["Snapdragon","Antirrhinum majus","3.5\"","D8",25,"O","L",""],
+["Centennial Baccharis","Baccharis pilularis 'Twin Peaks'","3.5\"","D8",50,"O","L","CA"],
+["Celosia","Celosia 'Celway Terracotta'","3.5\"","D8",9,"O","M",""],
+["Coreopsis","Coreopsis 'Andiamo Yellow Red'","3.5\"","D8",25,"O","L",""],
+["Siskiyou Blue Fescue","Festuca glauca 'Beyond Blue'","3.5\"","D8",25,"O","M",""],
+["Siskiyou Blue Fescue","Festuca glauca 'Elijah Blue'","3.5\"","D8",50,"O","M",""],
+["Siskiyou Blue Fescue","Festuca idahoensis","3.5\"","D8",50,"O","M","CA"],
+["Blue Dawn Morning Glory","Ipomoea 'Ace of Spades'","3.5\"","D8",75,"O","L",""],
+["Bunny Tail Grass","Lagurus ovatus (Bunny Tail Grass)","3.5\"","D8",25,"O","M",""],
+["Meerlo Lavender","Lavandula stoechas","3.5\"","D8",50,"O","L",""],
+["Tufted Evening Primrose","Oenothera 'Flutterby Fountains'","3.5\"","D8",75,"O","L",""],
+["Oriental Poppy","Papaver 'Black Peony'","3.5\"","D8",75,"O","M",""],
+["Petunia","Petunia 'Dreams Appleblossom'","3.5\"","D8",10,"O","M",""],
+["Petunia","Petunia 'Rose Star'","3.5\"","D8",25,"O","M",""],
+["Phyllis Fancy Sage","Salvia splendens 'Mojave Mix'","3.5\"","D8",25,"O","M",""],
+["Marigold","Tagetes erecta 'Antigua Mix'","3.5\"","D8",25,"O","L",""],
+["Majorcan Germander","Teucrium cossonii","3.5\"","D8",25,"O","L",""],
+["Veronica","Veronica 'Seaside'","3.5\"","D8",50,"O","M",""],
+["Carpet Bugle","Ajuga 'Burgundy Glow'","3.5\"","D9",75,"O","M",""],
+["Spanish Snapdragon","Antirrhinum 'Snaptini Peach'","3.5\"","D9",25,"O","L",""],
+["Madagascar Periwinkle","Catharanthus 'Cora Classic Red'","3.5\"","D9",25,"O","M",""],
+["Cockscomb","Celosia 'Bright Sparks'","3.5\"","D9",25,"O","M",""],
+["Dwarf Plumbago","Ceratostigma plumbaginoides","3.5\"","D9",25,"O","M",""],
+["Dwarf Coreopsis","Coreopsis 'Route 66'","3.5\"","D9",75,"O","L",""],
+["EverLast Orchid Dianthus","Dianthus 'Constant Cadence Potpourri'","3.5\"","D9",75,"O","M",""],
+["EverLast Orchid Dianthus","Dianthus 'Crush Peach'","3.5\"","D9",50,"O","M",""],
+["Breathless Spurge","Euphorbia 'Water Saver Blackbird'","3.5\"","D9",50,"O","M",""],
+["Gazania","Gazania rigens","3.5\"","D9",25,"O","L",""],
+["Rozanne Geranium","Geranium citrosum","3.5\"","D9",25,"O","M",""],
+["New Gold Lantana","Lantana 'Peaches'","3.5\"","D9",75,"O","L",""],
+["Meerlo Lavender","Lavandula 'Ever Great Blue'","3.5\"","D9",50,"O","L",""],
+["Meerlo Lavender","Lavandula 'Madrid Blue'","3.5\"","D9",50,"O","L",""],
+["Meerlo Lavender","Lavandula 'Phenomenal'","3.5\"","D9",50,"O","L",""],
+["Meerlo Lavender","Lavandula 'pinata'","3.5\"","D9",75,"O","L",""],
+["Lion's Tail","Leonotis leonurus","3.5\"","D9",50,"O","L",""],
+["Shasta Daisy","Leucanthemum 'Double Darling Daisy'","3.5\"","D9",75,"O","M",""],
+["Shasta Daisy","Leucanthemum 'Real Chanty'","3.5\"","D9",50,"O","M",""],
+["Shasta Daisy","Leucanthemum 'Real Glory'","3.5\"","D9",50,"O","M",""],
+["Shasta Daisy","Leucanthemum 'Real Solar'","3.5\"","D9",75,"O","M",""],
+["Shasta Daisy","Leucanthemum 'Real Tiny Bubbles'","3.5\"","D9",75,"O","M",""],
+["Sticky Monkey Flower","Mimulus aurantiacus","3.5\"","D9",25,"O","L","CA"],
+["True Myrtle","Myrtus communis","3.5\"","D9",75,"O","L",""],
+["Clark Lily Turf","Ophiopogon japonica","3.5\"","D9",75,"O","M",""],
+["Dittany/Oregano","Origanum 'Bellissimo'","3.5\"","D9",75,"O","L",""],
+["Penstemon","Penstemon 'Mersea Yellow'","3.5\"","D9",50,"O","L","CA"],
+["Coneflower","Rudbeckia 'Dakota Redshield'","3.5\"","D9",50,"O","M",""],
+["Phyllis Fancy Sage","Salvia 'Cathedral Blue'","3.5\"","D9",75,"O","M",""],
+["May Night Sage","Salvia 'May Night'","3.5\"","D9",50,"O","M",""],
+["Mexican Bush Sage","Salvia leucantha","3.5\"","D9",55,"O","L",""],
+["Saxifrage","Saxifraga 'Dark Rose'","3.5\"","D9",75,"O","M",""],
+["Pincushion Flower","Scabiosa 'Giga Pink'","3.5\"","D9",75,"O","M",""],
+["Pincushion Flower","Scabiosa 'Giga Silver'","3.5\"","D9",75,"O","M",""],
+["Rigid Woodmint","Stachys 'Summer Crush'","3.5\"","D9",25,"O","M","CA"],
+["Western Aster","Symphyotrichum 'Kickin Carmine Red'","3.5\"","D9",75,"O","M","CA"],
+["Dwarf Mexican Marigold","Tagetes 'Antigua Mix'","3.5\"","D9",25,"O","L",""],
+["Madeira Germander","Teucrium 'Pride of Georgia'","3.5\"","D9",100,"O","L",""],
+["Madeira Germander","Teucrium cosonii","3.5\"","D9",25,"O","L",""],
+["Tweedia","Tweedia 'Heavenly Blue'","3.5\"","D9",50,"O","M",""],
+["California Fuchsia","Epilobium canum 'Marin Pink'","#1","D10",15,"O","L","CA"],
+["Red Rod Emu Bush","Eremophila maculata 'Valentine'","3.5\"","D10",75,"O","L",""],
+["Santa Cruz Island Buckwheat","Eriogonum arborescens","3.5\"","D10",25,"O","L","CA"],
+["Ascot Rainbow Spurge","Euphorbia 'Ascot Rainbow'","3.5\"","D10",50,"O","M",""],
+["Gaura","Gaura lindheimeri 'Baby Butterfly'","3.5\"","D10",75,"O","L",""],
+["Gazania","Gazania rigens","3.5\"","D10",45,"O","L",""],
+["Gibraltar Candytuft","Iberis 'Purity'","3.5\"","D10",75,"O","M",""],
+["Meerlo Lavender","Lavandula 'Meerlo'","3.5\"","D10",75,"O","L",""],
+["Pacifica Saltbush","Myoporum 'Fine Leaf'","3.5\"","D10",125,"O","L",""],
+["Dittany/Oregano","Origanum 'Kent Beauty'","3.5\"","D10",50,"O","L",""],
+["Allen Chickering Sage","Salvia 'Allen Chickering'","3.5\"","D10",25,"O","L","CA"],
+["Hummingbird/Pitcher Sage","Salvia spathacea","#1","D10",15,"O","M","CA"],
+["Pincushion Flower","Scabiosa 'Salmon Queen'","3.5\"","D10",25,"O","M",""],
+["Mother-of-Thyme","Thymus 'Doone Valley'","3.5\"","D10",75,"O","L",""],
+["Speedwell","Veronica 'Pink Candles'","3.5\"","D10",75,"O","M",""],
+["Desert Zinnia","Zinnia 'Precosia Scarlet'","3.5\"","D10",100,"O","L",""],
+["Carpet Bugle","Ajuga reptans 'Pink Lightning'","#1","D11",50,"O","M",""],
+["Cane's Hybrid Bottlebrush","Callistemon 'Perth Pink'","#1","D11",37,"O","L",""],
+["Dwarf Coreopsis","Coreopsis 'Solar Mellow'","#1","D11",25,"O","L",""],
+["Dwarf Coreopsis","Coreopsis verticillata 'Moonbeam'","#1","D11",25,"O","L",""],
+["Siskiyou Blue Fescue","Festuca glauca 'Beyond Blue'","#1","D11",24,"O","M",""],
+["Siskiyou Blue Fescue","Festuca glauca 'Elijah Blue'","#1","D11",24,"O","M",""],
+["Gazania","Gazania rigens","#1","D11",30,"O","L",""],
+["Meerlo Lavender","Lavandula intermedia 'Provence'","#1","D11",20,"O","L",""],
+["Allen Chickering Sage","Salvia 'Allen Chickering'","#1","D11",47,"O","L","CA"],
+["Western Aster","Symphyotrichum 'Kickin Pink Chiffon'","#1","D11",24,"O","M","CA"],
+["White Rain Lily","Zephyranthes candida","#1","D11",25,"O","L",""],
+["Owlswood Blue Ceanothus","Ceanothus 'Carmel Creeper'","#1","D12",60,"O","L","CA"],
+["Dwarf Plumbago","Ceratostigma plumbaginoides","#1","D12",25,"O","M",""],
+["Globe Thistle","Echinops ritro","#1","D12",48,"O","M",""],
+["Bowles Mauve Wallflower","Erysimum 'Glow Golden'","#1","D12",60,"O","L",""],
+["Sensational Lavender","Lavandula intermedia 'Sensational!'","#1","D12",50,"O","L",""],
+["Shasta Daisy","Leucanthemum x superbum","#1","D12",25,"O","M",""],
+["White Sage","Salvia apiana","#1","D12",25,"O","L","CA"],
+["California Buckeye","Aesculus californica","#1","D13",10,"O","VL","CA"],
+["Sundrops","Calylophus drummondianus","#1","D13",5,"O","L",""],
+["Dwarf Coreopsis","Coreopsis 'Mercury Rising'","#1","D13",15,"O","L",""],
+["Dwarf Coreopsis","Coreopsis 'Route 66'","#1","D13",27,"O","L",""],
+["Sidewinder California Fuchsia","Epilobium canum Sidewinder","#1","D13",15,"O","L","CA"],
+["Matricaria","Matricaria 'Snowball Extra'","#1","D13",25,"O","M",""],
+["True Myrtle","Myrtus communis","#1","D13",3,"O","L",""],
+["Nerium Oleander","Nierembergia scoparia 'Purple Robe'","#1","D13",4,"O","M",""],
+["Dittany/Oregano","Origanum 'Barbara Tingey'","#1","D13",30,"O","L",""],
+["Penstemon","Penstemon 'Riding Hood Purple'","#1","D13",35,"O","L","CA"],
+["Rigid Woodmint","Stachys 'Summer Crush'","#1","D13",18,"O","M","CA"],
+["Rigid Woodmint","Stachys 'Summer Romance'","#1","D13",20,"O","M","CA"],
+["Western Aster","Symphyotrichum 'Kickin Carmine Red'","#1","D13",11,"O","M","CA"],
+["Anne Russel Viburnum","Viburnum 'Spring Bouquet'","#1","D13",44,"O","M",""],
+["Anne Russel Viburnum","Viburnum 'Spring Bouquet'","#1","D13",20,"O","M",""],
+["Periwinkle","Vinca minor 'Bowles'","#1","D13",15,"O","L",""],
+["Ever Sapphire Lily of the Nile","Agapanthus x 'Peter Pan'","#1","D14",25,"O","M",""],
+["Dwarf Coreopsis","Coreopsis 'Mercury Rising'","#1","D14",25,"O","L",""],
+["Dwarf Coreopsis","Coreopsis 'Solar Fancy'","#1","D14",25,"O","L",""],
+["Large Flower Tickseed","Coreopsis grandiflora","#1","D14",15,"O","M",""],
+["California Fuchsia (Everett's)","Epilobium canum 'Everett's Choice'","#1","D14",15,"O","L","CA"],
+["California Fuchsia (Marin Pink)","Epilobium canum 'Marin Pink'","#1","D14",50,"O","L","CA"],
+["Wayne Roderick Daisy","Erigeron glaucus 'Wayne Roderick'","#1","D14",40,"O","M","CA"],
+["Ascot Rainbow Spurge","Euphorbia 'Ascot Rainbow'","#1","D14",60,"O","M",""],
+["Breathless Spurge","Euphorbia 'Water Saver Blackbird'","#1","D14",37,"O","M",""],
+["New Gold Lantana","Lantana 'Chapel Hill Yellow'","#1","D14",15,"O","L",""],
+["Dittany/Oregano","Origanum 'Bellissimo'","#1","D14",25,"O","L",""],
+["Crinkled Creeper","Rubus calycinoides 'Emerald Carpet'","#1","D14",35,"O","M",""],
+["Coneflower","Rudbeckia 'Dakota Redshield'","#1","D14",25,"O","M",""],
+["Lavender Cotton","Santolina chamaecyparissus","#1","D14",40,"O","L",""],
+["Pincushion Flower","Scabiosa 'Butterfly Blue'","#1","D14",5,"O","M",""],
+["Velvet Slipper","Sinningia 'Invasion Force'","#1","D14",40,"O","M",""],
+["Western Aster","Symphyotrichum 'Kickin Lavender'","#1","D14",45,"O","M","CA"],
+["Sunshine Daydream Abelia","Abelia x grandiflora","#1","D15",15,"O","L",""],
+["Centennial Baccharis","Baccharis pilularis 'Twin Peaks'","#1","D15",25,"O","L","CA"],
+["Purple Splendor Butterfly Bush","Buddleja davidii 'Buzz Ivory'","#1","D15",25,"O","L",""],
+["Bush Morning Glory","Convolvulus cneorum","#1","D15",10,"O","L",""],
+["Dwarf Coreopsis","Coreopsis 'Cosmic Eye'","#1","D15",25,"O","L",""],
+["Dwarf Coreopsis","Coreopsis 'Solar Mellow'","#1","D15",30,"O","L",""],
+["Dwarf Coreopsis","Coreopsis verticillata 'Moonbeam'","#1","D15",28,"O","L",""],
+["Red Rod Emu Bush","Eremophila glabra 'Kalgoorlie'","#1","D15",15,"O","L",""],
+["Bowles Mauve Wallflower","Erysimum 'Winter Passion'","#1","D15",30,"O","L",""],
+["Escallonia","Escallonia sp.","#1","D15",65,"O","M",""],
+["Dwarf Bay","Laurus nobilis Little Ragu","#1","D15",35,"O","L",""],
+["Maidenhair Vine","Muehlenbeckia complexa","#1","D15",10,"O","M",""],
+["Tufted Evening Primrose (White)","Oenothera gaura 'Walberton's Silver Fountain'","#1","D15",45,"O","L","CA"],
+["Bottle Brush","Callistemon 'Perth Pink'","#1","D16",30,"O","L",""],
+["Tickseed","Coreopsis 'Mercury Rising'","#1","D16",60,"O","M",""],
+["EverLast Orchid Dianthus","Dianthus 'Constant Beauty Crush Burgundy'","#1","D16",10,"O","M",""],
+["EverLast Orchid Dianthus","Dianthus 'Dynasty Orchid'","#1","D16",10,"O","M",""],
+["Pinks","Dianthus 'Super Parfait Raspberry'","#1","D16",6,"O","M",""],
+["EverLast Orchid Dianthus","Dianthus 'Super Parfait Raspberry'","#1","D16",5,"O","M",""],
+["EverLast Orchid Dianthus","Dianthus barbatus","#1","D16",15,"O","M",""],
+["Foxglove","Digitalis 'Bella'","#1","D16",10,"O","M",""],
+["Gazania","Gazania rigens","#1","D16",80,"O","L",""],
+["Meerlo Lavender","Lavandula 'Meerlo'","#1","D16",10,"O","L",""],
+["Sensational Lavender","Lavandula intermedia 'Sensational!'","#1","D16",25,"O","L",""],
+["Shasta Daisy","Leucanthemum x superbum","#1","D16",25,"O","M",""],
+["Catmint/Catnip","Nepeta 'Persian Blue'","#1","D16",40,"O","M",""],
+["Little Olive","Olea 'Montra'","#1","D16",20,"O","L",""],
+["Penstemon","Penstemon 'Riding Hood Purple'","#1","D16",50,"O","L","CA"],
+["Paparazzi Series Phlox","Phlox 'Cherry Crush'","#1","D16",25,"O","M",""],
+["Oriental Pearl Indian Hawthorn","Rhaphiolepis indica","#1","D16",10,"O","L",""],
+["Betony","Stachys 'Summer Crush'","#1","D16",10,"O","M",""],
+["Dwarf Mexican Marigold","Tagetes patula","#1","D16",25,"O","L",""],
+["Anne Russel Viburnum","Viburnum 'Spring Bouquet'","#1","D16",20,"O","M",""],
+["Coleus","Coleus 'Burgundy'","3.5\"","C1",25,"O","M",""],
+["Coleus","Coleus 'Chaotic Rose'","3.5\"","C1",100,"O","M",""],
+["Coleus","Coleus 'Dark Ruffles'","3.5\"","C1",50,"O","M",""],
+["Coleus","Coleus 'Inky Fingers'","3.5\"","C1",25,"O","M",""],
+["Coleus","Coleus 'Kingwood Karnival'","3.5\"","C1",50,"O","M",""],
+["Coleus","Coleus 'Kiwi Fern'","3.5\"","C1",50,"O","M",""],
+["Spotted Deadnettle","Lamium 'Aureum'","3.5\"","C1",50,"O","M",""],
+["Spotted Deadnettle","Lamium 'Pink Pewter'","3.5\"","C1",25,"O","M",""],
+["Catmint","Nepeta 'Persian Blue'","3.5\"","C1",25,"O","M",""],
+["Catmint","Nepeta 'Sylvester Blue'","3.5\"","C1",50,"O","M",""],
+["Catmint","Nepeta 'Walker's Low'","3.5\"","C1",75,"O","L",""],
+["Irish Moss","Sagina subulata","3.5\"","C1",100,"O","M",""],
+["Lamb's Ears","Stachys 'Helen von Stein'","3.5\"","C1",25,"O","L",""],
+["Betony","Stachys albotomentosa","3.5\"","C1",30,"O","M",""],
+["Begonia","Begonia 'Lucky Strike'","#1","C2",30,"O","M",""],
+["Bell Flower","Campanula 'Birch'","#1","C2",15,"O","M",""],
+["Spider Plant","Chlorophytum comosum","#1","C2",25,"O","M",""],
+["Coleus","Coleus 'Tapestry'","#1","C2",15,"O","M",""],
+["Lamb's Ears","Stachys 'Helen von Stein'","#1","C2",50,"O","L",""],
+["Betony","Stachys albotomentosa","#1","C2",25,"O","M",""],
+["Periwinkle","Vinca minor 'Bowles'","#1","C2",8,"O","M",""],
+["Begonia","Begonia 'Bewitched Silver'","#1","C3",30,"O","M",""],
+["Bell Flower","Campanula 'Blue Waterfall'","#1","C3",125,"O","M",""],
+["Spotted Deadnettle","Lamium 'Pink Pewter'","#1","C3",30,"O","M",""],
+["Moneywort","Lysimachia 'Persian Chocolate'","#1","C3",10,"O","H",""],
+["Coleus","Plectranthus 'Guacamole'","#1","C3",13,"O","M",""],
+["Scotch Moss","Sagina subulata","#1","C3",25,"O","M",""],
+["Begonia","Begonia 'Bewitched Silver'","3.5\"","C4",85,"O","M",""],
+["Begonia","Begonia 'Lucky Strike'","3.5\"","C4",30,"O","M",""],
+["Biokovo Cranesbill","Geranium × cantabrigiense 'Biokovo'","3.5\"","C4",75,"O","M",""],
+["Moneywort","Lysimachia 'Golden Globes'","3.5\"","C4",105,"O","H",""],
+["Mazus","Mazus sp.","3.5\"","C4",75,"O","M",""],
+["Maidenhair Vine","Muehlenbeckia complexa","3.5\"","C4",150,"O","M",""],
+["Wandering Jew","Tradescantia zebrina","3.5\"","C4",100,"O","M",""],
+["Periwinkle","Vinca 'Illumination'","3.5\"","C4",75,"O","M",""],
+["Periwinkle","Vinca minor 'Bowles'","3.5\"","C4",75,"O","M",""],
+["Kiwi Aeonium","Aeonium 'Kiwi Verde'","#1","A8",100,"S","L",""],
+["Copper Pinwheel","Aeonium 'Sunburst'","3.5\"","A1",75,"S","L",""],
+["Copper Pinwheel","Aeonium 'Sunburst'","#1","A7",15,"S","L",""],
+["Tree Aeonium","Aeonium arboreum","#1","A8",30,"S","L",""],
+["Noble Aeonium","Aeonium nobile","#1","A8",10,"S","L",""],
+["Thorn-Crested Agave","Agave univittata","3.5\"","A5",25,"S","L",""],
+["Thorn-Crested Agave","Agave univittata","#1","A8",22,"S","L",""],
+["Pink Blush Aloe","Aloe 'Pink Blush'","3.5\"","A1",50,"S","L",""],
+["Short-Leaved Aloe","Aloe brevifolia","3.5\"","A3",25,"S","L",""],
+["Short-Leaved Aloe","Aloe brevifolia","3.5\"","A5",25,"S","L",""],
+["Short-Leaved Aloe","Aloe brevifolia","#1","A6",7,"S","L",""],
+["Tiger Tooth Aloe","Aloe juvenna","3.5\"","A3",25,"S","L",""],
+["Tiger Tooth Aloe","Aloe juvenna","3.5\"","A5",25,"S","L",""],
+["Aloe","Aloe sp.","#1","A6",20,"S","L",""],
+["Aloe","Aloe sp.","#1","A8",10,"S","L",""],
+["Baby Sun Rose","Aptenia cordifolia","3.5\"","A5",75,"S","L",""],
+["Baby Sun Rose","Aptenia cordifolia","#1","A7",10,"S","L",""],
+["Red Apple Ice Plant","Aptenia cordifolia 'Red Apple'","3.5\"","A5",75,"S","L",""],
+["Rock Purslane","Calandrinia spectabilis","3.5\"","A4",25,"S","L",""],
+["Rock Purslane","Calandrinia spectabilis","3.5\"","A5",25,"S","L",""],
+["String of Hearts","Ceropegia woodii 'Orange River'","#1","A7",20,"S","L",""],
+["Bear's Paw","Cotyledon tomentosa","3.5\"","A3",15,"S","L",""],
+["Campfire Crassula","Crassula 'Campfire'","3.5\"","A5",25,"S","L",""],
+["Campfire Crassula","Crassula 'Campfire'","#1","A8",20,"S","L",""],
+["Dwarf Jade Plant","Crassula 'Minor'","3.5\"","A6",25,"S","VL",""],
+["Dwarf Jade Plant","Crassula 'Minor'","#1","A8",40,"S","VL",""],
+["Pagoda Village","Crassula capitella 'Sharkstooth'","3.5\"","A2",50,"S","L",""],
+["Pagoda Village","Crassula capitella 'Sharkstooth'","#1","A7",15,"S","L",""],
+["Fragile Crassula","Crassula expansa fragilis","3.5\"","A5",25,"S","L",""],
+["Airplane Plant","Crassula falcata","3.5\"","A3",100,"S","L",""],
+["Watch Chain","Crassula muscosa","3.5\"","A1",25,"S","L",""],
+["Jade Plant","Crassula ovata","3.5\"","A2",100,"S","VL",""],
+["Jade Plant","Crassula ovata","#1","A7",30,"S","VL",""],
+["Dwarf Jade Plant","Crassula ovata 'Minor'","3.5\"","A1",25,"S","VL",""],
+["Curly Jade","Crassula ovata undulata","#1","A6",4,"S","VL",""],
+["Variegated Jade","Crassula ovata variegata","3.5\"","A3",100,"S","VL",""],
+["Variegated Necklace Vine","Crassula perforata variegata","3.5\"","A3",25,"S","L",""],
+["Red Carpet","Crassula radicans","3.5\"","A4",50,"S","L",""],
+["Red Carpet","Crassula radicans","#1","A7",25,"S","L",""],
+["Small Red Carpet","Crassula radicans 'Small Red Carpet'","3.5\"","A6/A5",60,"S","L",""],
+["Miniature Pine Tree","Crassula tetragona","3.5\"","A3",25,"S","L",""],
+["Mount Everest Senecio","Curio 'Mount Everest'","3.5\"","A3",25,"S","L",""],
+["Mount Everest Senecio","Curio 'Mount Everest'","#1","A6",10,"S","L",""],
+["Mount Everest Senecio","Curio ficoides 'Mount Everest'","#1","A7",15,"S","L",""],
+["Blue Chalk Fingers","Curio repans","3.5\"","A1",50,"S","L",""],
+["Amethyst Ice Plant","Delosperma 'Amethyst'","3.5\"","A3",75,"S","L",""],
+["Hardy Ice Plant","Delosperma 'Green Machine'","3.5\"","A4",50,"S","L",""],
+["Ice Plant","Delosperma 'Sundiamonds Orange'","3.5\"","A4",25,"S","L",""],
+["Ice Plant","Delosperma 'Wow Salmony Pink'","3.5\"","A4",125,"S","L",""],
+["Echeveria","Echeveria 'Blue Bird'","3.5\"","A1",50,"S","L",""],
+["Echeveria","Echeveria 'Blue Bird'","3.5\"","A5",25,"S","L",""],
+["Echeveria","Echeveria 'Blue Elf'","3.5\"","A3",25,"S","L",""],
+["Echeveria","Echeveria 'Blue'","3.5\"","A1",50,"S","L",""],
+["Echeveria","Echeveria 'Chroma'","#1","A7",24,"S","L",""],
+["Echeveria","Echeveria 'Chrome'","3.5\"","A5",25,"S","L",""],
+["Echeveria","Echeveria 'Coral Reef Aqua'","3.5\"","A2/A1",50,"S","L",""],
+["Echeveria","Echeveria 'Coral Reef Pink'","3.5\"","A4",75,"S","L",""],
+["Echeveria","Echeveria 'Flexy'","3.5\"","A2",100,"S","L",""],
+["Echeveria","Echeveria 'Frosty'","3.5\"","A4",100,"S","L",""],
+["Echeveria","Echeveria 'Grey Red'","3.5\"","A3",100,"S","L",""],
+["Echeveria","Echeveria 'Lola'","3.5\"","A3",100,"S","L",""],
+["Echeveria","Echeveria 'Pink Edger'","3.5\"","A5",25,"S","L",""],
+["Echeveria","Echeveria 'Pink Edger'","#1","A6",10,"S","L",""],
+["Echeveria","Echeveria 'Purple Pearl'","3.5\"","A2",100,"S","L",""],
+["Echeveria","Echeveria 'Topsy Turvy'","3.5\"","A3",25,"S","L",""],
+["Echeveria","Echeveria gibbiflora 'Coral Reef Aqua'","#1","A8/A6",56,"S","L",""],
+["Ghost Echeveria","Echeveria lilacina","3.5\"","A1/A2",75,"S","L",""],
+["Painted Echeveria","Echeveria nodulosa","3.5\"","A2",75,"S","L",""],
+["Painted Echeveria","Echeveria nodulosa","3.5\"","A5",25,"S","L",""],
+["Echeveria","Echeveria prolifica","3.5\"","A4",75,"S","L",""],
+["Echeveria","Echeveria subsesis 'Blue'","#1","A8",15,"S","L",""],
+["Peanut Cactus","Echinopsis chamaecereus","3.5\"","A1",75,"S","L",""],
+["Peanut Cactus","Echinopsis chamaecereus","3.5\"","A5",25,"S","L",""],
+["Easter Lily Cactus","Echinopsis oxygona","3.5\"","A3",25,"S","L",""],
+["Easter Lily Cactus","Echinopsis oxygona","#1","A8",9,"S","L",""],
+["Crown of Thorns","Euphorbia milii","3.5\"","A3",25,"S","L",""],
+["Ghost Plant","Graptopetalum 'Darley Sunshine'","3.5\"","A4",75,"S","L",""],
+["Ghost Plant","Graptopetalum paraguayense","3.5\"","A6",50,"S","L",""],
+["Ghost Plant","Graptopetalum paraguayense","#1","A7",25,"S","L",""],
+["Beautiful Graptopetalum","Graptopetalum superbum","3.5\"","A5",50,"S","L",""],
+["Beautiful Graptopetalum","Graptopetalum superbum","#1","A6",10,"S","L",""],
+["California Sunset","Graptosedum 'California Sunset'","3.5\"","A4",15,"S","L",""],
+["California Sunset","Graptosedum 'California Sunset'","#1","A7",40,"S","L",""],
+["Graptosedum","Graptosedum sp.","3.5\"","A2",25,"S","L",""],
+["Graptosedum","Graptosedum sp.","3.5\"","A5",25,"S","L",""],
+["Panda Plant","Kalanchoe 'Chocolate Soldier'","3.5\"","A3",25,"S","L",""],
+["Panda Plant","Kalanchoe 'Chocolate Soldier'","#1","A6",5,"S","L",""],
+["Chandelier Plant","Kalanchoe delagoensis","3.5\"","A4",50,"S","L",""],
+["Flower Dust Plant","Kalanchoe pumila","#1","A7",10,"S","L",""],
+["Panda Plant","Kalanchoe tomentosa","3.5\"","A4",25,"S","L",""],
+["Pink Ice Plant","Lampranthus deltoides","3.5\"","A5",50,"S","L",""],
+["Pink Ice Plant","Oscularia deltoides","3.5\"","A1",75,"S","L",""],
+["Pink Ice Plant","Oscularia deltoides","#1","A7",20,"S","L",""],
+["Little Jewel","Pachyphytum compactum","3.5\"","A3",100,"S","L",""],
+["Pachyveria","Pachyveria 'Blue'","3.5\"","A5",25,"S","L",""],
+["Pachyveria","Pachyveria 'Blue'","#1","A6",22,"S","L",""],
+["Taco Plant","Peperomia axillaris","3.5\"","A3",15,"S","L",""],
+["Elephant Bush","Portulacaria afra","3.5\"","A5",50,"S","L",""],
+["Elephant Bush","Portulacaria afra","#1","A6",48,"S","L",""],
+["Snake Plant","Sansevieria trifasciata","3.5\"","A3",50,"S","L",""],
+["Snake Plant","Sansevieria trifasciata","#1","A8",25,"S","L",""],
+["Sedeveria","Sedeveria 'Blue Burrito'","3.5\"","A5",56,"S","L",""],
+["Sedeveria","Sedeveria 'Jet Beads'","3.5\"","A6",25,"S","L",""],
+["Sedeveria","Sedeveria 'Sorrento'","#1","A7",40,"S","L",""],
+["Stonecrop","Sedum 'Aurora Blue'","3.5\"","A6",25,"S","L",""],
+["Stonecrop","Sedum 'Aurora Blue'","#1","A6",17,"S","L",""],
+["Burro's Tail","Sedum 'Burrito'","3.5\"","A3",50,"S","L",""],
+["Stonecrop","Sedum 'Carnicolor'","#1","A7",25,"S","L",""],
+["Stonecrop","Sedum 'Dazzleberry'","3.5\"","A4",25,"S","L",""],
+["Stonecrop","Sedum 'Dream Dazzler'","3.5\"","A3",25,"S","L",""],
+["Stonecrop","Sedum 'Fine Gold Leaf'","3.5\"","A2",75,"S","L",""],
+["Stonecrop","Sedum 'John Creech'","3.5\"","A4",100,"S","L",""],
+["Stonecrop","Sedum 'Rock Candy'","3.5\"","A3",25,"S","L",""],
+["Goldmoss Stonecrop","Sedum acre","3.5\"","A1",150,"S","L",""],
+["Golden Sedum","Sedum adolphii 'Firestorm'","3.5\"","A1",50,"S","L",""],
+["Stonecrop","Sedum album 'NERDS'","3.5\"","A2",50,"S","L",""],
+["Tree Stonecrop","Sedum dendroideum","3.5\"","A2",25,"S","L",""],
+["Tree Stonecrop","Sedum dendroideum","3.5\"","A3",50,"S","L",""],
+["Orange Stonecrop","Sedum kamtschaticum 'Variegatum'","#1","A7",25,"S","L",""],
+["Burro's Tail","Sedum morganianum 'Burrito'","3.5\"","A5",25,"S","L",""],
+["Coppertone Stonecrop","Sedum nussbaumerianum","3.5\"","A5",25,"S","L",""],
+["Pork and Beans","Sedum rubrotinctum","3.5\"","A2",100,"S","VL",""],
+["Pink Pork and Beans","Sedum rubrotinctum 'Aurora'","3.5\"","A1",200,"S","VL",""],
+["Stonecrop","Sedum spurium 'John Creech'","3.5\"","A5",25,"S","L",""],
+["Stonecrop","Sedum spurium 'Tricolor'","3.5\"","A5",75,"S","L",""],
+["Stonecrop","Sedum spurium 'Tricolor'","#1","A7",13,"S","L",""],
+["Stonecrop","Sedum tricolor","3.5\"","A2",75,"S","L",""],
+["Hen and Chicks","Sempervivum 'Arctic White'","3.5\"","A1",50,"S","VL",""],
+["Hen and Chicks","Sempervivum 'Colorockz Coral Red'","#1","A6/A5",75,"S","VL",""],
+["Hen and Chicks","Sempervivum 'Ruby Pine'","3.5\"","A3",25,"S","VL",""],
+["Narrow-Leaf Chalk Sticks","Senecio cylindricus","3.5\"","A1",25,"S","L",""],
+["Blue Chalk Sticks","Senecio mandraliscae 'Blue'","3.5\"","A1",25,"S","L",""]
+];
+
+const cols = ["common","botanical","size","location","qty","lc","water","ca"];
+let sortCol = "default", sortDir = 1, sortMode = "customer";
+
+function locSort(a, b) {
+  if (sortMode === "customer") {
+    const order = {"C":0,"E":1,"O":2,"S":3};
+    const la = order[a[5]]??9, lb = order[b[5]]??9;
+    if (la !== lb) return la - lb;
+    const locA = a[3].toUpperCase(), locB = b[3].toUpperCase();
+    if (locA !== locB) {
+      const numA = parseInt(locA.replace(/[^0-9]/g,''))||0;
+      const numB = parseInt(locB.replace(/[^0-9]/g,''))||0;
+      const prefA = locA.replace(/[0-9]/g,''), prefB = locB.replace(/[0-9]/g,'');
+      if (prefA !== prefB) return prefA.localeCompare(prefB);
+      return numA - numB;
+    }
+    return a[0].localeCompare(b[0]);
+  } else {
+    const lcOrder = {"C":0,"E":1,"O":2,"S":3};
+    const la = lcOrder[a[5]]??9, lb = lcOrder[b[5]]??9;
+    if (la !== lb) return la - lb;
+    return a[0].localeCompare(b[0]);
+  }
+}
+
+function render() {
+  const q = document.getElementById('search').value.toLowerCase();
+  const lc = document.getElementById('lcFilter').value;
+  const sz = document.getElementById('sizeFilter').value;
+  const ca = document.getElementById('caFilter').value;
+  sortMode = document.getElementById('sortMode').value;
+
+  let rows = raw.filter(r => {
+    if (lc && r[5] !== lc) return false;
+    if (sz && r[2] !== sz) return false;
+    if (ca && r[7] !== 'CA') return false;
+    if (q) {
+      if (!(r[0]+' '+r[1]+' '+r[3]).toLowerCase().includes(q)) return false;
+    }
+    return true;
+  });
+
+  if (sortCol === "default") {
+    rows.sort(locSort);
+  } else {
+    const ci = cols.indexOf(sortCol);
+    rows.sort((a,b) => {
+      let av = a[ci], bv = b[ci];
+      if (typeof av === 'number') return sortDir*(av-bv);
+      return sortDir*String(av).localeCompare(String(bv));
+    });
+  }
+
+  document.getElementById('statRows').textContent = rows.length.toLocaleString();
+  document.getElementById('statQty').textContent = rows.reduce((s,r)=>s+r[4],0).toLocaleString();
+
+  const tbody = document.getElementById('tbody');
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="8" class="empty">No plants match your filters</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = rows.map(r => {
+    const lcClass = 'lc-' + r[5].toLowerCase();
+    const caTag = r[7]==='CA' ? '<span class="badge ca">CA</span>' : '';
+    return `<tr>
+      <td>${r[0]}</td>
+      <td class="botanical">${r[1]}</td>
+      <td>${r[2]}</td>
+      <td class="loc">${r[3]}</td>
+      <td class="qty">${r[4]}</td>
+      <td><span class="badge ${lcClass}">${r[5]}</span></td>
+      <td class="water">${r[6]}</td>
+      <td>${caTag}</td>
+    </tr>`;
+  }).join('');
+}
+
+document.querySelectorAll('th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const c = th.dataset.col;
+    if (sortCol === c) { sortDir *= -1; }
+    else { sortCol = c; sortDir = 1; }
+    document.querySelectorAll('th').forEach(h => h.classList.remove('sort-asc','sort-desc'));
+    th.classList.add(sortDir===1?'sort-asc':'sort-desc');
+    render();
+  });
+});
+
+['search','lcFilter','sizeFilter','caFilter','sortMode'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => { sortCol='default'; render(); });
+});
+
+render();
+</script>
+</body>
+</html>
