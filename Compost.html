@@ -1,0 +1,1913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hot Compost Lab — A. Codd</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --soil-950:#161009;
+    --soil-900:#1E1610;
+    --soil-800:#2C2116;
+    --soil-700:#3B2C1D;
+    --soil-600:#4E3B27;
+    --parchment:#EEE3C9;
+    --parchment-dim:#C9BC9F;
+    --moss:#8A9A4E;
+    --moss-dim:#5E6A38;
+    --bark:#A8763F;
+    --highn:#AEDB9C;
+    --highn-dim:#7DAE6C;
+    --nitro:#D9642E;
+    --nitro-dim:#8C4520;
+    --gold:#D9A441;
+    --water:#4FA8D1;
+    --water-dim:#2E7398;
+    --danger:#C1432C;
+    --humic:#2A1B0E;
+    --fulvic:#B58B2A;
+    --undigested:#6B705C;
+    --line:rgba(238,227,201,0.14);
+    --radius:10px;
+    --font-body:'Inter', system-ui, sans-serif;
+    --font-head:'Space Grotesk', 'Inter', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse at top left, rgba(217,100,46,0.07), transparent 55%),
+      radial-gradient(ellipse at bottom right, rgba(138,154,78,0.08), transparent 55%),
+      var(--soil-950);
+    color:var(--parchment);
+    font-family:var(--font-body);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:var(--font-head); margin:0; font-weight:700; letter-spacing:-0.015em;}
+  .mono{font-family:var(--font-head); font-weight:600;}
+  button{font-family:var(--font-body); cursor:pointer;}
+  button:focus-visible, input:focus-visible, .card:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+
+  .app{max-width:1040px; margin:0 auto; padding:28px 20px 80px;}
+
+  header.top{margin-bottom:28px; position:relative;}
+  .header-tools{position:absolute; top:0; right:0; display:flex; gap:8px;}
+  .icon-btn{
+    width:34px; height:34px; border-radius:8px;
+    background:var(--soil-700); border:1px solid var(--line);
+    color:var(--parchment); font-size:15px; cursor:pointer;
+    display:inline-flex; align-items:center; justify-content:center;
+    transition:background .15s, transform .15s;
+  }
+  .icon-btn:hover{background:var(--soil-600); transform:translateY(-1px);}
+  .eyebrow{
+    font-family:var(--font-head);
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin-bottom:6px;
+    font-weight:600;
+  }
+  h1.title{font-size:34px; letter-spacing:-0.02em; margin-bottom:4px;}
+  .subtitle{color:var(--parchment-dim); font-size:15px; max-width:60ch; line-height:1.5;}
+
+  .rail{
+    display:flex;
+    gap:6px;
+    margin-top:24px;
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    padding:12px 0;
+    overflow-x:auto;
+  }
+  .rail-step{
+    flex:1;
+    min-width:110px;
+    text-align:center;
+    padding:6px 4px;
+    border-radius:8px;
+    font-size:12.5px;
+    letter-spacing:0.02em;
+    color:var(--parchment-dim);
+    position:relative;
+    transition:color .25s;
+  }
+  .rail-step .stage-name{font-family:var(--font-head); text-transform:uppercase; font-size:11px; font-weight:600;}
+  .rail-step.active{color:var(--gold); font-weight:600;}
+  .rail-step.done{color:var(--moss);}
+  .rail-step::after{
+    content:'';
+    display:block;
+    height:2px;
+    margin-top:8px;
+    background:var(--soil-700);
+    border-radius:2px;
+  }
+  .rail-step.active::after{background:var(--gold);}
+  .rail-step.done::after{background:var(--moss);}
+
+  .stage{display:none; animation:fadeIn .4s ease;}
+  .stage.active{display:block;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  .panel{
+    background:linear-gradient(180deg, var(--soil-800), var(--soil-900));
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:22px;
+    margin-bottom:20px;
+  }
+  .panel h2{font-size:22px; margin-bottom:4px;}
+  .panel .desc{color:var(--parchment-dim); font-size:14px; margin-bottom:16px; line-height:1.5;}
+
+  /* Onboarding tooltip */
+  .onboarding{
+    background:linear-gradient(180deg, rgba(217,164,65,0.12), rgba(217,164,65,0.04));
+    border:1px solid rgba(217,164,65,0.4);
+    border-radius:8px;
+    padding:14px 16px;
+    margin-bottom:16px;
+    display:none;
+    position:relative;
+  }
+  .onboarding.show{display:block;}
+  .onboarding h4{
+    font-family:var(--font-head); font-size:13px; color:var(--gold);
+    text-transform:uppercase; letter-spacing:0.06em; margin:0 0 6px; font-weight:600;
+  }
+  .onboarding p{font-size:13.5px; line-height:1.5; margin:0 0 10px; color:var(--parchment);}
+  .onboarding .close-x{
+    position:absolute; top:8px; right:10px; background:none; border:none;
+    color:var(--parchment-dim); font-size:18px; cursor:pointer; padding:2px 6px;
+  }
+  .onboarding .close-x:hover{color:var(--parchment);}
+  .onboarding button.got-it{
+    background:var(--gold); color:#1a0f08; border:none; border-radius:6px;
+    padding:6px 14px; font-weight:600; font-size:12.5px; cursor:pointer;
+  }
+
+  /* Preset row */
+  .preset-row{
+    display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+    margin-bottom:16px;
+    padding:10px 12px;
+    background:rgba(59,44,29,0.5);
+    border:1px solid var(--line);
+    border-radius:8px;
+  }
+  .preset-row .label{font-size:12px; color:var(--parchment-dim); text-transform:uppercase; letter-spacing:0.06em; font-family:var(--font-head); font-weight:600;}
+  .preset-btn{
+    background:var(--moss-dim); color:var(--parchment);
+    border:none; border-radius:6px; padding:8px 14px; font-size:13px; font-weight:600; cursor:pointer;
+  }
+  .preset-btn:hover{background:var(--moss);}
+  .clear-btn{
+    background:transparent; color:var(--parchment-dim);
+    border:1px solid var(--line); border-radius:6px; padding:8px 14px; font-size:13px; cursor:pointer;
+  }
+  .clear-btn:hover{color:var(--parchment); border-color:var(--parchment-dim);}
+
+  .cols{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+  @media (max-width:780px){ .cols{grid-template-columns:1fr;} }
+
+  .col-section{
+    border-radius:10px;
+    padding:14px 12px 8px;
+    border:1px solid var(--line);
+  }
+  .col-section.greens{
+    background: linear-gradient(180deg, rgba(138,154,78,0.14), rgba(138,154,78,0.05));
+    border-color: rgba(138,154,78,0.35);
+  }
+  .col-section.browns{
+    background: linear-gradient(180deg, rgba(168,118,63,0.15), rgba(168,118,63,0.05));
+    border-color: rgba(168,118,63,0.35);
+  }
+  .col-section.nitro{
+    background: linear-gradient(180deg, rgba(174,219,156,0.14), rgba(125,174,108,0.05));
+    border-color: rgba(174,219,156,0.35);
+  }
+
+  .colhead{
+    display:flex; align-items:center; gap:8px;
+    font-family:var(--font-head);
+    font-size:12px; text-transform:uppercase; letter-spacing:0.08em;
+    margin-bottom:12px; padding-bottom:10px;
+    border-bottom:1px solid var(--line);
+    font-weight:700;
+  }
+  .col-section.greens .colhead{color:var(--moss); border-bottom-color:rgba(138,154,78,0.3);}
+  .col-section.browns .colhead{color:var(--bark); border-bottom-color:rgba(168,118,63,0.3);}
+  .col-section.nitro .colhead{color:var(--highn); border-bottom-color:rgba(174,219,156,0.3);}
+
+  .swatch{width:10px; height:10px; border-radius:2px; flex:none;}
+  .sw-green{background:var(--moss);}
+  .sw-brown{background:var(--bark);}
+  .sw-nitro{background:var(--highn);}
+
+  .card{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:10px;
+    background:var(--soil-700);
+    border:1px solid var(--line);
+    border-left:3px solid var(--line);
+    border-radius:8px;
+    padding:10px 12px;
+    margin-bottom:8px;
+    transition:border-color .15s, background .15s;
+  }
+  .col-section.greens .card{border-left-color: var(--moss); background: rgba(59,44,29,0.85);}
+  .col-section.browns .card{border-left-color: var(--bark); background: rgba(59,44,29,0.85);}
+  .col-section.nitro .card{border-left-color: var(--highn); background: rgba(59,44,29,0.85);}
+  .col-section.greens .card:hover{background: rgba(138,154,78,0.15);}
+  .col-section.browns .card:hover{background: rgba(168,118,63,0.15);}
+  .col-section.nitro .card:hover{background: rgba(174,219,156,0.12);}
+
+  .card .name{font-size:13.5px; line-height:1.3;}
+  .card .cn{display:block; font-size:11px; color:var(--parchment-dim); margin-top:2px;}
+  .stepper{display:flex; align-items:center; gap:8px; flex:none;}
+  .stepper button{
+    width:26px; height:26px; border-radius:6px; border:1px solid var(--line);
+    background:var(--soil-600); color:var(--parchment); font-size:15px; line-height:1;
+  }
+  .stepper button:hover{background:var(--nitro-dim);}
+  .stepper .qty{min-width:16px; text-align:center; font-family:var(--font-head); font-weight:600; font-size:13px;}
+
+  .stats-row{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:12px;
+    margin-top:18px;
+  }
+  @media (max-width:780px){ .stats-row{grid-template-columns:repeat(2,1fr);} }
+  .stat{
+    background:var(--soil-700); border:1px solid var(--line); border-radius:8px;
+    padding:12px 14px;
+  }
+  .stat .label{font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--parchment-dim); font-family:var(--font-head); font-weight:600;}
+  .stat .value{font-size:20px; font-family:var(--font-head); font-weight:600; margin-top:4px;}
+
+  .pile-wrap{display:flex; gap:22px; align-items:center; margin-top:18px; flex-wrap:wrap;}
+  .pile-svg{flex:none;}
+
+  .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--nitro); color:#1a0f08; font-weight:600; font-size:14px;
+    border:none; border-radius:8px; padding:12px 20px;
+    transition:transform .15s, background .15s;
+  }
+  .btn:hover{background:#e77843; transform:translateY(-1px);}
+  .btn:disabled{background:var(--soil-600); color:var(--parchment-dim); cursor:not-allowed; transform:none;}
+  .btn.secondary{background:transparent; border:1px solid var(--line); color:var(--parchment);}
+  .btn.secondary:hover{background:var(--soil-700);}
+  .actions{display:flex; justify-content:flex-end; gap:10px; margin-top:6px;}
+  .actions.split{justify-content:space-between;}
+
+  .slider-block{margin:20px 0;}
+  input[type=range]{
+    width:100%; height:6px; -webkit-appearance:none; appearance:none;
+    background:linear-gradient(90deg, var(--bark), var(--water));
+    border-radius:4px; outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:20px; height:20px; border-radius:50%;
+    background:var(--gold); border:3px solid var(--soil-900); cursor:pointer; margin-top:-1px;
+  }
+  input[type=range]::-moz-range-thumb{
+    width:20px; height:20px; border-radius:50%; background:var(--gold); border:3px solid var(--soil-900); cursor:pointer;
+  }
+  .slider-labels{display:flex; justify-content:space-between; font-size:11.5px; color:var(--parchment-dim); margin-top:6px; font-family:var(--font-head); text-transform:uppercase; font-weight:600;}
+
+  .squeeze-area{display:flex; gap:26px; align-items:center; flex-wrap:wrap; margin-top:20px;}
+  #squeezeBtn{background:var(--water); color:#0B2733;}
+  #squeezeBtn:hover{background:#6FBBDD;}
+  .hand-result{
+    background:var(--soil-700); border:1px solid rgba(79,168,209,0.35); border-radius:8px;
+    padding:14px 16px; flex:1; min-width:220px; font-size:14px; line-height:1.5;
+  }
+  .hand-result .verdict{font-family:var(--font-head); font-size:12px; color:var(--water); text-transform:uppercase; letter-spacing:0.06em; font-weight:700; display:block; margin-bottom:4px;}
+
+  .drop{
+    display:inline-block; width:9px; height:13px; margin-right:3px;
+    background:var(--water); border-radius:0 60% 60% 60%; transform:rotate(45deg);
+    opacity:0; transition:opacity .3s;
+  }
+  .drop.show{opacity:1;}
+
+  .plan-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:6px;}
+  @media (max-width:780px){ .plan-grid{grid-template-columns:1fr;} }
+  .plan-card{
+    background:var(--soil-700); border:1.5px solid var(--line); border-radius:9px;
+    padding:14px; cursor:pointer; transition:border-color .15s, background .15s;
+  }
+  .plan-card:hover{border-color:var(--nitro-dim);}
+  .plan-card.selected{border-color:var(--gold); background:var(--soil-600);}
+  .plan-card .t{font-family:var(--font-head); font-size:18px; font-weight:700; color:var(--gold);}
+  .plan-card .d{font-size:12.5px; color:var(--parchment-dim); margin-top:4px;}
+
+  .turns-stepper{display:flex; align-items:center; gap:14px; margin-top:14px;}
+  .turns-stepper button{
+    width:34px; height:34px; border-radius:8px;
+    border:1px solid var(--line);
+    background:var(--soil-600); color:var(--parchment); font-size:18px;
+  }
+  .turns-stepper .n{font-family:var(--font-head); font-weight:700; font-size:22px; min-width:28px; text-align:center;}
+
+  .chart-wrap{margin-top:20px;}
+  #tempChart{width:100%; height:auto; display:block;}
+  .chart-legend{display:flex; gap:18px; flex-wrap:wrap; font-size:11.5px; color:var(--parchment-dim); margin-top:8px; font-family:var(--font-head);}
+  .chart-legend span{display:inline-flex; align-items:center; gap:6px;}
+  .dot{width:9px; height:9px; border-radius:50%; display:inline-block;}
+
+  .sim-summary{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:16px;}
+  @media (max-width:780px){ .sim-summary{grid-template-columns:repeat(2,1fr);} }
+
+  .cure-total{margin-top:14px; font-size:14px; color:var(--parchment-dim);}
+  .cure-total .mono{color:var(--parchment); font-size:16px;}
+
+  .result-grid{display:grid; grid-template-columns:230px 1fr; gap:34px; align-items:start;}
+  @media (max-width:780px){ .result-grid{grid-template-columns:1fr; justify-items:center;} }
+  .tube-col{display:flex; flex-direction:column; align-items:center; gap:14px;}
+  #shakeBtn{width:100%;}
+  .verdict-badge{
+    font-family:var(--font-head); font-size:12px; text-transform:uppercase; letter-spacing:0.08em; font-weight:600;
+    padding:8px 16px; border-radius:6px; background:var(--soil-950); color:var(--parchment);
+    border-left:4px solid var(--line); opacity:0; transition:opacity .5s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+  .verdict-badge.show{opacity:1;}
+
+  .tube-group{transform-origin:150px 40px;}
+  .shaking{animation:shake 1.1s ease-in-out;}
+  @keyframes shake{
+    0%{transform:rotate(0deg) translateX(0);}
+    10%{transform:rotate(-14deg) translateX(-4px);}
+    20%{transform:rotate(12deg) translateX(4px);}
+    30%{transform:rotate(-16deg) translateX(-5px);}
+    40%{transform:rotate(14deg) translateX(5px);}
+    50%{transform:rotate(-12deg) translateX(-3px);}
+    60%{transform:rotate(10deg) translateX(3px);}
+    70%{transform:rotate(-8deg) translateX(-2px);}
+    80%{transform:rotate(6deg) translateX(2px);}
+    90%{transform:rotate(-3deg) translateX(-1px);}
+    100%{transform:rotate(0deg) translateX(0);}
+  }
+  #tubeFill{transition:fill 1.2s ease 0.2s, y 1s ease 0.2s, height 1s ease 0.2s;}
+
+  .microbe-chart{display:flex; align-items:flex-end; gap:14px; height:150px; margin-top:14px; padding:0 6px;}
+  .mbar-col{display:flex; flex-direction:column; align-items:center; gap:8px; flex:1;}
+  .mbar-track{width:100%; max-width:36px; height:110px; background:var(--soil-700); border-radius:6px 6px 2px 2px; position:relative; overflow:hidden; border:1px solid var(--line);}
+  .mbar-fill{position:absolute; bottom:0; left:0; width:100%; height:0%; background:var(--moss); transition:height 1.1s cubic-bezier(.2,.9,.3,1.2);}
+  .mbar-target{position:absolute; left:0; width:100%; height:2px; background:var(--gold); opacity:0.85;}
+  .mbar-label{font-size:10px; color:var(--parchment-dim); text-align:center; font-family:var(--font-head); text-transform:uppercase; font-weight:600;}
+
+  .microscope-wrap{
+    margin-top:24px; padding-top:20px; border-top:1px solid var(--line);
+    display:flex; gap:24px; align-items:center; flex-wrap:wrap;
+  }
+  .scope-view{
+    width:140px; height:140px; border-radius:50%; background:#080604;
+    border:6px solid var(--soil-600); position:relative; overflow:hidden; flex:none;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+  }
+  .scope-view canvas{width:100%; height:100%; display:block;}
+  .scope-controls{display:flex; flex-direction:column; gap:8px;}
+  .scope-toggle{
+    background:var(--soil-700); color:var(--parchment); border:1px solid var(--line);
+    border-radius:6px; padding:8px 14px; font-size:13px; cursor:pointer; font-weight:500;
+    transition:background .15s, border-color .15s;
+  }
+  .scope-toggle:hover{background:var(--soil-600);}
+  .scope-toggle.on{background:var(--gold); color:#1a0f08; border-color:var(--gold);}
+
+  .debrief{margin-top:22px;}
+  .debrief-row{
+    display:grid; grid-template-columns:140px 70px 1fr; gap:14px; align-items:start;
+    padding:12px 0; border-bottom:1px solid var(--line); font-size:13.5px;
+  }
+  .debrief-row:last-child{border-bottom:none;}
+  .debrief-row .factor{font-weight:600;}
+  .badge{
+    font-family:var(--font-head); font-size:10.5px; text-transform:uppercase; font-weight:600;
+    padding:3px 8px; border-radius:20px; text-align:center; height:fit-content;
+  }
+  .badge.good{background:rgba(138,154,78,0.22); color:var(--moss);}
+  .badge.warn{background:rgba(217,164,65,0.22); color:var(--gold);}
+  .badge.bad{background:rgba(193,67,44,0.22); color:#e58a78;}
+  .debrief-row .note{color:var(--parchment-dim); line-height:1.5;}
+  .debrief-row .note .ans{color:var(--parchment); font-family:var(--font-head); font-weight:600; font-size:12.5px;}
+  .debrief-row .note .flag{color:#e58a78; font-family:var(--font-head); font-weight:600;}
+
+  .callout{
+    background:rgba(193,67,44,0.12); border:1px solid rgba(193,67,44,0.4);
+    border-radius:8px; padding:12px 14px; font-size:13.5px; margin-top:16px; display:none;
+  }
+  .callout.show{display:block;}
+
+  .result-actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:20px;}
+  .result-actions .btn.small{padding:9px 14px; font-size:13px;}
+
+  footer.credit{text-align:center; margin-top:36px; font-size:12px; color:var(--parchment-dim); font-family:var(--font-head);}
+
+  /* ---------- Print styles ---------- */
+  @media print {
+    body{background:white !important; color:#1a1a1a !important;}
+    .app{max-width:100%; padding:12px;}
+    .rail, .header-tools, .actions, .result-actions, .microscope-wrap .scope-controls, .callout, .onboarding, .preset-row { display:none !important; }
+    .stage{display:none !important;}
+    .stage#stage-result{display:block !important;}
+    .panel{background:white !important; border:1px solid #ccc; color:#1a1a1a !important; page-break-inside:avoid;}
+    .panel h2, h1.title, h3{color:#1a1a1a !important;}
+    .subtitle, .desc, .mbar-label, .stat .label, .debrief-row .note{color:#333 !important;}
+    .stat, .card{background:#f7f5ef !important; border:1px solid #ccc !important; color:#1a1a1a !important;}
+    .stat .value, .verdict-badge{color:#1a1a1a !important; background:#f7f5ef !important;}
+    .verdict-badge.show{opacity:1 !important; box-shadow:none;}
+    .debrief-row{border-bottom:1px solid #ccc;}
+    .debrief-row .note .ans{color:#000 !important;}
+    .badge.good{background:#e2ecc9 !important; color:#4a5a1e !important;}
+    .badge.warn{background:#fbeacb !important; color:#7c5a10 !important;}
+    .badge.bad{background:#f7d3c9 !important; color:#8a2b1a !important;}
+    .scope-view{border-color:#999; background:#fff;}
+    .eyebrow{color:#7c5a10 !important;}
+    footer.credit{color:#333 !important;}
+    .print-only-summary{display:block !important;}
+  }
+  .print-only-summary{display:none;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="top">
+    <div class="header-tools">
+      <button class="icon-btn" id="soundToggleBtn" title="Toggle sound" aria-label="Toggle sound">🔊</button>
+      <button class="icon-btn" id="helpBtn" title="Show intro tips" aria-label="Show intro tips">?</button>
+    </div>
+    <div class="eyebrow">Soil Food Web · Thermophilic Composting</div>
+    <h1 class="title">Hot Compost Lab</h1>
+    <p class="subtitle">Build a pile from real materials, decide how you'll turn it, and see what actually happens in the barrel. Nobody hands you the ratio — you find it by running the pile and reading the results.</p>
+
+    <div class="rail" id="rail">
+      <div class="rail-step" data-stage="gather"><div class="stage-name">Gather</div>Pick materials</div>
+      <div class="rail-step" data-stage="water"><div class="stage-name">Water</div>Squeeze test</div>
+      <div class="rail-step" data-stage="turn"><div class="stage-name">Turn</div>Run the pile</div>
+      <div class="rail-step" data-stage="cure"><div class="stage-name">Cure</div>Let it rest</div>
+      <div class="rail-step" data-stage="result"><div class="stage-name">Shake</div>Read the compost</div>
+    </div>
+  </header>
+
+  <section class="stage active" id="stage-gather">
+    <div class="panel">
+      <h2>Build your pile</h2>
+      <p class="desc">Click a material to add a 5-gallon bucket to your pile. Each one lists its own carbon-to-nitrogen ratio — how you combine them is up to you.</p>
+
+      <div class="onboarding" id="onboarding">
+        <button class="close-x" id="onboardCloseX" aria-label="Close">×</button>
+        <h4>👋 First time here?</h4>
+        <p>Use the <strong>+</strong> and <strong>−</strong> buttons to add ingredients from three categories: Greens, Browns, and High Nitrogen. Watch the stats update as you go — aim for roughly <strong>40 buckets total (1 yd³)</strong> and a blended <strong>C:N near 30:1</strong>. Or click <em>Try a Classic 30:1 Mix</em> below to see a working recipe first. Then move through Water → Turn → Cure → Shake to discover what your pile actually produces.</p>
+        <button class="got-it" id="onboardGotIt">Got it</button>
+      </div>
+
+      <div class="preset-row">
+        <span class="label">Start from:</span>
+        <button class="preset-btn" id="presetClassic">🌱 Try a Classic 30:1 Mix</button>
+        <button class="clear-btn" id="clearPileBtn">Clear pile</button>
+      </div>
+
+      <div class="cols">
+        <div class="col-section greens">
+          <div class="colhead"><span class="swatch sw-green"></span>Greens</div>
+          <div id="col-green"></div>
+        </div>
+        <div class="col-section browns">
+          <div class="colhead"><span class="swatch sw-brown"></span>Browns</div>
+          <div id="col-brown"></div>
+        </div>
+        <div class="col-section nitro">
+          <div class="colhead"><span class="swatch sw-nitro"></span>High Nitrogen</div>
+          <div id="col-nitro"></div>
+        </div>
+      </div>
+
+      <div class="pile-wrap">
+        <div style="position:relative;">
+          <svg class="pile-svg" id="pileSvg" width="220" height="150" viewBox="0 0 220 150"></svg>
+          <div id="pileSizeLabel" style="position:absolute; bottom:-20px; left:0; width:100%; text-align:center; font-size:11px; color:var(--parchment-dim); font-family:var(--font-head);">Pile size: 0.0 / 1.0 yd³</div>
+        </div>
+        <div class="stats-row" style="flex:1; margin-top:0;">
+          <div class="stat"><div class="label">Total volume</div><div class="value mono" id="statVolume">0 buckets</div></div>
+          <div class="stat"><div class="label">Blended C:N</div><div class="value mono" id="statCN">—</div></div>
+          <div class="stat"><div class="label">Green : Brown : N</div><div class="value mono" id="statMix">0:0:0</div></div>
+          <div class="stat"><div class="label">Ingredients used</div><div class="value mono" id="statCount">0</div></div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn" id="toWaterBtn" disabled>Next: Add Water →</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="stage" id="stage-water">
+    <div class="panel">
+      <h2>Add water</h2>
+      <p class="desc">Wet the pile while you mix, then grab a handful and squeeze. That's the only real test you've got in the field.</p>
+
+      <div class="slider-block">
+        <input type="range" id="moistureSlider" min="0" max="100" value="20">
+        <div class="slider-labels"><span>Bone dry</span><span>Damp sponge</span><span>Soaking wet</span></div>
+      </div>
+
+      <div class="squeeze-area">
+        <button class="btn" id="squeezeBtn">✊ Squeeze Test</button>
+        <div class="hand-result" id="handResult">
+          <span class="verdict">Result</span>
+          Adjust the water, then squeeze a handful to see what happens.
+          <div id="dropsRow" style="margin-top:8px;"></div>
+        </div>
+      </div>
+
+      <div class="actions split">
+        <button class="btn secondary" id="backToGather">← Back</button>
+        <button class="btn" id="toTurnBtn">Next: Plan Your Turns →</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="stage" id="stage-turn">
+    <div class="panel">
+      <h2>Set your turning plan</h2>
+      <p class="desc">Pick the core temperature you'll wait for before turning the pile, and how many times you plan to turn it. Then run the pile and watch what the thermometer actually does.</p>
+
+      <div class="plan-grid" id="planGrid">
+        <div class="plan-card" data-trigger="131" data-days="3">
+          <div class="t">131°F</div>
+          <div class="d">Turn after 3 days at this core temp</div>
+        </div>
+        <div class="plan-card" data-trigger="154" data-days="2">
+          <div class="t">149–158°F</div>
+          <div class="d">Turn after 2 days at this core temp</div>
+        </div>
+        <div class="plan-card" data-trigger="172" data-days="1">
+          <div class="t">172°F+</div>
+          <div class="d">Turn after 24 hours at this core temp</div>
+        </div>
+      </div>
+
+      <div class="turns-stepper">
+        <span class="mono" style="color:var(--parchment-dim); font-size:13px;">Planned turns:</span>
+        <button id="turnsMinus">−</button>
+        <span class="n mono" id="turnsCount">2</span>
+        <button id="turnsPlus">+</button>
+      </div>
+
+      <div class="actions" style="margin-top:18px;">
+        <button class="btn" id="runSimBtn" disabled>▶ Run the Pile</button>
+      </div>
+
+      <div class="chart-wrap" id="chartWrap" style="display:none;">
+        <svg id="tempChart" viewBox="0 0 800 300"></svg>
+        <div class="chart-legend">
+          <span><span class="dot" style="background:var(--nitro);"></span>Core temperature</span>
+          <span><span class="dot" style="background:var(--danger);"></span>180°F+ — anaerobic / explosion risk</span>
+          <span><span class="dot" style="background:var(--gold);"></span>131°F — pathogen kill threshold</span>
+          <span><span class="dot" style="background:var(--parchment-dim);"></span>Turn performed</span>
+        </div>
+        <div class="sim-summary" id="simSummary"></div>
+        <div class="callout" id="anaerobicCallout">
+          ⚠ Core temperature spiked past 180°F or the pile ran anaerobic. That's a recipe problem — too much high-nitrogen material or moisture for the pile's mass — not something turning alone fixes.
+        </div>
+      </div>
+
+      <div class="actions split" style="margin-top:18px;">
+        <button class="btn secondary" id="backToWater">← Back</button>
+        <button class="btn" id="toCureBtn" disabled>Next: Curing →</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="stage" id="stage-cure">
+    <div class="panel">
+      <h2>Let it cure</h2>
+      <p class="desc">Active turning is done. Now decide how many weeks you'll let the pile rest before you use it.</p>
+
+      <div class="slider-block">
+        <input type="range" id="cureSlider" min="0" max="12" value="6">
+        <div class="slider-labels"><span>0 weeks</span><span>6 weeks</span><span>12 weeks</span></div>
+      </div>
+      <div class="cure-total">Curing for <span class="mono" id="cureWeeksLabel">6</span> weeks after an active phase of <span class="mono" id="activeDaysLabel">—</span> days ≈ <span class="mono" id="totalDaysLabel">—</span> total days from build to finish.</div>
+
+      <div class="actions split" style="margin-top:20px;">
+        <button class="btn secondary" id="backToTurn">← Back</button>
+        <button class="btn" id="toResultBtn">Next: Shake Test →</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="stage" id="stage-result">
+    <div class="panel">
+      <h2>The shake test</h2>
+      <p class="desc">Shake a small sample of compost in a test tube with 15 mL of water. The color of the water tells you how finished your compost is. The microscope reveals what's actually alive in it.</p>
+
+      <div class="result-grid">
+        <div class="tube-col">
+          <svg width="150" height="230" viewBox="0 0 150 230">
+            <g class="tube-group" id="tubeGroup">
+              <rect x="55" y="10" width="40" height="180" rx="18" fill="#20170F" stroke="var(--line)" stroke-width="2"/>
+              <rect id="tubeFill" x="59" y="160" width="32" height="26" fill="#8FB4D6" opacity="0.85"/>
+              <rect x="55" y="10" width="40" height="180" rx="18" fill="none" stroke="rgba(238,227,201,0.35)" stroke-width="1.5"/>
+              <rect x="45" y="185" width="60" height="14" rx="4" fill="#3B2C1D" stroke="var(--line)"/>
+            </g>
+          </svg>
+          <button class="btn" id="shakeBtn">🫳 Shake the Test Tube</button>
+          <div class="verdict-badge" id="verdictBadge">—</div>
+        </div>
+
+        <div>
+          <h3 style="font-size:15px; margin-bottom:10px; font-family:var(--font-head); text-transform:uppercase; letter-spacing:0.05em; color:var(--parchment-dim);">Soil food web assay</h3>
+          <div class="microbe-chart" id="microbeChart">
+            <div class="mbar-col">
+              <div class="mbar-track"><div class="mbar-target" id="targetBacteria"></div><div class="mbar-fill" id="fillBacteria"></div></div>
+              <div class="mbar-label">Bacteria</div>
+            </div>
+            <div class="mbar-col">
+              <div class="mbar-track"><div class="mbar-target" id="targetFungi"></div><div class="mbar-fill" id="fillFungi" style="background:var(--bark);"></div></div>
+              <div class="mbar-label">Fungi</div>
+            </div>
+            <div class="mbar-col">
+              <div class="mbar-track"><div class="mbar-target" id="targetProtozoa"></div><div class="mbar-fill" id="fillProtozoa" style="background:var(--nitro);"></div></div>
+              <div class="mbar-label">Protozoa</div>
+            </div>
+            <div class="mbar-col">
+              <div class="mbar-track"><div class="mbar-target" id="targetNematodes"></div><div class="mbar-fill" id="fillNematodes" style="background:var(--gold);"></div></div>
+              <div class="mbar-label">Nematodes</div>
+            </div>
+            <div class="mbar-col">
+              <div class="mbar-track"><div class="mbar-fill" id="fillAnaerobes" style="background:var(--danger);"></div></div>
+              <div class="mbar-label">Anaerobes</div>
+            </div>
+          </div>
+
+          <div class="microscope-wrap">
+            <div class="scope-view">
+              <canvas id="scopeCanvas" width="280" height="280"></canvas>
+            </div>
+            <div class="scope-controls">
+              <button class="scope-toggle" id="scopeToggleBtn">💡 Turn on microscope</button>
+              <div style="font-size:12px; color:var(--parchment-dim); line-height:1.4; max-width:240px;">
+                <strong style="color:var(--parchment); display:block; margin-bottom:4px;">Microscope Field of View</strong>
+                Turn on the light and listen to the hum. A living view of the microbes in your compost — bacteria jitter, protozoa drift, nematodes wave through the field, and fungi branch through the substrate.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="debrief" id="debrief" style="display:none;">
+        <h3 style="font-size:16px; margin-bottom:6px;">What actually happened</h3>
+        <div id="debriefRows"></div>
+      </div>
+
+      <div class="result-actions">
+        <button class="btn small" id="saveSummaryBtn">📥 Save Summary</button>
+        <button class="btn small secondary" id="printBtn">🖨️ Print Results</button>
+        <button class="btn small secondary" id="restartBtn">↺ Start a New Pile</button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="credit">Hot Compost Lab · A. Codd</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const GREENS = [
+    {id:"lawn", name:"Fresh cut lawn clippings", cn:19},
+    {id:"weeds", name:"Fresh weeds / garden waste", cn:25},
+    {id:"vegtrimmings", name:"Vegetable garden trimmings", cn:20},
+    {id:"kitchengreens", name:"Kitchen greens / leafy trimmings", cn:15},
+    {id:"fruit", name:"Fruit waste", cn:30},
+    {id:"seaweed", name:"Seaweed / algae", cn:19},
+    {id:"leaves", name:"Green leaves (fresh)", cn:35},
+    {id:"legumehay", name:"Legume hay (alfalfa)", cn:27},
+  ];
+  const BROWNS = [
+    {id:"maturehay", name:"Hay (grass, mature)", cn:40},
+    {id:"cornstalks", name:"Corn stalks", cn:67},
+    {id:"straw", name:"Straw", cn:80},
+    {id:"fallleaves", name:"Fall leaves (dry)", cn:60},
+    {id:"newspaper", name:"Newspaper (plain)", cn:175},
+    {id:"bark", name:"Bark (shredded)", cn:115},
+    {id:"cardboard", name:"Cardboard (uncoated)", cn:350},
+    {id:"woodchips", name:"Wood chips", cn:300},
+    {id:"sawdust", name:"Sawdust", cn:350},
+  ];
+  const NITRO = [
+    {id:"bloodmeal", name:"Blood meal", cn:3},
+    {id:"poultry", name:"Poultry manure (fresh)", cn:6},
+    {id:"seedmeal", name:"Legume seed meal", cn:7},
+    {id:"clovergrass", name:"Grass clippings from clover-rich lawn", cn:12},
+    {id:"coffee", name:"Coffee grounds", cn:15},
+    {id:"beermash", name:"Beer mash / spent grain", cn:12},
+    {id:"cowmanure", name:"Manure (dairy/cow, fresh)", cn:15},
+    {id:"vegscraps", name:"Vegetable scraps", cn:17},
+  ];
+  const ALL = {green:GREENS, brown:BROWNS, nitro:NITRO};
+
+  const PRESET_CLASSIC = {
+    fallleaves: 15,   // brown, 60:1
+    straw: 8,         // brown, 80:1
+    lawn: 10,         // green, 19:1
+    coffee: 5,        // nitro, 15:1
+    vegscraps: 2      // nitro, 17:1
+  };
+
+  let state = {
+    pile:{}, moisture:20, lastSqueezeDrops:null,
+    trigger:null, turnsPlanned:2, cureWeeks:6, sim:null,
+    soundEnabled:true,
+    scopeOn:false
+  };
+
+  const STAGES = ["gather","water","turn","cure","result"];
+
+  /* ---------------- Audio ---------------- */
+  let audioCtx = null;
+  let humOsc = null;
+  let humGain = null;
+
+  function ensureAudio(){
+    if(!audioCtx){
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      } catch(e){ audioCtx = null; }
+    }
+    if(audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+    return audioCtx;
+  }
+
+  function playWhoosh(){
+    if(!state.soundEnabled) return;
+    const ctx = ensureAudio();
+    if(!ctx) return;
+    // white noise burst through band-pass filter with envelope
+    const bufferSize = ctx.sampleRate * 1.2;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for(let i=0; i<bufferSize; i++){
+      data[i] = (Math.random()*2-1) * 0.5;
+    }
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    const filter = ctx.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.frequency.value = 800;
+    filter.Q.value = 0.8;
+    const gain = ctx.createGain();
+    const now = ctx.currentTime;
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.35, now+0.08);
+    gain.gain.exponentialRampToValueAtTime(0.001, now+1.1);
+    // sweep filter for whoosh feel
+    filter.frequency.setValueAtTime(400, now);
+    filter.frequency.exponentialRampToValueAtTime(2200, now+0.5);
+    filter.frequency.exponentialRampToValueAtTime(300, now+1.1);
+    src.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+    src.start(now);
+    src.stop(now+1.2);
+  }
+
+  function startHum(){
+    if(!state.soundEnabled) return;
+    const ctx = ensureAudio();
+    if(!ctx) return;
+    stopHum();
+    humOsc = ctx.createOscillator();
+    humOsc.type = "sine";
+    humOsc.frequency.value = 62;
+    const osc2 = ctx.createOscillator();
+    osc2.type = "sine";
+    osc2.frequency.value = 124;
+    humGain = ctx.createGain();
+    humGain.gain.setValueAtTime(0, ctx.currentTime);
+    humGain.gain.linearRampToValueAtTime(0.06, ctx.currentTime+0.4);
+    const gain2 = ctx.createGain();
+    gain2.gain.value = 0.02;
+    humOsc.connect(humGain);
+    osc2.connect(gain2);
+    gain2.connect(humGain);
+    humGain.connect(ctx.destination);
+    humOsc.start();
+    osc2.start();
+    humOsc._partner = osc2;
+  }
+
+  function stopHum(){
+    if(humOsc && audioCtx){
+      try {
+        humGain.gain.cancelScheduledValues(audioCtx.currentTime);
+        humGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime+0.3);
+        humOsc.stop(audioCtx.currentTime+0.35);
+        if(humOsc._partner) humOsc._partner.stop(audioCtx.currentTime+0.35);
+      } catch(e){}
+      humOsc = null;
+      humGain = null;
+    }
+  }
+
+  function updateSoundBtn(){
+    const btn = document.getElementById("soundToggleBtn");
+    btn.textContent = state.soundEnabled ? "🔊" : "🔇";
+    btn.title = state.soundEnabled ? "Sound on (click to mute)" : "Sound muted (click to enable)";
+  }
+
+  /* ---------------- Onboarding ---------------- */
+  function showOnboarding(){
+    document.getElementById("onboarding").classList.add("show");
+  }
+  function hideOnboarding(){
+    document.getElementById("onboarding").classList.remove("show");
+    try { localStorage.setItem("hotCompostLabVisited", "1"); } catch(e){}
+  }
+  function checkOnboarding(){
+    let visited = false;
+    try { visited = localStorage.getItem("hotCompostLabVisited") === "1"; } catch(e){}
+    if(!visited) showOnboarding();
+  }
+
+  function goTo(stage){
+    STAGES.forEach(s=>{
+      document.getElementById("stage-"+s).classList.toggle("active", s===stage);
+    });
+    document.querySelectorAll(".rail-step").forEach(el=>{
+      const s = el.dataset.stage;
+      el.classList.toggle("active", s===stage);
+      el.classList.toggle("done", STAGES.indexOf(s) < STAGES.indexOf(stage));
+    });
+    // stop hum when leaving result stage
+    if(stage !== "result"){
+      state.scopeOn = false;
+      updateScopeToggleBtn();
+      stopHum();
+    }
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+
+  function renderMaterials(){
+    ["green","brown","nitro"].forEach(cat=>{
+      const containerId = cat==="green" ? "col-green" : cat==="brown" ? "col-brown" : "col-nitro";
+      const container = document.getElementById(containerId);
+      container.innerHTML = "";
+      ALL[cat].forEach(mat=>{
+        const qty = (state.pile[mat.id] && state.pile[mat.id].qty) || 0;
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <div>
+            <span class="name">${mat.name}</span>
+            <span class="cn">C:N ${mat.cn}:1</span>
+          </div>
+          <div class="stepper">
+            <button type="button" aria-label="Remove ${mat.name}" data-act="minus" data-id="${mat.id}">−</button>
+            <span class="qty mono" id="qty-${mat.id}">${qty}</span>
+            <button type="button" aria-label="Add ${mat.name}" data-act="plus" data-id="${mat.id}">+</button>
+          </div>`;
+        container.appendChild(card);
+      });
+    });
+    container_bind();
+  }
+
+  function container_bind(){
+    document.querySelectorAll(".stepper button").forEach(btn=>{
+      btn.onclick = ()=>{
+        const id = btn.dataset.id;
+        const act = btn.dataset.act;
+        addMaterial(id, act==="plus"?1:-1);
+      };
+    });
+  }
+
+  function findMat(id){
+    for(const cat of ["green","brown","nitro"]){
+      const m = ALL[cat].find(x=>x.id===id);
+      if(m) return {mat:m, cat};
+    }
+    return null;
+  }
+
+  function addMaterial(id, delta){
+    const found = findMat(id);
+    if(!found) return;
+    const {mat, cat} = found;
+    if(!state.pile[id]) state.pile[id] = {cat, cn:mat.cn, qty:0};
+    state.pile[id].qty = Math.max(0, state.pile[id].qty + delta);
+    document.getElementById("qty-"+id).textContent = state.pile[id].qty;
+    updatePileSummary();
+  }
+
+  function setPileTo(preset){
+    state.pile = {};
+    Object.entries(preset).forEach(([id, qty])=>{
+      const found = findMat(id);
+      if(!found) return;
+      state.pile[id] = {cat: found.cat, cn: found.mat.cn, qty: qty};
+    });
+    renderMaterials();
+    updatePileSummary();
+  }
+
+  function clearPile(){
+    state.pile = {};
+    renderMaterials();
+    updatePileSummary();
+  }
+
+  function pileTotals(){
+    let total=0, reciprocalSum=0, green=0, brown=0, nitro=0, ingredientCount=0;
+    Object.values(state.pile).forEach(entry=>{
+      if(entry.qty<=0) return;
+      total += entry.qty;
+      reciprocalSum += entry.qty/entry.cn;
+      ingredientCount++;
+      if(entry.cat==="green") green+=entry.qty;
+      else if(entry.cat==="brown") brown+=entry.qty;
+      else nitro+=entry.qty;
+    });
+    const blendedCN = total>0 ? total/reciprocalSum : 0;
+    return {total, blendedCN, green, brown, nitro, ingredientCount};
+  }
+
+  function updatePileSummary(){
+    const t = pileTotals();
+    document.getElementById("statVolume").textContent = t.total + " bucket" + (t.total===1?"":"s");
+    document.getElementById("statCN").textContent = t.total>0 ? Math.round(t.blendedCN)+":1" : "—";
+    document.getElementById("statMix").textContent = `${t.green}:${t.brown}:${t.nitro}`;
+    document.getElementById("statCount").textContent = t.ingredientCount;
+    document.getElementById("toWaterBtn").disabled = t.total===0;
+
+    const yd3 = t.total * 0.025;
+    document.getElementById("pileSizeLabel").textContent = `Pile size: ${yd3.toFixed(2)} / 1.0 yd³`;
+    drawPile(t);
+  }
+
+  function drawPile(t){
+    const svg = document.getElementById("pileSvg");
+    svg.innerHTML = "";
+    const ns = "http://www.w3.org/2000/svg";
+
+    const ground = document.createElementNS(ns,"rect");
+    ground.setAttribute("x",0); ground.setAttribute("y",130); ground.setAttribute("width",220); ground.setAttribute("height",20);
+    ground.setAttribute("fill","#241A11");
+    svg.appendChild(ground);
+
+    if(t.total===0){
+      const txt = document.createElementNS(ns,"text");
+      txt.setAttribute("x",110); txt.setAttribute("y",115); txt.setAttribute("text-anchor","middle");
+      txt.setAttribute("fill","rgba(238,227,201,0.4)"); txt.setAttribute("font-size","12"); txt.setAttribute("font-family","Inter, sans-serif");
+      txt.textContent = "empty";
+      svg.appendChild(txt);
+      return;
+    }
+
+    const yd3 = t.total * 0.025;
+    const scale = Math.min(1.15, Math.max(0.35, Math.sqrt(t.total)/7));
+    const cx = 110, baseY = 130;
+    const rx = 85*scale, ry = 55*scale;
+
+    const bracket = document.createElementNS(ns,"path");
+    const bW = 85, bH = 55;
+    const bPath = `M${cx-bW},${baseY-10} L${cx-bW},${baseY-bH} L${cx+bW},${baseY-bH} L${cx+bW},${baseY-10}`;
+    bracket.setAttribute("d", bPath);
+    bracket.setAttribute("fill", "none");
+    bracket.setAttribute("stroke-width", "2");
+    bracket.setAttribute("stroke-dasharray", "4,4");
+
+    let bColor = "rgba(201,188,159,0.3)";
+    if(yd3 >= 1.0) bColor = "#8A9A4E";
+    if(yd3 > 1.5) bColor = "#C1432C";
+    bracket.setAttribute("stroke", bColor);
+    if(yd3 >= 1.0) bracket.style.filter = "drop-shadow(0 0 3px " + bColor + ")";
+    svg.appendChild(bracket);
+
+    const mound = document.createElementNS(ns,"ellipse");
+    mound.setAttribute("cx",cx); mound.setAttribute("cy",baseY); mound.setAttribute("rx",rx); mound.setAttribute("ry",ry);
+    mound.setAttribute("fill","#3B2C1D");
+    mound.setAttribute("stroke","rgba(238,227,201,0.15)");
+    svg.appendChild(mound);
+
+    const clipId = "pileClip";
+    const defs = document.createElementNS(ns,"defs");
+    const clip = document.createElementNS(ns,"clipPath");
+    clip.setAttribute("id",clipId);
+    const clipShape = document.createElementNS(ns,"ellipse");
+    clipShape.setAttribute("cx",cx); clipShape.setAttribute("cy",baseY); clipShape.setAttribute("rx",rx); clipShape.setAttribute("ry",ry);
+    clip.appendChild(clipShape);
+    defs.appendChild(clip);
+    svg.appendChild(defs);
+
+    const g = document.createElementNS(ns,"g");
+    g.setAttribute("clip-path",`url(#${clipId})`);
+    const dotCount = Math.min(70, Math.max(10, t.total*2));
+    const props = [
+      {cat:"green", n: t.green, color:"#8A9A4E"},
+      {cat:"brown", n: t.brown, color:"#A8763F"},
+      {cat:"nitro", n: t.nitro, color:"#AEDB9C"},
+    ];
+    const totalUnits = t.green+t.brown+t.nitro || 1;
+    let seed = 42;
+    function rand(){ seed = (seed*9301+49297)%233280; return seed/233280; }
+    props.forEach(p=>{
+      const count = Math.round(dotCount * (p.n/totalUnits));
+      for(let i=0;i<count;i++){
+        const dx = (rand()-0.5)*2*rx*1.05;
+        const dy = (rand()-0.5)*2*ry*1.05 * 0.85;
+        const dot = document.createElementNS(ns,"circle");
+        dot.setAttribute("cx", cx+dx);
+        dot.setAttribute("cy", baseY - ry*0.15 + dy);
+        dot.setAttribute("r", 3.2+rand()*1.6);
+        dot.setAttribute("fill", p.color);
+        dot.setAttribute("opacity", 0.85);
+        g.appendChild(dot);
+      }
+    });
+    svg.appendChild(g);
+  }
+
+  function squeezeTest(){
+    const m = state.moisture;
+    let drops, verdict;
+    if(m < 30){ drops = 0; verdict = "The handful crumbles apart. No moisture holds together at all."; }
+    else if(m < 45){ drops = 1; verdict = "A little dampness — the handful barely holds its shape."; }
+    else if(m <= 65){ drops = 2 + Math.round((m-45)/20); verdict = "The handful holds together and a few drops squeeze out."; }
+    else if(m <= 78){ drops = 5; verdict = "Water runs freely as soon as you squeeze."; }
+    else { drops = 8; verdict = "Water pours out — you can wring this handful like a sponge."; }
+    state.lastSqueezeDrops = drops;
+
+    const resultBox = document.getElementById("handResult");
+    resultBox.querySelector(".verdict").textContent = "Squeeze test result";
+    resultBox.childNodes[2].textContent = " " + verdict + " ";
+    const dropsRow = document.getElementById("dropsRow");
+    dropsRow.innerHTML = "";
+    for(let i=0;i<Math.min(drops,8);i++){
+      const d = document.createElement("span");
+      d.className = "drop";
+      dropsRow.appendChild(d);
+      setTimeout(()=>d.classList.add("show"), i*80);
+    }
+    const countLabel = document.createElement("div");
+    countLabel.className = "mono";
+    countLabel.style.marginTop = "6px";
+    countLabel.style.fontSize = "12px";
+    countLabel.style.color = "var(--parchment-dim)";
+    countLabel.textContent = drops===0 ? "0 drops" : (drops+" drop"+(drops===1?"":"s")+" squeezed out");
+    dropsRow.appendChild(countLabel);
+  }
+
+  function selectPlanCard(card){
+    document.querySelectorAll(".plan-card").forEach(c=>c.classList.remove("selected"));
+    card.classList.add("selected");
+    state.trigger = {temp: parseFloat(card.dataset.trigger), days: parseFloat(card.dataset.days)};
+    document.getElementById("runSimBtn").disabled = false;
+  }
+
+  function runSimulation(){
+    const t = pileTotals();
+    const moisture = state.moisture;
+    const blendedCN = t.blendedCN || 60;
+    const yd3 = t.total * 0.025;
+
+    let sizeFactor;
+    if(t.total < 12) sizeFactor = 0.42;
+    else if(t.total < 25) sizeFactor = 0.7;
+    else if(t.total <= 45) sizeFactor = 1.0;
+    else sizeFactor = 1.08;
+
+    let moistureFactor;
+    if(moisture>=45 && moisture<=65) moistureFactor = 1.0;
+    else if(moisture<45) moistureFactor = 0.45 + (moisture/45)*0.55;
+    else moistureFactor = Math.max(0.35, 1 - (moisture-65)/45);
+
+    let basePeak = 210 - (blendedCN-10)*2.2;
+    basePeak = Math.max(95, Math.min(216, basePeak));
+
+    const ambient = 75;
+    const effectivePeak = ambient + (basePeak-ambient)*moistureFactor*sizeFactor;
+    const fuelDecay = 0.72 + sizeFactor*0.18;
+
+    const triggerTemp = state.trigger.temp;
+    const holdDays = state.trigger.days;
+    const turnsPlanned = state.turnsPlanned;
+
+    let cycles = [];
+    let maxTemp = 0;
+    let turnsCompleted = 0;
+    let thermophilicDays = 0;
+    for(let i=0;i<turnsPlanned;i++){
+      const peak = Math.max(ambient+8, effectivePeak*Math.pow(fuelDecay,i));
+      const achieved = peak >= triggerTemp;
+      if(achieved) turnsCompleted++;
+      if(peak>=131) thermophilicDays += holdDays;
+      maxTemp = Math.max(maxTemp, peak);
+      cycles.push({peak, achieved, rampDays:2, holdDays});
+    }
+
+    const anaerobicFlag = maxTemp > 180 || moisture > 70 || (yd3 > 1.5 && turnsPlanned < 3);
+
+    state.sim = {
+      t, moisture, blendedCN, sizeFactor, moistureFactor, effectivePeak,
+      cycles, maxTemp, turnsCompleted, turnsPlanned, thermophilicDays,
+      anaerobicFlag, ambient, yd3
+    };
+
+    drawChart(state.sim);
+    renderSimSummary(state.sim);
+    document.getElementById("chartWrap").style.display = "block";
+    document.getElementById("toCureBtn").disabled = false;
+    document.getElementById("anaerobicCallout").classList.toggle("show", anaerobicFlag);
+
+    let activeDays = 0;
+    cycles.forEach(c=> activeDays += c.rampDays + c.holdDays);
+    state.activeDays = activeDays;
+  }
+
+  function drawChart(sim){
+    const svg = document.getElementById("tempChart");
+    svg.innerHTML = "";
+    const ns = "http://www.w3.org/2000/svg";
+    const W=800,H=300, padL=50,padR=20,padT=20,padB=36;
+    const plotW = W-padL-padR, plotH = H-padT-padB;
+    const tempMin=70, tempMax=215;
+
+    let points = [{day:0, temp:sim.ambient}];
+    let day=0;
+    sim.cycles.forEach((c,i)=>{
+      const rampDay = day + c.rampDays;
+      points.push({day:rampDay, temp:c.peak});
+      const holdEndDay = rampDay + c.holdDays;
+      points.push({day:holdEndDay, temp:c.peak*0.97});
+      day = holdEndDay;
+      const dipDay = day+0.6;
+      points.push({day:dipDay, temp: Math.max(sim.ambient+10, c.peak*0.72)});
+      day = dipDay;
+    });
+    const tailDays = 6;
+    points.push({day: day+tailDays, temp: sim.ambient+12});
+    const totalDays = day+tailDays;
+
+    function xOf(d){ return padL + (d/totalDays)*plotW; }
+    function yOf(temp){ return padT + (1-((temp-tempMin)/(tempMax-tempMin)))*plotH; }
+
+    const dangerY = yOf(180);
+    const dangerRect = document.createElementNS(ns,"rect");
+    dangerRect.setAttribute("x",padL); dangerRect.setAttribute("y",padT);
+    dangerRect.setAttribute("width",plotW); dangerRect.setAttribute("height", Math.max(0,dangerY-padT));
+    dangerRect.setAttribute("fill","rgba(193,67,44,0.12)");
+    svg.appendChild(dangerRect);
+
+    const line131 = document.createElementNS(ns,"line");
+    const y131 = yOf(131);
+    line131.setAttribute("x1",padL); line131.setAttribute("x2",padL+plotW);
+    line131.setAttribute("y1",y131); line131.setAttribute("y2",y131);
+    line131.setAttribute("stroke","#D9A441"); line131.setAttribute("stroke-dasharray","5,5"); line131.setAttribute("stroke-width","1.3");
+    svg.appendChild(line131);
+
+    const line180 = document.createElementNS(ns,"line");
+    line180.setAttribute("x1",padL); line180.setAttribute("x2",padL+plotW);
+    line180.setAttribute("y1",dangerY); line180.setAttribute("y2",dangerY);
+    line180.setAttribute("stroke","#C1432C"); line180.setAttribute("stroke-dasharray","5,5"); line180.setAttribute("stroke-width","1.3");
+    svg.appendChild(line180);
+
+    const axisY = document.createElementNS(ns,"line");
+    axisY.setAttribute("x1",padL); axisY.setAttribute("x2",padL); axisY.setAttribute("y1",padT); axisY.setAttribute("y2",padT+plotH);
+    axisY.setAttribute("stroke","rgba(238,227,201,0.25)");
+    svg.appendChild(axisY);
+    const axisX = document.createElementNS(ns,"line");
+    axisX.setAttribute("x1",padL); axisX.setAttribute("x2",padL+plotW); axisX.setAttribute("y1",padT+plotH); axisX.setAttribute("y2",padT+plotH);
+    axisX.setAttribute("stroke","rgba(238,227,201,0.25)");
+    svg.appendChild(axisX);
+
+    [70,100,131,160,190,215].forEach(temp=>{
+      const y = yOf(temp);
+      const txt = document.createElementNS(ns,"text");
+      txt.setAttribute("x",padL-8); txt.setAttribute("y",y+4); txt.setAttribute("text-anchor","end");
+      txt.setAttribute("font-size","11"); txt.setAttribute("fill","rgba(238,227,201,0.5)"); txt.setAttribute("font-family","Inter, sans-serif");
+      txt.textContent = temp+"°";
+      svg.appendChild(txt);
+    });
+    [0,Math.round(totalDays/2),Math.round(totalDays)].forEach(d=>{
+      const x = xOf(d);
+      const txt = document.createElementNS(ns,"text");
+      txt.setAttribute("x",x); txt.setAttribute("y",padT+plotH+18); txt.setAttribute("text-anchor","middle");
+      txt.setAttribute("font-size","11"); txt.setAttribute("fill","rgba(238,227,201,0.5)"); txt.setAttribute("font-family","Inter, sans-serif");
+      txt.textContent = "day "+d;
+      svg.appendChild(txt);
+    });
+
+    const pathD = points.map((p,i)=> (i===0?"M":"L")+xOf(p.day).toFixed(1)+","+yOf(p.temp).toFixed(1)).join(" ");
+    const path = document.createElementNS(ns,"path");
+    path.setAttribute("d", pathD);
+    path.setAttribute("fill","none");
+    path.setAttribute("stroke","#D9642E");
+    path.setAttribute("stroke-width","3");
+    path.setAttribute("stroke-linejoin","round");
+    const len = 2000;
+    path.style.strokeDasharray = len;
+    path.style.strokeDashoffset = len;
+    svg.appendChild(path);
+    requestAnimationFrame(()=>{
+      path.style.transition = "stroke-dashoffset 1.4s ease";
+      path.style.strokeDashoffset = 0;
+    });
+
+    let markDay = 0;
+    sim.cycles.forEach((c,i)=>{
+      markDay += c.rampDays + c.holdDays;
+      const x = xOf(markDay);
+      const y = yOf(c.peak*0.97);
+      const marker = document.createElementNS(ns,"circle");
+      marker.setAttribute("cx",x); marker.setAttribute("cy",y); marker.setAttribute("r",5);
+      marker.setAttribute("fill", c.achieved ? "#C9BC9F" : "#C1432C");
+      marker.setAttribute("stroke","#1E1610"); marker.setAttribute("stroke-width","1.5");
+      svg.appendChild(marker);
+      const label = document.createElementNS(ns,"text");
+      label.setAttribute("x",x); label.setAttribute("y",y-10); label.setAttribute("text-anchor","middle");
+      label.setAttribute("font-size","10.5"); label.setAttribute("fill","rgba(238,227,201,0.7)"); label.setAttribute("font-family","Inter, sans-serif");
+      label.textContent = c.achieved ? ("Turn "+(i+1)) : "skipped";
+      svg.appendChild(label);
+      markDay += 0.6;
+    });
+  }
+
+  function renderSimSummary(sim){
+    const box = document.getElementById("simSummary");
+    box.innerHTML = "";
+    const items = [
+      {label:"Turns completed", value: sim.turnsCompleted+" / "+sim.turnsPlanned},
+      {label:"Peak core temp", value: Math.round(sim.maxTemp)+"°F"},
+      {label:"Thermophilic days (131°F+)", value: sim.thermophilicDays+" days"},
+      {label:"Anaerobic event", value: sim.anaerobicFlag ? "Yes" : "No"},
+    ];
+    items.forEach(it=>{
+      const stat = document.createElement("div");
+      stat.className = "stat";
+      stat.innerHTML = `<div class="label">${it.label}</div><div class="value mono">${it.value}</div>`;
+      box.appendChild(stat);
+    });
+  }
+
+  function updateCureTotals(){
+    document.getElementById("cureWeeksLabel").textContent = state.cureWeeks;
+    document.getElementById("activeDaysLabel").textContent = state.activeDays ? Math.round(state.activeDays) : "—";
+    const total = (state.activeDays||0) + state.cureWeeks*7;
+    document.getElementById("totalDaysLabel").textContent = Math.round(total);
+  }
+
+  function computeScore(){
+    const sim = state.sim;
+    const t = sim.t;
+
+    let sizeScore;
+    if(t.total<12) sizeScore=20;
+    else if(t.total<25) sizeScore=55;
+    else if(t.total<=45) sizeScore=96;
+    else sizeScore=88;
+
+    let ratioScore;
+    const cn = sim.blendedCN;
+    if(cn>=25 && cn<=35) ratioScore=100;
+    else ratioScore = Math.max(8, 100 - Math.abs(cn - 30)*2.6);
+    if(cn<15) ratioScore = Math.max(5, ratioScore-25);
+
+    const m = state.moisture;
+    let moistureScore;
+    if(m>=45 && m<=65) moistureScore=100;
+    else if(m<45) moistureScore = Math.max(10, 40+(m/45)*50);
+    else moistureScore = Math.max(10, 100-(m-65)*3.2);
+
+    let turnScore = (sim.turnsCompleted/Math.max(2,sim.turnsPlanned))*100;
+    if(sim.turnsCompleted<2) turnScore = Math.min(turnScore, 45);
+
+    const totalDays = (state.activeDays||0) + state.cureWeeks*7;
+    let cureScore;
+    if(totalDays>=50 && totalDays<=85) cureScore=100;
+    else if(totalDays<50) cureScore = Math.max(15, (totalDays/50)*100);
+    else cureScore = Math.max(60, 100-(totalDays-85)*0.4);
+
+    let overall = sizeScore*0.15 + ratioScore*0.25 + moistureScore*0.2 + turnScore*0.25 + cureScore*0.15;
+    if(sim.anaerobicFlag) overall = Math.min(overall, 42);
+
+    return {sizeScore, ratioScore, moistureScore, turnScore, cureScore, overall, totalDays};
+  }
+
+  function badgeFor(score){
+    if(score>=75) return "good";
+    if(score>=45) return "warn";
+    return "bad";
+  }
+
+  function contextualBadge(rawScore, sim, overall, contributedToAnaerobic){
+    let badge = badgeFor(rawScore);
+    if(sim.anaerobicFlag && contributedToAnaerobic){
+      if(badge === "good") badge = "warn";
+    }
+    if(sim.anaerobicFlag && badge === "good") badge = "warn";
+    if(overall < 15 && badge === "good") badge = "warn";
+    if(overall < 40 && badge === "good") badge = "warn";
+    return badge;
+  }
+
+  /* ---------------- Canvas Microscope ---------------- */
+  let scopeAnimId = null;
+  let scopeMicrobes = null;
+
+  function initMicroscope(vals){
+    const canvas = document.getElementById("scopeCanvas");
+    const dpr = window.devicePixelRatio || 1;
+    const cssSize = 140;
+    canvas.width = cssSize * dpr;
+    canvas.height = cssSize * dpr;
+    canvas.style.width = cssSize + "px";
+    canvas.style.height = cssSize + "px";
+    const ctx = canvas.getContext("2d");
+    ctx.scale(dpr, dpr);
+
+    const W = cssSize, H = cssSize;
+    const cx = W/2, cy = H/2, R = W/2 - 2;
+
+    const microbes = { bacteria: [], fungi: [], protozoa: [], nematodes: [], anaerobes: [] };
+
+    const bactCount = Math.round(vals.bacteria * 0.6);
+    for(let i=0; i<bactCount; i++){
+      microbes.bacteria.push({ x: Math.random()*W, y: Math.random()*H, r: 0.8 + Math.random()*0.6 });
+    }
+    const fungiCount = Math.round(vals.fungi / 6);
+    for(let i=0; i<fungiCount; i++){
+      const startX = Math.random()*W;
+      const startY = Math.random()*H;
+      const branches = [];
+      const numBranches = 2 + Math.floor(Math.random()*3);
+      for(let b=0; b<numBranches; b++){
+        const angle = Math.random()*Math.PI*2;
+        const len = 6 + Math.random()*10;
+        branches.push({ x1: startX, y1: startY, x2: startX + Math.cos(angle)*len, y2: startY + Math.sin(angle)*len });
+      }
+      microbes.fungi.push({branches});
+    }
+    const protozoaCount = Math.round(vals.protozoa / 8);
+    for(let i=0; i<protozoaCount; i++){
+      microbes.protozoa.push({
+        x: Math.random()*W, y: Math.random()*H,
+        rx: 2.2 + Math.random()*1.2, ry: 1.4 + Math.random()*0.6,
+        angle: Math.random()*Math.PI*2, speed: 0.15 + Math.random()*0.15,
+        turnRate: (Math.random()-0.5)*0.03
+      });
+    }
+    const nematodeCount = Math.round(vals.nematodes / 12);
+    for(let i=0; i<nematodeCount; i++){
+      microbes.nematodes.push({
+        x: Math.random()*W, y: Math.random()*H,
+        angle: Math.random()*Math.PI*2, speed: 0.25 + Math.random()*0.2,
+        phase: Math.random()*Math.PI*2, length: 10 + Math.random()*4
+      });
+    }
+    if(vals.anaerobes > 50){
+      for(let i=0; i<25; i++){
+        microbes.anaerobes.push({
+          x: Math.random()*W, y: Math.random()*H,
+          r: 1 + Math.random()*1.5,
+          pulsePhase: Math.random()*Math.PI*2, pulseSpeed: 0.02 + Math.random()*0.02
+        });
+      }
+    }
+
+    scopeMicrobes = microbes;
+
+    if(scopeAnimId) {
+      cancelAnimationFrame(scopeAnimId);
+      scopeAnimId = null;
+    }
+
+    function tick(){
+      ctx.clearRect(0, 0, W, H);
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, R, 0, Math.PI*2);
+      ctx.clip();
+
+      // Field brightness responds to scope on/off
+      const on = state.scopeOn;
+      let bgInner, bgOuter, alphaMul;
+      if(on){
+        bgInner = "#3a2d18";
+        bgOuter = "#120a04";
+        alphaMul = 1.0;
+      } else {
+        bgInner = "#0F0A05";
+        bgOuter = "#050301";
+        alphaMul = 0.35;
+      }
+      const grad = ctx.createRadialGradient(cx, cy, R*0.15, cx, cy, R);
+      grad.addColorStop(0, bgInner);
+      grad.addColorStop(1, bgOuter);
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, W, H);
+
+      // faint grid
+      ctx.fillStyle = on ? "rgba(238,227,201,0.06)" : "rgba(238,227,201,0.03)";
+      for(let gx=10; gx<W; gx+=20){
+        for(let gy=10; gy<H; gy+=20){
+          ctx.beginPath();
+          ctx.arc(gx, gy, 0.4, 0, Math.PI*2);
+          ctx.fill();
+        }
+      }
+
+      // fungi (static)
+      ctx.strokeStyle = "#A8763F";
+      ctx.lineWidth = 0.6;
+      ctx.globalAlpha = 0.75 * alphaMul;
+      microbes.fungi.forEach(f=>{
+        f.branches.forEach(b=>{
+          ctx.beginPath();
+          ctx.moveTo(b.x1, b.y1);
+          ctx.lineTo(b.x2, b.y2);
+          ctx.stroke();
+        });
+      });
+      ctx.globalAlpha = 1;
+
+      // bacteria (jitter)
+      ctx.fillStyle = "#AEDB9C";
+      ctx.globalAlpha = alphaMul;
+      microbes.bacteria.forEach(b=>{
+        b.x += (Math.random()-0.5)*0.8;
+        b.y += (Math.random()-0.5)*0.8;
+        if(b.x<0) b.x=W; if(b.x>W) b.x=0;
+        if(b.y<0) b.y=H; if(b.y>H) b.y=0;
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+
+      // protozoa (drifting ovals)
+      ctx.fillStyle = "rgba(217,100,46," + (0.7*alphaMul) + ")";
+      microbes.protozoa.forEach(p=>{
+        p.angle += p.turnRate;
+        p.x += Math.cos(p.angle) * p.speed;
+        p.y += Math.sin(p.angle) * p.speed;
+        if(p.x<-5) p.x=W+5; if(p.x>W+5) p.x=-5;
+        if(p.y<-5) p.y=H+5; if(p.y>H+5) p.y=-5;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.angle);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, p.rx, p.ry, 0, 0, Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle = "rgba(140,69,32," + (0.9*alphaMul) + ")";
+        ctx.beginPath();
+        ctx.arc(0, 0, 0.5, 0, Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle = "rgba(217,100,46," + (0.7*alphaMul) + ")";
+        ctx.restore();
+      });
+
+      // nematodes (sinuous)
+      ctx.strokeStyle = "rgba(217,164,65," + alphaMul + ")";
+      ctx.lineWidth = 0.7;
+      microbes.nematodes.forEach(n=>{
+        n.phase += 0.1;
+        n.x += Math.cos(n.angle) * n.speed;
+        n.y += Math.sin(n.angle) * n.speed;
+        if(n.x<-15) n.x=W+15; if(n.x>W+15) n.x=-15;
+        if(n.y<-15) n.y=H+15; if(n.y>H+15) n.y=-15;
+        ctx.beginPath();
+        const segs = 6;
+        for(let s=0; s<=segs; s++){
+          const along = s/segs;
+          const bodyLen = n.length * along;
+          const bx = n.x - Math.cos(n.angle) * bodyLen;
+          const by = n.y - Math.sin(n.angle) * bodyLen;
+          const wave = Math.sin(n.phase + s*0.8) * 1.2;
+          const px = bx + Math.cos(n.angle + Math.PI/2) * wave;
+          const py = by + Math.sin(n.angle + Math.PI/2) * wave;
+          if(s===0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+      });
+
+      // anaerobes
+      microbes.anaerobes.forEach(a=>{
+        a.pulsePhase += a.pulseSpeed;
+        const pulseR = a.r * (1 + 0.3*Math.sin(a.pulsePhase));
+        ctx.fillStyle = "rgba(30,30,30," + (0.85*alphaMul) + ")";
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, pulseR, 0, Math.PI*2);
+        ctx.fill();
+      });
+
+      ctx.restore();
+
+      // Iris ring (brighter when on)
+      ctx.strokeStyle = on ? "rgba(255,220,150,0.4)" : "rgba(238,227,201,0.06)";
+      ctx.lineWidth = on ? 2 : 1;
+      ctx.beginPath();
+      ctx.arc(cx, cy, R, 0, Math.PI*2);
+      ctx.stroke();
+
+      scopeAnimId = requestAnimationFrame(tick);
+    }
+    tick();
+  }
+
+  function stopMicroscope(){
+    if(scopeAnimId){
+      cancelAnimationFrame(scopeAnimId);
+      scopeAnimId = null;
+    }
+    const canvas = document.getElementById("scopeCanvas");
+    if(canvas){
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  }
+
+  function updateScopeToggleBtn(){
+    const btn = document.getElementById("scopeToggleBtn");
+    if(!btn) return;
+    if(state.scopeOn){
+      btn.textContent = "🌑 Turn off microscope";
+      btn.classList.add("on");
+    } else {
+      btn.textContent = "💡 Turn on microscope";
+      btn.classList.remove("on");
+    }
+  }
+
+  function toggleScope(){
+    state.scopeOn = !state.scopeOn;
+    updateScopeToggleBtn();
+    if(state.scopeOn){
+      startHum();
+    } else {
+      stopHum();
+    }
+  }
+
+  function runResult(){
+    if(!state.sim){ return; }
+    const score = computeScore();
+    const overall = score.overall;
+    const sim = state.sim;
+
+    playWhoosh();
+
+    let outcome;
+    if(overall>=75) outcome = {name:"Humic acid — finished", color:"#2A1B0E", fillH:150};
+    else if(overall>=40) outcome = {name:"Fulvic acid — not quite finished", color:"#B58B2A", fillH:95};
+    else if(overall>=15) outcome = {name:"Undigested — barely broken down", color:"#6B705C", fillH:50};
+    else outcome = {name:"Clear — no composting occurred", color:"rgba(238,227,201,0.1)", fillH:20};
+
+    state.lastOutcome = outcome;
+
+    const tubeGroup = document.getElementById("tubeGroup");
+    tubeGroup.classList.remove("shaking");
+    void tubeGroup.offsetWidth;
+    tubeGroup.classList.add("shaking");
+
+    setTimeout(()=>{
+      const fill = document.getElementById("tubeFill");
+      const newY = 186 - outcome.fillH;
+      fill.setAttribute("y", newY);
+      fill.setAttribute("height", outcome.fillH);
+      fill.setAttribute("fill", outcome.color);
+      fill.setAttribute("opacity", "0.92");
+
+      const badge = document.getElementById("verdictBadge");
+      badge.textContent = outcome.name;
+      badge.classList.add("show");
+      badge.style.borderLeftColor = outcome.color;
+    }, 550);
+
+    const base = Math.max(4, overall);
+    const diversityFactor = Math.min(1, sim.t.ingredientCount / 8);
+
+    let microbeVals;
+    if(sim.anaerobicFlag) {
+      microbeVals = { bacteria: 15, fungi: 2, protozoa: 1, nematodes: 0, anaerobes: 95 };
+    } else {
+      microbeVals = {
+        bacteria: Math.min(100, base * (0.8 + 0.4 * diversityFactor)),
+        fungi: Math.min(100, base * (0.6 + 0.6 * diversityFactor)),
+        protozoa: Math.min(100, base * (0.5 + 0.7 * diversityFactor)),
+        nematodes: Math.min(100, base * (0.4 + 0.8 * diversityFactor)),
+        anaerobes: 5
+      };
+    }
+    state.lastMicrobes = microbeVals;
+    state.lastScore = score;
+
+    setTimeout(()=>{
+      document.getElementById("fillBacteria").style.height = microbeVals.bacteria+"%";
+      document.getElementById("fillFungi").style.height = microbeVals.fungi+"%";
+      document.getElementById("fillProtozoa").style.height = microbeVals.protozoa+"%";
+      document.getElementById("fillNematodes").style.height = microbeVals.nematodes+"%";
+      document.getElementById("fillAnaerobes").style.height = microbeVals.anaerobes+"%";
+      ["targetBacteria","targetFungi","targetProtozoa","targetNematodes"].forEach(id=>{
+        document.getElementById(id).style.bottom = "80%";
+      });
+      initMicroscope(microbeVals);
+    }, 700);
+
+    renderDebrief(score, overall);
+  }
+
+  function renderDebrief(score, overall){
+    const rows = document.getElementById("debriefRows");
+    rows.innerHTML = "";
+    const sim = state.sim;
+
+    const cnContributed = sim.anaerobicFlag && sim.blendedCN < 25;
+    const moistureContributed = sim.anaerobicFlag && state.moisture > 65;
+    const sizeContributed = sim.anaerobicFlag && (sim.yd3 > 1.5 || sim.t.total < 25);
+    const turnContributed = sim.anaerobicFlag && sim.turnsCompleted < 3;
+
+    let sizeNote = `You used ${sim.t.total} five-gallon buckets (about ${sim.yd3.toFixed(2)} yd³). A pile needs enough mass to hold onto its own heat — aim for roughly 40 buckets (1.0 yd³). Undersized piles cool off before they finish.`;
+    if(sizeContributed && sim.yd3 > 1.5){
+      sizeNote += ` <span class="flag">This pile was oversized for the number of turns performed, which contributed to the anaerobic event.</span>`;
+    }
+
+    let cnNote = `Your blend averaged <span class="ans">${Math.round(sim.blendedCN)}:1</span>. The sweet spot for a hot pile is <span class="ans">25:1–35:1</span>. Below ~18:1 the pile runs hot enough to risk going anaerobic; above ~50:1 it may never reach thermophilic range.`;
+    if(cnContributed){
+      cnNote += ` <span class="flag">On its own this ratio is close to workable, but combined with your moisture and pile conditions, it burned hot and fast — consuming oxygen faster than the pile could replace it.</span>`;
+    }
+
+    let moistureNote = `Your squeeze test read ${state.lastSqueezeDrops===null?"untested":state.lastSqueezeDrops+" drops"}. The target is <span class="ans">1–3 drops</span> — enough moisture to activate microbes without drowning out oxygen.`;
+    if(moistureContributed){
+      moistureNote += ` <span class="flag">The pile was too wet — water displaced oxygen in the pore spaces, which starved the aerobes.</span>`;
+    }
+
+    let turnNote = `You completed ${sim.turnsCompleted} of ${sim.turnsPlanned} planned turns. The method needs a <span class="ans">minimum of 2 full turns</span>, each held at your trigger temperature, to guarantee even pathogen kill.`;
+    if(turnContributed){
+      turnNote += ` <span class="flag">More frequent turning would have re-introduced oxygen and could have prevented the anaerobic conditions.</span>`;
+    }
+
+    const items = [
+      {factor:"Pile size", raw:score.sizeScore, contributed:sizeContributed, note:sizeNote},
+      {factor:"C:N ratio", raw:score.ratioScore, contributed:cnContributed, note:cnNote},
+      {factor:"Moisture", raw:score.moistureScore, contributed:moistureContributed, note:moistureNote},
+      {factor:"Turns", raw:score.turnScore, contributed:turnContributed, note:turnNote},
+      {factor:"Cure time", raw:score.cureScore, contributed:false, note:`Total time from build to finish: ${Math.round(score.totalDays)} days. Aim for roughly <span class="ans">8 weeks (~56–70 days)</span> total so the microbial population has time to fully establish before use.`},
+    ];
+
+    items.forEach(it=>{
+      const badge = contextualBadge(it.raw, sim, overall, it.contributed);
+      const row = document.createElement("div");
+      row.className = "debrief-row";
+      row.innerHTML = `<div class="factor">${it.factor}</div><div class="badge ${badge}">${badge}</div><div class="note">${it.note}</div>`;
+      rows.appendChild(row);
+    });
+    document.getElementById("debrief").style.display = "block";
+  }
+
+  /* ---------------- Save summary as PNG ---------------- */
+  function saveSummary(){
+    if(!state.sim || !state.lastOutcome){
+      alert("Run the shake test first to generate a summary.");
+      return;
+    }
+    const canvas = document.createElement("canvas");
+    const W = 800, H = 1050;
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext("2d");
+
+    // background
+    const bg = ctx.createLinearGradient(0,0,0,H);
+    bg.addColorStop(0, "#2C2116");
+    bg.addColorStop(1, "#161009");
+    ctx.fillStyle = bg;
+    ctx.fillRect(0,0,W,H);
+
+    // header
+    ctx.fillStyle = "#D9A441";
+    ctx.font = "600 14px 'Space Grotesk', sans-serif";
+    ctx.fillText("HOT COMPOST LAB · SUMMARY", 40, 50);
+    ctx.fillStyle = "#EEE3C9";
+    ctx.font = "700 34px 'Space Grotesk', sans-serif";
+    ctx.fillText(state.lastOutcome.name, 40, 90);
+
+    const date = new Date();
+    ctx.fillStyle = "#C9BC9F";
+    ctx.font = "400 13px 'Inter', sans-serif";
+    ctx.fillText(date.toLocaleDateString() + "  ·  " + date.toLocaleTimeString(), 40, 115);
+
+    // divider
+    ctx.strokeStyle = "rgba(238,227,201,0.2)";
+    ctx.beginPath(); ctx.moveTo(40,140); ctx.lineTo(W-40,140); ctx.stroke();
+
+    // Pile composition
+    ctx.fillStyle = "#D9A441";
+    ctx.font = "600 12px 'Space Grotesk', sans-serif";
+    ctx.fillText("PILE COMPOSITION", 40, 170);
+
+    let y = 200;
+    ctx.font = "400 14px 'Inter', sans-serif";
+    ctx.fillStyle = "#EEE3C9";
+    Object.entries(state.pile).forEach(([id, entry])=>{
+      if(entry.qty<=0) return;
+      const mat = findMat(id);
+      if(!mat) return;
+      const dot = entry.cat==="green" ? "#8A9A4E" : entry.cat==="brown" ? "#A8763F" : "#AEDB9C";
+      ctx.fillStyle = dot;
+      ctx.beginPath(); ctx.arc(50, y-4, 4, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = "#EEE3C9";
+      ctx.fillText(`${entry.qty}× ${mat.mat.name} (C:N ${mat.mat.cn}:1)`, 65, y);
+      y += 22;
+    });
+
+    y += 14;
+    ctx.strokeStyle = "rgba(238,227,201,0.12)";
+    ctx.beginPath(); ctx.moveTo(40,y); ctx.lineTo(W-40,y); ctx.stroke();
+    y += 30;
+
+    // Stats grid
+    ctx.fillStyle = "#D9A441";
+    ctx.font = "600 12px 'Space Grotesk', sans-serif";
+    ctx.fillText("KEY METRICS", 40, y);
+    y += 26;
+
+    const sim = state.sim;
+    const stats = [
+      ["Total volume", sim.t.total+" buckets ("+sim.yd3.toFixed(2)+" yd³)"],
+      ["Blended C:N", Math.round(sim.blendedCN)+":1"],
+      ["Moisture (squeeze)", (state.lastSqueezeDrops||0)+" drops"],
+      ["Peak temperature", Math.round(sim.maxTemp)+"°F"],
+      ["Turns completed", sim.turnsCompleted+" / "+sim.turnsPlanned],
+      ["Thermophilic days", sim.thermophilicDays+" days"],
+      ["Cure time", state.cureWeeks+" weeks"],
+      ["Anaerobic event", sim.anaerobicFlag ? "Yes" : "No"]
+    ];
+    stats.forEach((s,i)=>{
+      const col = i%2;
+      const row = Math.floor(i/2);
+      const x = 40 + col*370;
+      const yy = y + row*46;
+      ctx.fillStyle = "#3B2C1D";
+      ctx.fillRect(x, yy-14, 350, 40);
+      ctx.fillStyle = "#C9BC9F";
+      ctx.font = "600 10px 'Space Grotesk', sans-serif";
+      ctx.fillText(s[0].toUpperCase(), x+12, yy);
+      ctx.fillStyle = "#EEE3C9";
+      ctx.font = "600 16px 'Space Grotesk', sans-serif";
+      ctx.fillText(s[1], x+12, yy+20);
+    });
+    y += Math.ceil(stats.length/2)*46 + 30;
+
+    // Microbe bars
+    ctx.strokeStyle = "rgba(238,227,201,0.12)";
+    ctx.beginPath(); ctx.moveTo(40,y); ctx.lineTo(W-40,y); ctx.stroke();
+    y += 30;
+    ctx.fillStyle = "#D9A441";
+    ctx.font = "600 12px 'Space Grotesk', sans-serif";
+    ctx.fillText("SOIL FOOD WEB ASSAY", 40, y);
+    y += 30;
+
+    const mvals = state.lastMicrobes || {};
+    const microbeList = [
+      ["Bacteria", mvals.bacteria||0, "#AEDB9C"],
+      ["Fungi", mvals.fungi||0, "#A8763F"],
+      ["Protozoa", mvals.protozoa||0, "#D9642E"],
+      ["Nematodes", mvals.nematodes||0, "#D9A441"],
+      ["Anaerobes", mvals.anaerobes||0, "#C1432C"]
+    ];
+    microbeList.forEach((m,i)=>{
+      const xx = 40 + i*140;
+      const barH = 100;
+      ctx.fillStyle = "#3B2C1D";
+      ctx.fillRect(xx, y, 100, barH);
+      const fillH = barH * (m[1]/100);
+      ctx.fillStyle = m[2];
+      ctx.fillRect(xx, y+barH-fillH, 100, fillH);
+      ctx.fillStyle = "#C9BC9F";
+      ctx.font = "600 11px 'Space Grotesk', sans-serif";
+      ctx.fillText(m[0].toUpperCase(), xx, y+barH+18);
+      ctx.fillStyle = "#EEE3C9";
+      ctx.font = "600 12px 'Space Grotesk', sans-serif";
+      ctx.fillText(Math.round(m[1])+"%", xx+65, y+barH+18);
+    });
+    y += 155;
+
+    // Footer
+    ctx.strokeStyle = "rgba(238,227,201,0.12)";
+    ctx.beginPath(); ctx.moveTo(40,y); ctx.lineTo(W-40,y); ctx.stroke();
+    y += 30;
+    ctx.fillStyle = "#C9BC9F";
+    ctx.font = "400 12px 'Inter', sans-serif";
+    ctx.fillText("Hot Compost Lab · A. Codd", 40, y);
+
+    // Download
+    const link = document.createElement("a");
+    link.download = "hot-compost-lab-summary-" + Date.now() + ".png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  }
+
+  function resetAll(){
+    stopMicroscope();
+    stopHum();
+    state.scopeOn = false;
+    state = Object.assign(state, {pile:{}, moisture:20, lastSqueezeDrops:null, trigger:null, turnsPlanned:2, cureWeeks:6, sim:null});
+    document.getElementById("moistureSlider").value = 20;
+    document.getElementById("cureSlider").value = 6;
+    document.getElementById("turnsCount").textContent = "2";
+    document.querySelectorAll(".plan-card").forEach(c=>c.classList.remove("selected"));
+    document.getElementById("runSimBtn").disabled = true;
+    document.getElementById("toCureBtn").disabled = true;
+    document.getElementById("chartWrap").style.display = "none";
+    document.getElementById("handResult").querySelector(".verdict").textContent = "Result";
+    document.getElementById("dropsRow").innerHTML = "";
+    document.getElementById("debrief").style.display = "none";
+    document.getElementById("verdictBadge").classList.remove("show");
+    ["fillBacteria","fillFungi","fillProtozoa","fillNematodes","fillAnaerobes"].forEach(id=>{
+      document.getElementById(id).style.height="0%";
+    });
+    updateScopeToggleBtn();
+    renderMaterials();
+    updatePileSummary();
+    goTo("gather");
+  }
+
+  /* ---------------- Wire events ---------------- */
+  document.getElementById("toWaterBtn").onclick = ()=> goTo("water");
+  document.getElementById("backToGather").onclick = ()=> goTo("gather");
+  document.getElementById("toTurnBtn").onclick = ()=> goTo("turn");
+  document.getElementById("backToWater").onclick = ()=> goTo("water");
+  document.getElementById("toCureBtn").onclick = ()=>{ updateCureTotals(); goTo("cure"); };
+  document.getElementById("backToTurn").onclick = ()=> goTo("turn");
+  document.getElementById("toResultBtn").onclick = ()=> goTo("result");
+  document.getElementById("restartBtn").onclick = resetAll;
+
+  document.getElementById("moistureSlider").oninput = (e)=>{ state.moisture = parseInt(e.target.value,10); };
+  document.getElementById("squeezeBtn").onclick = squeezeTest;
+
+  document.querySelectorAll(".plan-card").forEach(card=>{
+    card.onclick = ()=> selectPlanCard(card);
+  });
+  document.getElementById("turnsMinus").onclick = ()=>{
+    state.turnsPlanned = Math.max(0, state.turnsPlanned-1);
+    document.getElementById("turnsCount").textContent = state.turnsPlanned;
+  };
+  document.getElementById("turnsPlus").onclick = ()=>{
+    state.turnsPlanned = Math.min(6, state.turnsPlanned+1);
+    document.getElementById("turnsCount").textContent = state.turnsPlanned;
+  };
+  document.getElementById("runSimBtn").onclick = runSimulation;
+
+  document.getElementById("cureSlider").oninput = (e)=>{
+    state.cureWeeks = parseInt(e.target.value,10);
+    updateCureTotals();
+  };
+
+  document.getElementById("shakeBtn").onclick = runResult;
+  document.getElementById("saveSummaryBtn").onclick = saveSummary;
+  document.getElementById("printBtn").onclick = ()=> window.print();
+
+  document.getElementById("presetClassic").onclick = ()=> setPileTo(PRESET_CLASSIC);
+  document.getElementById("clearPileBtn").onclick = clearPile;
+
+  document.getElementById("onboardGotIt").onclick = hideOnboarding;
+  document.getElementById("onboardCloseX").onclick = hideOnboarding;
+  document.getElementById("helpBtn").onclick = showOnboarding;
+
+  document.getElementById("soundToggleBtn").onclick = ()=>{
+    state.soundEnabled = !state.soundEnabled;
+    updateSoundBtn();
+    if(!state.soundEnabled){
+      stopHum();
+    } else if(state.scopeOn){
+      startHum();
+    }
+  };
+
+  document.getElementById("scopeToggleBtn").onclick = toggleScope;
+
+  renderMaterials();
+  updatePileSummary();
+  updateSoundBtn();
+  updateScopeToggleBtn();
+  checkOnboarding();
+  goTo("gather");
+
+})();
+</script>
+</body>
+</html>
