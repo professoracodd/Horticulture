@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blue Zone Challenge</title>
+<style>
+  :root {
+    --bg-dark: #07111f;
+    --bg-mid: #0b1a2e;
+    --bg-card: #0e2040;
+    --bg-card2: #0c1c38;
+    --accent1: #1565c0;
+    --accent2: #1e88e5;
+    --accent3: #64b5f6;
+    --accent4: #90caf9;
+    --highlight: #00b0ff;
+    --gold: #ffd54f;
+    --green: #00e676;
+    --red: #ff1744;
+    --orange: #ff9100;
+    --purple: #ce93d8;
+    --text: #ffffff;
+    --text-sub: #cfd8dc;
+    --text-dim: #78909c;
+    --border: #1a3358;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg-dark); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+
+  header {
+    background: linear-gradient(135deg, #071828 0%, #0d2a50 100%);
+    border-bottom: 2px solid var(--accent1);
+    padding: 20px 32px;
+    display: flex; align-items: center; gap: 18px;
+    box-shadow: 0 4px 32px #000a;
+  }
+  .header-icon svg { width: 44px; height: 44px; }
+  .header-text h1 {
+    font-size: 2.4rem; color: #ffffff; font-weight: 800;
+    letter-spacing: -0.02em; line-height: 1.05;
+  }
+  .header-text p.kicker {
+    color: var(--accent3); font-size: 0.78rem; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase; margin-top: 7px;
+  }
+
+  .bz-info-btn {
+    margin-left: auto;
+    background: linear-gradient(135deg, var(--accent1), var(--highlight));
+    color: #fff; border: 1px solid #4fc3f7; border-radius: 24px;
+    padding: 10px 20px; font-size: 0.85rem; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; gap: 8px;
+    transition: box-shadow 0.2s, transform 0.15s; white-space: nowrap; flex-shrink: 0;
+    box-shadow: 0 0 0 3px #00b0ff1f, 0 4px 18px #00b0ff4d;
+  }
+  .bz-info-btn:hover { box-shadow: 0 0 0 4px #00b0ff2e, 0 6px 22px #00b0ff66; transform: translateY(-1px); }
+
+  /* MODAL */
+  .bz-modal-overlay {
+    position: fixed; inset: 0; background: #000000cc;
+    z-index: 1000; display: flex; align-items: center; justify-content: center;
+    padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.25s;
+  }
+  .bz-modal-overlay.open { opacity: 1; pointer-events: all; }
+  .bz-modal {
+    background: var(--bg-card); border: 1px solid var(--highlight);
+    border-radius: 16px; width: 100%; max-width: 720px; max-height: 85vh;
+    overflow-y: auto; box-shadow: 0 0 60px #00b0ff33;
+    transform: translateY(20px); transition: transform 0.25s;
+  }
+  .bz-modal-overlay.open .bz-modal { transform: translateY(0); }
+  .bz-modal-header {
+    position: sticky; top: 0;
+    background: linear-gradient(135deg, #071828, #0d2a50);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 22px; display: flex; align-items: center; justify-content: space-between; z-index: 1;
+  }
+  .bz-modal-header h2 { color: #ffffff; font-size: 1.4rem; font-weight: 700; letter-spacing: -0.01em; display: flex; align-items: center; gap: 9px; }
+  .bz-modal-close {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--text-dim); border-radius: 7px; padding: 5px 11px;
+    cursor: pointer; font-size: 0.85rem; transition: all 0.15s;
+  }
+  .bz-modal-close:hover { border-color: var(--red); color: var(--red); }
+  .bz-modal-body { padding: 22px; }
+  .bz-intro {
+    background: linear-gradient(135deg, #00b0ff11, #00e67611);
+    border: 1px solid var(--highlight); border-radius: 11px;
+    padding: 16px 18px; margin-bottom: 20px;
+    font-size: 0.88rem; color: var(--text-sub); line-height: 1.7;
+  }
+  .bz-intro strong { color: #fff; }
+  .bz-zone { border: 1px solid var(--border); border-radius: 11px; margin-bottom: 12px; overflow: hidden; }
+  .bz-zone-header {
+    display: flex; align-items: center; gap: 12px; padding: 13px 16px;
+    background: var(--bg-dark); cursor: pointer; user-select: none; transition: background 0.15s;
+  }
+  .bz-zone-header:hover { background: #0d2040; }
+  .bz-zone-flag { font-size: 1.5rem; flex-shrink: 0; }
+  .bz-zone-title { flex: 1; }
+  .bz-zone-title h3 { color: #fff; font-size: 0.95rem; font-weight: 600; }
+  .bz-zone-title p { color: var(--text-dim); font-size: 0.78rem; margin-top: 2px; }
+  .bz-zone-body { padding: 14px 16px; background: var(--bg-card2); display: none; }
+  .bz-zone-body.open { display: block; }
+  .bz-key-foods { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .bz-food-tag { padding: 4px 11px; border-radius: 12px; font-size: 0.77rem; background: #1565c033; border: 1px solid #1565c066; color: var(--accent3); }
+  .bz-poly-tag { background: #7c4dff22; border: 1px solid #7c4dff55; color: var(--purple); }
+  .bz-section-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-dim); margin: 10px 0 5px; }
+  .bz-body-text { font-size: 0.83rem; color: var(--text-sub); line-height: 1.65; margin-bottom: 8px; }
+  .bz-common {
+    background: linear-gradient(135deg, #1565c018, #7c4dff11);
+    border: 1px solid var(--accent1); border-radius: 10px;
+    padding: 14px 16px; margin-top: 16px;
+    font-size: 0.84rem; color: var(--text-sub); line-height: 1.65;
+  }
+  .bz-common strong { color: #fff; }
+
+  #phase-nav {
+    display: flex; background: var(--bg-mid);
+    border-bottom: 1px solid var(--border); padding: 0 32px; overflow-x: auto;
+  }
+  .phase-tab {
+    padding: 13px 20px; color: var(--text-dim); font-size: 0.85rem; font-weight: 500;
+    border-bottom: 3px solid transparent; white-space: nowrap; transition: all 0.2s;
+  }
+  .phase-tab.active { color: var(--highlight); font-weight: 700; border-bottom-color: var(--highlight); }
+  .phase-tab.done { color: var(--green); font-weight: 600; }
+
+  main { padding: 24px 32px; max-width: 1100px; margin: 0 auto; }
+
+  .card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 22px; margin-bottom: 18px;
+    box-shadow: 0 2px 20px #0006;
+  }
+  .card-title { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .card-title h2 { color: #ffffff; font-size: 1.05rem; font-weight: 700; letter-spacing: 0.01em; }
+
+  input[type="text"], select {
+    width: 100%; background: var(--bg-dark); border: 1px solid var(--border);
+    border-radius: 8px; color: #ffffff; padding: 10px 13px; font-size: 0.95rem; outline: none; transition: border 0.2s;
+  }
+  input[type="text"]:focus, select:focus { border-color: var(--accent2); }
+  select option { background: #0b1a2e; color: #fff; }
+  label { display: block; color: var(--accent4); font-size: 0.82rem; margin-bottom: 5px; font-weight: 500; }
+
+  .btn {
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    color: #fff; border: none; border-radius: 9px; padding: 11px 26px;
+    font-size: 0.95rem; font-weight: 600; cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s; display: inline-flex; align-items: center; gap: 7px;
+  }
+  .btn:hover { opacity: 0.88; transform: translateY(-1px); }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+  .btn-sm { padding: 7px 15px; font-size: 0.83rem; }
+  .btn-outline { background: transparent; border: 1px solid var(--accent2); color: var(--accent2); }
+  .btn-outline:hover { background: #1e88e511; }
+  .btn-gold { background: linear-gradient(135deg, #b8860b, #ffd54f); color: #1a1000; }
+
+  .food-section { margin-bottom: 18px; }
+  .food-section-header { display: flex; align-items: center; gap: 7px; margin-bottom: 9px; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
+  .food-section-header span { color: var(--gold); font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .food-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+  .food-chip {
+    padding: 5px 12px; border-radius: 14px; border: 1px solid var(--border);
+    background: var(--bg-dark); color: var(--text-dim); font-size: 0.8rem;
+    cursor: pointer; transition: all 0.15s; user-select: none;
+  }
+  .food-chip:hover:not(.unavailable) { border-color: var(--accent2); color: #fff; }
+  .food-chip.selected { background: var(--accent1); border-color: var(--accent2); color: #fff; font-weight: 500; }
+  .food-chip.unavailable { opacity: 0.25; cursor: not-allowed; text-decoration: line-through; }
+  .food-chip.supplement.selected { background: #5e35b1; border-color: #9575cd; }
+  .food-chip.supplement:not(.selected):not(.unavailable):hover { border-color: #9575cd; color: var(--purple); }
+
+  .selection-bar {
+    background: linear-gradient(135deg, #0e2040, #0c1c38);
+    border: 1px solid var(--accent1); border-radius: 10px;
+    padding: 14px 17px; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    box-shadow: 0 0 0 1px #00b0ff0d inset;
+  }
+  .sel-count { font-size: 1.55rem; font-weight: 800; color: var(--highlight); letter-spacing: -0.01em; }
+  .sel-max { font-size: 0.82rem; color: var(--text-dim); font-weight: 500; }
+  .sel-items { display: flex; flex-wrap: wrap; gap: 5px; flex: 1; }
+  .sel-tag { background: #1565c033; border: 1px solid #1e88e555; border-radius: 9px; padding: 3px 9px; font-size: 0.76rem; color: var(--accent3); }
+
+  .progress-track { display: flex; gap: 7px; margin-bottom: 16px; flex-wrap: wrap; }
+  .progress-step {
+    display: flex; align-items: center; gap: 5px;
+    padding: 6px 15px; border-radius: 18px; border: 1px solid var(--border);
+    font-size: 0.8rem; font-weight: 600; background: var(--bg-dark); color: var(--text-dim);
+    transition: all 0.15s;
+  }
+  .progress-step.active { border-color: var(--highlight); color: var(--highlight); background: #00b0ff14; box-shadow: 0 0 0 1px #00b0ff33; }
+  .progress-step.done { border-color: var(--green); color: var(--green); background: #00e67611; }
+
+  .region-info { background: #1565c018; border: 1px solid #1565c044; border-radius: 10px; padding: 11px 15px; margin-top: 8px; font-size: 0.84rem; color: var(--text-sub); line-height: 1.6; }
+  .warn-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 7px; font-size: 0.72rem; font-weight: 600; background: #ff910016; border: 1px solid #ff910040; color: var(--orange); }
+  .meta-pill {
+    display: inline-flex; align-items: center; background: transparent;
+    border: 1px solid var(--border); border-radius: 6px; padding: 2px 9px;
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase;
+    color: var(--text-dim);
+  }
+  .season-title-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+  .season-title-row h2 { color: #fff; font-size: 1.4rem; font-weight: 700; letter-spacing: -0.01em; }
+
+  .result-header {
+    background: linear-gradient(135deg, #071828, #0d2a50);
+    border: 1px solid var(--highlight); border-radius: 14px;
+    padding: 28px; text-align: center; margin-bottom: 20px;
+    box-shadow: 0 0 40px #00b0ff22;
+  }
+  .life-exp-num { font-size: 3.2rem; font-weight: 800; color: var(--gold); line-height: 1; }
+
+  .bluezone-banner {
+    background: linear-gradient(135deg, #00b0ff18, #00e67618);
+    border: 2px solid var(--highlight); border-radius: 12px;
+    padding: 16px 20px; text-align: center; margin-bottom: 18px;
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+  }
+
+  .season-block { border: 1px solid var(--border); border-radius: 11px; margin-bottom: 12px; overflow: hidden; }
+  .season-block-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 13px 16px; cursor: pointer; background: var(--bg-dark); transition: background 0.15s; user-select: none;
+  }
+  .season-block-header:hover { background: #0d2040; }
+  .season-block-header.has-issues { border-left: 3px solid var(--orange); }
+  .season-block-header.critical-issues { border-left: 3px solid var(--red); }
+  .season-block-header.all-ok { border-left: 3px solid var(--green); }
+  .season-block-body { padding: 14px 16px; background: var(--bg-card2); display: none; }
+  .season-block-body.open { display: block; }
+  .season-header-left { display: flex; align-items: center; gap: 10px; }
+  .season-name { font-weight: 600; color: #fff; font-size: 0.95rem; }
+  .season-score-badge { padding: 3px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; }
+  .badge-ok { background: #00e67622; color: var(--green); border: 1px solid #00e67644; }
+  .badge-warn { background: #ff910022; color: var(--orange); border: 1px solid #ff910044; }
+  .badge-crit { background: #ff174422; color: var(--red); border: 1px solid #ff174444; }
+
+  .nutrient-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-bottom: 12px; }
+  .nutrient-table th { text-align: left; padding: 7px 10px; color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 1px solid var(--border); }
+  .nutrient-table td { padding: 7px 10px; border-bottom: 1px solid #1a335822; }
+  .nutrient-table tr:last-child td { border-bottom: none; }
+  .nt-name { color: var(--text-sub); font-weight: 500; }
+  .nt-ok { color: var(--green); font-weight: 600; }
+  .nt-low { color: var(--orange); font-weight: 600; }
+  .nt-crit { color: var(--red); font-weight: 600; }
+  .nt-bar-wrap { width: 100px; }
+  .nt-bar-track { height: 5px; background: #ffffff11; border-radius: 3px; overflow: hidden; }
+  .nt-bar-fill { height: 100%; border-radius: 3px; }
+  .fill-ok { background: linear-gradient(90deg,#00c853,#00e676); }
+  .fill-low { background: linear-gradient(90deg,#e65100,#ff9100); }
+  .fill-crit { background: linear-gradient(90deg,#b71c1c,#ff1744); }
+
+  .amino-section { margin-top: 12px; }
+  .amino-section h4 { color: var(--accent4); font-size: 0.8rem; font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.8px; }
+  .amino-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 6px; }
+  .amino-chip { padding: 5px 10px; border-radius: 8px; font-size: 0.77rem; display: flex; justify-content: space-between; align-items: center; }
+  .amino-ok { background: #00e67611; border: 1px solid #00e67633; color: var(--text-sub); }
+  .amino-ok .amino-status { color: var(--green); font-weight: 600; }
+  .amino-low { background: #ff910011; border: 1px solid #ff910033; color: var(--text-sub); }
+  .amino-low .amino-status { color: var(--orange); font-weight: 600; }
+  .amino-crit { background: #ff174411; border: 1px solid #ff174433; color: var(--text-sub); }
+  .amino-crit .amino-status { color: var(--red); font-weight: 600; }
+
+  .rec-box {
+    background: #1565c013; border-left: 3px solid var(--accent2);
+    border-radius: 0 9px 9px 0; padding: 10px 14px; margin-bottom: 7px;
+    font-size: 0.83rem; color: var(--text-sub); line-height: 1.6;
+    display: flex; align-items: flex-start; gap: 8px;
+  }
+  .rec-icon { flex-shrink: 0; margin-top: 2px; opacity: 0.7; }
+  .rec-icon svg { width: 13px; height: 13px; }
+
+  .disease-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .disease-chip { padding: 4px 10px; border-radius: 7px; font-size: 0.76rem; background: #ff174413; border: 1px solid #ff174430; color: #ff6e6e; }
+
+  .season-summary-row {
+    display: flex; gap: 10px; padding: 9px 0;
+    border-bottom: 1px solid var(--border); font-size: 0.82rem;
+    flex-wrap: wrap; align-items: center;
+  }
+  .season-summary-row:last-child { border-bottom: none; }
+  .season-summary-label { color: var(--accent4); font-weight: 600; min-width: 65px; flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
+  .season-summary-foods { color: var(--text-dim); flex: 1; }
+  .status-ok { display: inline-flex; align-items: center; gap: 4px; color: var(--green); font-size: 0.75rem; font-weight: 700; flex-shrink: 0; }
+  .status-bad { display: inline-flex; align-items: center; gap: 4px; color: var(--red); font-size: 0.75rem; font-weight: 700; flex-shrink: 0; }
+  .status-ok svg, .status-bad svg { width: 13px; height: 13px; }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+  .text-center { text-align: center; }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg-dark); }
+  ::-webkit-scrollbar-thumb { background: var(--accent1); border-radius: 3px; }
+
+  @media (max-width: 640px) {
+    main { padding: 12px; }
+    header { padding: 12px 14px; flex-wrap: wrap; }
+    .header-text h1 { font-size: 1.1rem; }
+    .bz-info-btn span { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- BLUE ZONE MODAL -->
+<div class="bz-modal-overlay" id="bz-modal-overlay" onclick="closeBZModal(event)">
+  <div class="bz-modal">
+    <div class="bz-modal-header">
+      <h2>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;color:var(--highlight)"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        What Are Blue Zones?
+      </h2>
+      <button class="bz-modal-close" onclick="toggleBZModal()">✕ Close</button>
+    </div>
+    <div class="bz-modal-body">
+      <div class="bz-intro">
+        <strong>Blue Zones</strong> are five geographic regions where people live measurably longer, healthier lives — with the highest concentrations of centenarians on Earth. Research published in <em>Ageing Research Reviews</em> (Scapagnini et al., University of Molise) suggests their longevity is driven less by genetics and more by <strong>polyphenol-rich diets</strong> that modulate the core biological hallmarks of aging: genomic instability, telomere attrition, mitochondrial dysfunction, cellular senescence, and chronic inflammation.
+      </div>
+
+      <div class="bz-zone">
+        <div class="bz-zone-header" onclick="toggleBZZone('okinawa')">
+          <span class="bz-zone-flag">🇯🇵</span>
+          <div class="bz-zone-title"><h3>Okinawa, Japan</h3><p>Highest prevalence of centenarians — lower cardiovascular disease, dementia &amp; diabetes</p></div>
+          <span style="color:var(--text-dim);font-size:0.8rem" id="chev-okinawa">▼</span>
+        </div>
+        <div class="bz-zone-body" id="body-okinawa">
+          <p class="bz-body-text">Low-calorie, nutrient-dense, antioxidant-rich diet. Centenarians show healthier blood chemistry profiles than average populations.</p>
+          <div class="bz-section-label">Key Foods</div>
+          <div class="bz-key-foods"><span class="bz-food-tag">Purple Sweet Potato (Beni Imo)</span><span class="bz-food-tag">Tofu / Miso</span><span class="bz-food-tag">Turmeric</span><span class="bz-food-tag">Green Tea</span><span class="bz-food-tag">Leafy Greens</span></div>
+          <div class="bz-section-label">Key Polyphenols</div>
+          <div class="bz-key-foods"><span class="bz-food-tag bz-poly-tag">Anthocyanins (sweet potato)</span><span class="bz-food-tag bz-poly-tag">Isoflavones / FOXO3 (soy)</span><span class="bz-food-tag bz-poly-tag">Curcumin (turmeric)</span><span class="bz-food-tag bz-poly-tag">EGCG (green tea)</span></div>
+          <p class="bz-body-text" style="margin-top:8px">Anthocyanins combat genomic instability and stem cell exhaustion. Soy isoflavones activate the longevity protein FOXO3. Curcumin reduces mitochondrial dysfunction. EGCG fights telomere shortening and supports autophagy.</p>
+        </div>
+      </div>
+
+      <div class="bz-zone">
+        <div class="bz-zone-header" onclick="toggleBZZone('sardinia')">
+          <span class="bz-zone-flag">🇮🇹</span>
+          <div class="bz-zone-title"><h3>Sardinia, Italy</h3><p>Highest concentration of male centenarians in the world</p></div>
+          <span style="color:var(--text-dim);font-size:0.8rem" id="chev-sardinia">▼</span>
+        </div>
+        <div class="bz-zone-body" id="body-sardinia">
+          <p class="bz-body-text">Genetics not linked to longevity here — diet and lifestyle are the primary drivers. Coffee's chlorogenic acid is now considered the key polyphenol source, not red wine (whose consumption was actually lower in the Blue Zone area).</p>
+          <div class="bz-section-label">Key Foods</div>
+          <div class="bz-key-foods"><span class="bz-food-tag">Fruits &amp; Vegetables</span><span class="bz-food-tag">Goat Dairy</span><span class="bz-food-tag">Legumes</span><span class="bz-food-tag">Whole Grains</span><span class="bz-food-tag">Coffee</span></div>
+          <div class="bz-section-label">Key Polyphenols</div>
+          <div class="bz-key-foods"><span class="bz-food-tag bz-poly-tag">Chlorogenic Acid (coffee)</span></div>
+          <p class="bz-body-text" style="margin-top:8px">Chlorogenic acid improves vascular function, reduces inflammation, and targets epigenetic alterations — a hallmark of aging linked to cancer risk.</p>
+        </div>
+      </div>
+
+      <div class="bz-zone">
+        <div class="bz-zone-header" onclick="toggleBZZone('ikaria')">
+          <span class="bz-zone-flag">🇬🇷</span>
+          <div class="bz-zone-title"><h3>Ikaria, Greece</h3><p>~30% of population lives past age 90</p></div>
+          <span style="color:var(--text-dim);font-size:0.8rem" id="chev-ikaria">▼</span>
+        </div>
+        <div class="bz-zone-body" id="body-ikaria">
+          <p class="bz-body-text">62–69% of elderly Ikarians adhere to a Mediterranean diet. Long-term adherence inversely correlated with multiple age-related diseases.</p>
+          <div class="bz-section-label">Key Foods</div>
+          <div class="bz-key-foods"><span class="bz-food-tag">Olive Oil</span><span class="bz-food-tag">Chickpeas &amp; Lentils</span><span class="bz-food-tag">Lettuce &amp; Onions</span><span class="bz-food-tag">Fresh Fruit</span></div>
+          <div class="bz-section-label">Key Polyphenols</div>
+          <div class="bz-key-foods"><span class="bz-food-tag bz-poly-tag">Oleuropein (olive oil)</span></div>
+          <p class="bz-body-text" style="margin-top:8px">Oleuropein is antioxidant, anti-inflammatory, and neuroprotective. Targets senescent cells and stem cell exhaustion. Daily olive oil linked to lower all-cause mortality.</p>
+        </div>
+      </div>
+
+      <div class="bz-zone">
+        <div class="bz-zone-header" onclick="toggleBZZone('lomalinda')">
+          <span class="bz-zone-flag">🇺🇸</span>
+          <div class="bz-zone-title"><h3>Loma Linda, California</h3><p>Life expectancy ~10 years longer than rest of California</p></div>
+          <span style="color:var(--text-dim);font-size:0.8rem" id="chev-lomalinda">▼</span>
+        </div>
+        <div class="bz-zone-body" id="body-lomalinda">
+          <p class="bz-body-text">Seventh-day Adventist community — high prevalence of vegetarians, no alcohol or tobacco. Vegetarian diet associated with reduced all-cause mortality. <strong style="color:var(--orange)">Note: B12 supplementation is essential without animal products.</strong></p>
+          <div class="bz-section-label">Key Foods</div>
+          <div class="bz-key-foods"><span class="bz-food-tag">Chickpeas &amp; Beans</span><span class="bz-food-tag">Soy Products</span><span class="bz-food-tag">Nuts</span><span class="bz-food-tag">Whole Grains</span></div>
+          <div class="bz-section-label">Key Polyphenols</div>
+          <div class="bz-key-foods"><span class="bz-food-tag bz-poly-tag">Isoflavones (soy &amp; legumes)</span><span class="bz-food-tag bz-poly-tag">Flavonoids (fruits &amp; vegetables)</span></div>
+        </div>
+      </div>
+
+      <div class="bz-zone">
+        <div class="bz-zone-header" onclick="toggleBZZone('nicoya')">
+          <span class="bz-zone-flag">🇨🇷</span>
+          <div class="bz-zone-title"><h3>Nicoya Peninsula, Costa Rica</h3><p>~29% lower mortality for those 60+ vs. rest of Costa Rica</p></div>
+          <span style="color:var(--text-dim);font-size:0.8rem" id="chev-nicoya">▼</span>
+        </div>
+        <div class="bz-zone-body" id="body-nicoya">
+          <p class="bz-body-text">Lower blood sugar and triglycerides than average. Centenarians eat fruit 1–3 times daily, preferring mangoes. Staple diet: rice, black beans, squash. Mineral-rich volcanic water may also contribute.</p>
+          <div class="bz-section-label">Key Foods</div>
+          <div class="bz-key-foods"><span class="bz-food-tag">Mango &amp; Papaya</span><span class="bz-food-tag">Black Beans</span><span class="bz-food-tag">Rice &amp; Squash</span><span class="bz-food-tag">Meat &amp; Dairy (moderate)</span></div>
+          <div class="bz-section-label">Key Polyphenols</div>
+          <div class="bz-key-foods"><span class="bz-food-tag bz-poly-tag">Mangiferin (mango)</span><span class="bz-food-tag bz-poly-tag">Flavonoids (beans)</span></div>
+          <p class="bz-body-text" style="margin-top:8px">Mangiferin has anti-inflammatory effects against cardiovascular disease, cancer, and neurodegenerative diseases — targeting chronic inflammation, a core hallmark of aging.</p>
+        </div>
+      </div>
+
+      <div class="bz-common">
+        <strong>The Common Thread: Polyphenol-Rich Diets</strong><br><br>
+        Across all five Blue Zones, diets are rich in fruits, vegetables, and legumes containing diverse polyphenols that modulate the hallmarks of aging. While genetics plays a debatable role, the evidence points strongly to diet as the primary environmental driver of exceptional longevity.<br><br>
+        <em>Source: Scapagnini et al., Ageing Research Reviews — University of Molise, Italy</em>
+      </div>
+    </div>
+  </div>
+</div>
+
+<header>
+  <div class="header-icon">
+    <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="22" cy="22" r="20" stroke="#1e88e5" stroke-width="2" fill="#071828"/>
+      <ellipse cx="22" cy="22" rx="8" ry="20" stroke="#1e88e5" stroke-width="1.5" fill="none"/>
+      <line x1="2" y1="22" x2="42" y2="22" stroke="#1e88e5" stroke-width="1.5"/>
+      <path d="M6 14 Q22 18 38 14" stroke="#00b0ff" stroke-width="1.2" fill="none"/>
+      <path d="M6 30 Q22 26 38 30" stroke="#00b0ff" stroke-width="1.2" fill="none"/>
+      <circle cx="22" cy="22" r="3" fill="#00b0ff"/>
+    </svg>
+  </div>
+  <div class="header-text">
+    <h1>Blue Zone Challenge</h1>
+    <p class="kicker">Nutrition &amp; Geography — Build the Healthiest Diet for Your Region</p>
+  </div>
+  <button class="bz-info-btn" onclick="toggleBZModal()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <span>What Are Blue Zones?</span>
+  </button>
+</header>
+
+<div id="phase-nav">
+  <div class="phase-tab active" id="tab-0">① Setup</div>
+  <div class="phase-tab" id="tab-1">② Spring</div>
+  <div class="phase-tab" id="tab-2">③ Summer</div>
+  <div class="phase-tab" id="tab-3">④ Fall</div>
+  <div class="phase-tab" id="tab-4">⑤ Winter</div>
+  <div class="phase-tab" id="tab-5">⑥ Results</div>
+</div>
+
+<main id="main-content"></main>
+
+<script>
+// SVG ICONS (professional, no emoji for UI elements)
+const ICONS = {
+  check: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:13px;height:13px"><polyline points="20 6 9 17 4 12"/></svg>`,
+  x: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:13px;height:13px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+  arrow: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`,
+  warning: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+  leaf: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M11 20A7 7 0 0118 13c0-4.2-3.8-7-7-7S4 8.8 4 13a7 7 0 007 7z"/><path d="M11 20v-7"/></svg>`,
+  meat: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 12h8M12 8v8"/></svg>`,
+  pill: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M10.5 20H4a2 2 0 01-2-2V6a2 2 0 012-2h16a2 2 0 012 2v5"/><path d="M15 15l5 5m-5 0l5-5"/></svg>`,
+  trophy: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px"><polyline points="8 21 12 21 16 21"/><line x1="12" y1="17" x2="12" y2="21"/><path d="M7 4H17l-1 7a5 5 0 01-10 0L5 4z"/><path d="M5 4H3v3a4 4 0 004 4"/><path d="M19 4h2v3a4 4 0 01-4 4"/></svg>`,
+  heart: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>`,
+  chart: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`,
+  clipboard: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>`,
+  alert: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+  refresh: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>`,
+};
+
+function toggleBZModal() { document.getElementById('bz-modal-overlay').classList.toggle('open'); }
+function closeBZModal(e) { if (e.target === document.getElementById('bz-modal-overlay')) toggleBZModal(); }
+function toggleBZZone(id) {
+  const body = document.getElementById('body-' + id);
+  const chev = document.getElementById('chev-' + id);
+  if (!body) return;
+  body.classList.toggle('open');
+  if (chev) chev.textContent = body.classList.contains('open') ? '▲' : '▼';
+}
+
+const REGIONS = [
+  { id:'okinawa', name:'Okinawa, Japan', iodine:true, vitD:true, notes:'Subtropical island diet — seaweed, tofu, purple sweet potato, and fish are daily staples. Highest concentration of centenarians on Earth.' },
+  { id:'sardinia', name:'Sardinian Highlands, Italy', iodine:true, vitD:true, notes:'Mountain shepherd diet — goat dairy, legumes, and whole grains dominate. Highest concentration of male centenarians in the world.' },
+  { id:'ikaria', name:'Ikaria, Greece', iodine:true, vitD:true, notes:'Mediterranean island diet — olive oil, wild greens, and legumes eaten daily. Roughly 30% of residents live past age 90.' },
+  { id:'loma_linda', name:'Loma Linda, California', iodine:false, vitD:true, notes:'Seventh-day Adventist community — largely vegetarian, no alcohol or tobacco. Meat and seafood are scarce, so B12 and iodine take planning.' },
+  { id:'nicoya', name:'Nicoya Peninsula, Costa Rica', iodine:true, vitD:true, notes:'Tropical peninsula diet — corn, beans, and squash form the "Three Sisters" staple, with fruit eaten daily and mineral-rich volcanic water.' },
+];
+
+const SEASONS = ['Spring','Summer','Fall','Winter'];
+const SEASON_EMOJI = ['🌸','☀️','🍂','❄️'];
+const AMINOS = ['histidine','isoleucine','leucine','lysine','methionine','phenylalanine','threonine','tryptophan','valine'];
+const AMINO_NAMES = { histidine:'Histidine', isoleucine:'Isoleucine', leucine:'Leucine', lysine:'Lysine', methionine:'Methionine', phenylalanine:'Phenylalanine', threonine:'Threonine', tryptophan:'Tryptophan', valine:'Valine' };
+
+// ============================================================
+// FOOD DATABASE — v5: Animal foods now have calories:3 where fat-rich,
+// calories:2 minimum for all meat/fish/eggs/dairy
+// ============================================================
+const PLANT_FOODS = [
+  {id:'potato',name:'Potato',cat:'Roots & Tubers',seasons:[0,1,2],n:{calories:2,carbs:3,vitC:2,iron:1,fiber:2},a:{histidine:1,isoleucine:1,leucine:1,lysine:1,methionine:1,phenylalanine:1,threonine:1,tryptophan:1,valine:1}},
+  {id:'sweet_potato',name:'Sweet Potato',cat:'Roots & Tubers',seasons:[1,2],n:{calories:2,carbs:3,vitC:2,fiber:2},a:{histidine:1,isoleucine:1,leucine:1,lysine:1,methionine:0,phenylalanine:1,threonine:1,tryptophan:1,valine:1}},
+  {id:'taro',name:'Taro Root',cat:'Roots & Tubers',seasons:[1,2],n:{calories:2,carbs:3,fiber:2,vitC:1,calcium:1},a:{histidine:1,isoleucine:1,leucine:1,lysine:1,methionine:0,phenylalanine:1,threonine:1,tryptophan:0,valine:1}},
+  {id:'cassava',name:'Cassava',cat:'Roots & Tubers',seasons:[1,2],n:{calories:3,carbs:3,vitC:1},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'turnip',name:'Turnip',cat:'Roots & Tubers',seasons:[0,2,3],n:{calories:1,vitC:2,fiber:1,calcium:1},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'beet',name:'Beet',cat:'Roots & Tubers',seasons:[0,2],n:{calories:1,carbs:2,folate:3,iron:1,fiber:2},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'carrot',name:'Carrot',cat:'Roots & Tubers',seasons:[0,1,2],n:{calories:1,fiber:2,vitC:1},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'parsnip',name:'Parsnip',cat:'Roots & Tubers',seasons:[2,3],n:{calories:1,carbs:2,fiber:2,vitC:1,folate:2},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'yam',name:'Yam',cat:'Roots & Tubers',seasons:[1,2],n:{calories:2,carbs:3,vitC:2,fiber:2},a:{histidine:1,isoleucine:1,leucine:1,lysine:1,methionine:0,phenylalanine:1,threonine:1,tryptophan:0,valine:1}},
+  {id:'jerusalem_artichoke',name:'Jerusalem Artichoke',cat:'Roots & Tubers',seasons:[2,3],n:{calories:1,carbs:2,fiber:3,iron:2},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'kale',name:'Kale',cat:'Leafy Greens',seasons:[0,2,3],n:{vitC:3,calcium:2,iron:2,fiber:2,folate:2},a:{histidine:1,isoleucine:1,leucine:1,lysine:1,methionine:0,phenylalanine:1,threonine:1,tryptophan:0,valine:1}},
+  {id:'spinach',name:'Spinach',cat:'Leafy Greens',seasons:[0,2],n:{iron:3,folate:3,vitC:2,calcium:2},a:{histidine:1,isoleucine:1,leucine:1,lysine:1,methionine:0,phenylalanine:1,threonine:1,tryptophan:1,valine:1}},
+  {id:'purslane',name:'Purslane (Weed)',cat:'Leafy Greens',seasons:[1,2],n:{omega3:2,vitC:2,iron:1,calcium:1},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'dandelion',name:'Dandelion Greens',cat:'Leafy Greens',seasons:[0,1,2],n:{vitC:2,calcium:2,iron:2,fiber:1},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'chard',name:'Swiss Chard',cat:'Leafy Greens',seasons:[0,1,2],n:{vitC:2,iron:2,calcium:1,fiber:1},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'collards',name:'Collard Greens',cat:'Leafy Greens',seasons:[0,2,3],n:{calcium:3,vitC:2,iron:1,fiber:2},a:{histidine:1,isoleucine:1,leucine:1,lysine:1,methionine:0,phenylalanine:1,threonine:1,tryptophan:0,valine:1}},
+  {id:'watercress',name:'Watercress',cat:'Leafy Greens',seasons:[0,1,2],n:{vitC:3,calcium:2,iodine:1},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'nettles',name:'Stinging Nettles',cat:'Leafy Greens',seasons:[0,1],n:{iron:3,calcium:2,vitC:2,protein:1},a:{histidine:1,isoleucine:1,leucine:1,lysine:1,methionine:0,phenylalanine:1,threonine:1,tryptophan:0,valine:1}},
+  {id:'arugula',name:'Arugula',cat:'Leafy Greens',seasons:[0,1,2],n:{vitC:2,calcium:1,iron:1,folate:1},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'cabbage',name:'Cabbage',cat:'Leafy Greens',seasons:[0,2,3],n:{vitC:3,fiber:2,calcium:1,folate:1},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'bok_choy',name:'Bok Choy',cat:'Leafy Greens',seasons:[0,1,2],n:{vitC:2,calcium:2,iron:1,folate:1},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'pinto_beans',name:'Pinto Beans',cat:'Legumes',seasons:[1,2],n:{protein:3,fiber:3,iron:2,folate:3,carbs:2,zinc:2},a:{histidine:2,isoleucine:2,leucine:2,lysine:3,methionine:1,phenylalanine:2,threonine:2,tryptophan:1,valine:2}},
+  {id:'black_beans',name:'Black Beans',cat:'Legumes',seasons:[1,2],n:{protein:3,fiber:3,iron:2,folate:3,carbs:2,zinc:2},a:{histidine:2,isoleucine:2,leucine:2,lysine:3,methionine:1,phenylalanine:2,threonine:2,tryptophan:1,valine:2}},
+  {id:'lentils',name:'Lentils',cat:'Legumes',seasons:[0,1,2],n:{protein:3,iron:3,folate:3,fiber:3,zinc:2},a:{histidine:2,isoleucine:2,leucine:2,lysine:3,methionine:1,phenylalanine:2,threonine:2,tryptophan:1,valine:2}},
+  {id:'chickpeas',name:'Chickpeas',cat:'Legumes',seasons:[0,1,2],n:{protein:2,fiber:3,iron:2,folate:2,zinc:2,carbs:2},a:{histidine:2,isoleucine:2,leucine:2,lysine:2,methionine:1,phenylalanine:2,threonine:2,tryptophan:1,valine:2}},
+  {id:'soybeans',name:'Soybeans / Edamame',cat:'Legumes',seasons:[1,2],n:{protein:3,calcium:2,iron:2,omega3:1,zinc:2},a:{histidine:2,isoleucine:2,leucine:3,lysine:3,methionine:2,phenylalanine:2,threonine:2,tryptophan:2,valine:2}},
+  {id:'fava_beans',name:'Fava Beans',cat:'Legumes',seasons:[0,1],n:{protein:2,fiber:2,iron:2,folate:3,zinc:1},a:{histidine:2,isoleucine:2,leucine:2,lysine:3,methionine:1,phenylalanine:2,threonine:2,tryptophan:1,valine:2}},
+  {id:'kidney_beans',name:'Kidney Beans',cat:'Legumes',seasons:[1,2],n:{protein:3,fiber:3,iron:2,folate:2,zinc:2,carbs:2},a:{histidine:2,isoleucine:2,leucine:2,lysine:3,methionine:1,phenylalanine:2,threonine:2,tryptophan:1,valine:2}},
+  {id:'mung_beans',name:'Mung Beans',cat:'Legumes',seasons:[1,2],n:{protein:2,fiber:2,iron:2,folate:2,zinc:1},a:{histidine:1,isoleucine:2,leucine:2,lysine:2,methionine:1,phenylalanine:2,threonine:2,tryptophan:1,valine:2}},
+  {id:'peas',name:'Green Peas',cat:'Legumes',seasons:[0,1],n:{protein:2,fiber:2,vitC:2,iron:1,folate:2,zinc:1},a:{histidine:1,isoleucine:2,leucine:2,lysine:2,methionine:1,phenylalanine:2,threonine:2,tryptophan:1,valine:2}},
+  {id:'rice',name:'Rice',cat:'Grains',seasons:'all',n:{calories:3,carbs:3,protein:1},a:{histidine:1,isoleucine:1,leucine:1,lysine:0,methionine:1,phenylalanine:1,threonine:1,tryptophan:1,valine:1}},
+  {id:'corn',name:'Corn / Maize',cat:'Grains',seasons:[1,2],n:{calories:2,carbs:3,fiber:2,vitC:1},a:{histidine:1,isoleucine:1,leucine:2,lysine:0,methionine:1,phenylalanine:1,threonine:1,tryptophan:0,valine:1}},
+  {id:'wheat',name:'Wheat / Bread',cat:'Grains',seasons:'all',n:{calories:2,carbs:3,protein:1,iron:1,fiber:2},a:{histidine:1,isoleucine:1,leucine:2,lysine:0,methionine:1,phenylalanine:2,threonine:1,tryptophan:1,valine:1}},
+  {id:'oats',name:'Oats',cat:'Grains',seasons:'all',n:{calories:2,carbs:2,fiber:3,protein:1,iron:1},a:{histidine:1,isoleucine:1,leucine:1,lysine:1,methionine:1,phenylalanine:1,threonine:1,tryptophan:1,valine:1}},
+  {id:'barley',name:'Barley',cat:'Grains',seasons:[0,1,2],n:{calories:2,carbs:2,fiber:3,protein:1,iron:1},a:{histidine:1,isoleucine:1,leucine:1,lysine:1,methionine:1,phenylalanine:1,threonine:1,tryptophan:1,valine:1}},
+  {id:'quinoa',name:'Quinoa',cat:'Grains',seasons:'all',n:{calories:2,carbs:2,protein:2,iron:2,zinc:1,fiber:2},a:{histidine:2,isoleucine:2,leucine:2,lysine:2,methionine:2,phenylalanine:2,threonine:2,tryptophan:2,valine:2}},
+  {id:'millet',name:'Millet',cat:'Grains',seasons:[1,2],n:{calories:2,carbs:2,fiber:2,protein:1,iron:1,zinc:1},a:{histidine:1,isoleucine:1,leucine:2,lysine:0,methionine:1,phenylalanine:1,threonine:1,tryptophan:1,valine:1}},
+  {id:'buckwheat',name:'Buckwheat',cat:'Grains',seasons:[1,2],n:{calories:2,carbs:2,fiber:2,protein:2,iron:1,zinc:1},a:{histidine:1,isoleucine:2,leucine:2,lysine:2,methionine:1,phenylalanine:1,threonine:1,tryptophan:1,valine:2}},
+  {id:'amaranth',name:'Amaranth',cat:'Grains',seasons:[1,2],n:{calories:2,carbs:2,protein:2,iron:2,calcium:1,zinc:1,fiber:2},a:{histidine:2,isoleucine:2,leucine:2,lysine:2,methionine:1,phenylalanine:2,threonine:2,tryptophan:1,valine:2}},
+  {id:'teff',name:'Teff',cat:'Grains',seasons:'all',n:{calories:2,carbs:2,protein:2,iron:2,calcium:2,fiber:2},a:{histidine:1,isoleucine:2,leucine:2,lysine:1,methionine:1,phenylalanine:2,threonine:2,tryptophan:1,valine:2}},
+  {id:'tomato',name:'Tomato',cat:'Fruits & Squash',seasons:[1,2],n:{vitC:3,fiber:1},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'winter_squash',name:'Winter Squash',cat:'Fruits & Squash',seasons:[2,3],n:{calories:2,carbs:2,vitC:2,fiber:2},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'summer_squash',name:'Summer Squash / Zucchini',cat:'Fruits & Squash',seasons:[1,2],n:{vitC:2,fiber:1,folate:1},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'avocado',name:'Avocado',cat:'Fruits & Squash',seasons:[1,2],n:{calories:2,fat:3,omega3:1,vitC:2,fiber:3,folate:2},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'olives',name:'Olives / Olive Oil',cat:'Fruits & Squash',seasons:'all',n:{calories:2,fat:3,omega3:1},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'berries',name:'Mixed Berries',cat:'Fruits & Squash',seasons:[1,2],n:{vitC:3,fiber:2,folate:1},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'citrus',name:'Citrus Fruits',cat:'Fruits & Squash',seasons:[2,3],n:{vitC:3,folate:2,fiber:1},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'apple',name:'Apple',cat:'Fruits & Squash',seasons:[2,3],n:{vitC:1,fiber:2},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'pear',name:'Pear',cat:'Fruits & Squash',seasons:[2,3],n:{vitC:1,fiber:2,folate:1},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'pumpkin',name:'Pumpkin',cat:'Fruits & Squash',seasons:[2,3],n:{calories:1,vitC:2,fiber:2,iron:1},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'bell_pepper',name:'Bell Pepper',cat:'Fruits & Squash',seasons:[1,2],n:{vitC:3,fiber:1,folate:1},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'mango',name:'Mango',cat:'Fruits & Squash',seasons:[1,2],n:{vitC:3,folate:2,fiber:2},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'papaya',name:'Papaya',cat:'Fruits & Squash',seasons:[1,2],n:{vitC:3,folate:2,fiber:1},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'mushroom_sun',name:'Sun-Dried Mushrooms',cat:'Mushrooms',seasons:'all',n:{vitD:3,protein:1,zinc:1,fiber:1},a:{histidine:1,isoleucine:1,leucine:1,lysine:1,methionine:1,phenylalanine:1,threonine:1,tryptophan:1,valine:1}},
+  {id:'mushroom_fresh',name:'Fresh Mushrooms',cat:'Mushrooms',seasons:[0,1,2],n:{vitD:1,protein:1,zinc:1,fiber:1},a:{histidine:1,isoleucine:1,leucine:1,lysine:1,methionine:1,phenylalanine:1,threonine:1,tryptophan:1,valine:1}},
+  {id:'shiitake',name:'Shiitake Mushrooms',cat:'Mushrooms',seasons:[0,1,2],n:{vitD:2,protein:1,zinc:1,fiber:1,iron:1},a:{histidine:1,isoleucine:1,leucine:1,lysine:1,methionine:1,phenylalanine:1,threonine:1,tryptophan:1,valine:1}},
+  {id:'walnuts',name:'Walnuts',cat:'Nuts & Seeds',seasons:'all',n:{calories:2,omega3:3,fat:3,protein:2},a:{histidine:1,isoleucine:1,leucine:2,lysine:1,methionine:1,phenylalanine:2,threonine:1,tryptophan:1,valine:2}},
+  {id:'flaxseed',name:'Flaxseed',cat:'Nuts & Seeds',seasons:'all',n:{omega3:3,fiber:3,protein:1},a:{histidine:1,isoleucine:1,leucine:1,lysine:1,methionine:1,phenylalanine:1,threonine:1,tryptophan:1,valine:1}},
+  {id:'chia',name:'Chia Seeds',cat:'Nuts & Seeds',seasons:'all',n:{omega3:3,calcium:2,fiber:3,protein:2},a:{histidine:1,isoleucine:1,leucine:2,lysine:1,methionine:1,phenylalanine:2,threonine:1,tryptophan:1,valine:2}},
+  {id:'almonds',name:'Almonds',cat:'Nuts & Seeds',seasons:'all',n:{calories:2,calcium:2,protein:2,fat:2,fiber:2},a:{histidine:1,isoleucine:1,leucine:2,lysine:1,methionine:1,phenylalanine:2,threonine:1,tryptophan:1,valine:2}},
+  {id:'hemp_seeds',name:'Hemp Seeds',cat:'Nuts & Seeds',seasons:'all',n:{calories:2,protein:3,omega3:2,zinc:2,iron:2},a:{histidine:2,isoleucine:2,leucine:2,lysine:2,methionine:2,phenylalanine:2,threonine:2,tryptophan:2,valine:2}},
+  {id:'pumpkin_seeds',name:'Pumpkin Seeds',cat:'Nuts & Seeds',seasons:'all',n:{calories:2,protein:2,zinc:3,iron:2,fat:2},a:{histidine:1,isoleucine:2,leucine:2,lysine:1,methionine:1,phenylalanine:2,threonine:1,tryptophan:1,valine:2}},
+  {id:'sunflower_seeds',name:'Sunflower Seeds',cat:'Nuts & Seeds',seasons:'all',n:{calories:2,protein:2,fat:2,zinc:1,iron:1,folate:2},a:{histidine:1,isoleucine:1,leucine:2,lysine:1,methionine:2,phenylalanine:2,threonine:1,tryptophan:1,valine:2}},
+  {id:'cashews',name:'Cashews',cat:'Nuts & Seeds',seasons:'all',n:{calories:2,protein:2,fat:2,zinc:2,iron:2},a:{histidine:1,isoleucine:1,leucine:2,lysine:2,methionine:1,phenylalanine:2,threonine:1,tryptophan:1,valine:2}},
+  {id:'brazil_nuts',name:'Brazil Nuts',cat:'Nuts & Seeds',seasons:'all',n:{calories:3,fat:3,protein:1,zinc:1},a:{histidine:1,isoleucine:1,leucine:2,lysine:1,methionine:3,phenylalanine:2,threonine:1,tryptophan:1,valine:2}},
+  {id:'seaweed_kelp',name:'Kelp / Kombu',cat:'Sea Vegetables',seasons:'all',n:{iodine:3,calcium:2,iron:1},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'nori',name:'Nori (Dried Seaweed)',cat:'Sea Vegetables',seasons:'all',n:{iodine:2,vitB12:1,protein:1,iron:1},a:{histidine:1,isoleucine:1,leucine:1,lysine:1,methionine:0,phenylalanine:1,threonine:1,tryptophan:0,valine:1}},
+  {id:'wakame',name:'Wakame Seaweed',cat:'Sea Vegetables',seasons:'all',n:{iodine:2,calcium:2,omega3:1},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'dulse',name:'Dulse Seaweed',cat:'Sea Vegetables',seasons:'all',n:{iodine:2,protein:1,iron:2,calcium:1,vitB12:1},a:{histidine:1,isoleucine:1,leucine:1,lysine:1,methionine:0,phenylalanine:1,threonine:1,tryptophan:0,valine:1}},
+
+  // ===== Region-authentic additions (researched per Blue Zone) =====
+  // Okinawa, Japan
+  {id:'bitter_melon',name:'Bitter Melon (Goya)',cat:'Vegetables',seasons:[1,2],n:{vitC:2,fiber:2,folate:1},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'daikon_radish',name:'Daikon Radish',cat:'Roots & Tubers',seasons:[0,2,3],n:{vitC:2,fiber:1},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'bamboo_shoots',name:'Bamboo Shoots',cat:'Vegetables',seasons:[0,1],n:{fiber:2,calories:1},a:{histidine:1,isoleucine:1,leucine:1,lysine:1,methionine:0,phenylalanine:1,threonine:1,tryptophan:0,valine:1}},
+  {id:'natto',name:'Natto (Fermented Soybeans)',cat:'Legumes',seasons:'all',n:{protein:3,calcium:1,iron:2,fiber:2,zinc:1},a:{histidine:2,isoleucine:2,leucine:3,lysine:3,methionine:2,phenylalanine:2,threonine:2,tryptophan:2,valine:2}},
+  // Sardinian Highlands, Italy
+  {id:'artichoke',name:'Sardinian Artichoke',cat:'Vegetables',seasons:[0,3],n:{fiber:3,folate:2,vitC:1},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'myrtle_berries',name:'Wild Myrtle Berries',cat:'Fruits & Squash',seasons:[2,3],n:{vitC:2,fiber:2},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  // Ikaria, Greece
+  {id:'horta_wild_greens',name:'Horta (Foraged Wild Greens)',cat:'Leafy Greens',seasons:[0,1,2],n:{vitC:2,calcium:2,iron:2,folate:2,fiber:1},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'black_eyed_peas',name:'Black-Eyed Peas',cat:'Legumes',seasons:[1,2],n:{protein:3,fiber:3,iron:2,folate:3,zinc:1},a:{histidine:2,isoleucine:2,leucine:2,lysine:3,methionine:1,phenylalanine:2,threonine:2,tryptophan:1,valine:2}},
+  {id:'ikarian_honey',name:'Ikarian Wild Honey',cat:'Herbs & Tonics',seasons:'all',n:{},a:{}},
+  // Loma Linda, California
+  {id:'veggie_protein',name:'Soy Meat Analog (Veggie Protein)',cat:'Meat Alternatives',seasons:'all',n:{calories:2,protein:3,iron:2,zinc:1,fiber:2},a:{histidine:2,isoleucine:2,leucine:3,lysine:3,methionine:2,phenylalanine:2,threonine:2,tryptophan:2,valine:2}},
+  {id:'california_dates',name:'California Dates',cat:'Fruits & Squash',seasons:[2,3],n:{calories:2,fiber:3,iron:1},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'pomegranate',name:'Pomegranate',cat:'Fruits & Squash',seasons:[2,3],n:{vitC:2,fiber:2,folate:1},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  // Nicoya Peninsula, Costa Rica
+  {id:'plantain',name:'Plantain',cat:'Fruits & Squash',seasons:'all',n:{calories:2,carbs:2,vitC:1,fiber:1},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'pejibaye',name:'Pejibaye (Peach Palm Fruit)',cat:'Fruits & Squash',seasons:[1,2],n:{calories:2,carbs:1,fiber:2,vitC:1},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'chayote_squash',name:'Chayote Squash',cat:'Vegetables',seasons:[1,2],n:{vitC:1,fiber:2,folate:1},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'nixtamal_tortilla',name:'Nixtamalized Corn Tortilla',cat:'Grains',seasons:'all',n:{calories:2,carbs:3,calcium:2,fiber:1},a:{histidine:1,isoleucine:1,leucine:2,lysine:0,methionine:1,phenylalanine:1,threonine:1,tryptophan:0,valine:1}},
+];
+
+// *** v5 FIX: All animal foods now have calories:2 minimum; fat-rich = calories:3 ***
+const ANIMAL_FOODS = [
+  {id:'whole_milk',name:'Whole Milk',cat:'Dairy',seasons:'all',n:{calories:2,calcium:3,protein:2,vitD:2,vitB12:2,fat:2,iodine:2},a:{histidine:2,isoleucine:2,leucine:3,lysine:2,methionine:2,phenylalanine:2,threonine:2,tryptophan:2,valine:2}},
+  {id:'goat_milk',name:'Goat Milk / Cheese',cat:'Dairy',seasons:'all',n:{calories:2,calcium:3,protein:2,vitD:1,vitB12:2,fat:2,iodine:2},a:{histidine:2,isoleucine:2,leucine:3,lysine:2,methionine:2,phenylalanine:2,threonine:2,tryptophan:2,valine:2}},
+  {id:'yogurt',name:'Yogurt / Kefir',cat:'Dairy',seasons:'all',n:{calories:2,calcium:3,protein:2,vitB12:2,vitD:1,iodine:2},a:{histidine:2,isoleucine:2,leucine:3,lysine:2,methionine:2,phenylalanine:2,threonine:2,tryptophan:2,valine:2}},
+  {id:'butter',name:'Butter / Ghee',cat:'Dairy',seasons:'all',n:{calories:3,fat:3,vitD:1,vitA:2},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  {id:'cheese',name:'Hard Cheese',cat:'Dairy',seasons:'all',n:{calories:3,calcium:3,protein:2,vitB12:2,fat:3,iodine:1},a:{histidine:2,isoleucine:2,leucine:3,lysine:2,methionine:2,phenylalanine:2,threonine:2,tryptophan:2,valine:2}},
+  {id:'cream',name:'Heavy Cream',cat:'Dairy',seasons:'all',n:{calories:3,fat:3,vitA:2,vitD:1},a:{histidine:0,isoleucine:0,leucine:0,lysine:0,methionine:0,phenylalanine:0,threonine:0,tryptophan:0,valine:0}},
+  // EGGS — calorie-dense
+  {id:'eggs',name:'Eggs',cat:'Eggs',seasons:'all',n:{calories:2,protein:3,vitD:2,vitB12:3,iron:2,zinc:2,fat:2,omega3:1},a:{histidine:2,isoleucine:3,leucine:3,lysine:3,methionine:3,phenylalanine:3,threonine:3,tryptophan:2,valine:3}},
+  {id:'duck_eggs',name:'Duck Eggs',cat:'Eggs',seasons:'all',n:{calories:3,protein:3,vitD:2,vitB12:3,iron:2,zinc:2,fat:3,omega3:1},a:{histidine:2,isoleucine:3,leucine:3,lysine:3,methionine:3,phenylalanine:3,threonine:3,tryptophan:2,valine:3}},
+  // POULTRY
+  {id:'chicken_breast',name:'Chicken Breast',cat:'Poultry',seasons:'all',n:{calories:2,protein:3,zinc:2,iron:1,vitB12:2},a:{histidine:2,isoleucine:3,leucine:3,lysine:3,methionine:3,phenylalanine:2,threonine:2,tryptophan:2,valine:3}},
+  {id:'chicken_liver',name:'Chicken Liver',cat:'Poultry',seasons:'all',n:{calories:2,protein:3,iron:3,vitB12:3,zinc:2,folate:3},a:{histidine:2,isoleucine:3,leucine:3,lysine:3,methionine:3,phenylalanine:2,threonine:2,tryptophan:2,valine:3}},
+  {id:'chicken_thigh',name:'Chicken Thigh',cat:'Poultry',seasons:'all',n:{calories:3,protein:3,zinc:2,iron:2,vitB12:2,fat:3},a:{histidine:2,isoleucine:3,leucine:3,lysine:3,methionine:3,phenylalanine:2,threonine:2,tryptophan:2,valine:3}},
+  {id:'turkey',name:'Turkey',cat:'Poultry',seasons:'all',n:{calories:2,protein:3,zinc:2,iron:1,vitB12:2},a:{histidine:2,isoleucine:3,leucine:3,lysine:3,methionine:3,phenylalanine:2,threonine:2,tryptophan:3,valine:3}},
+  {id:'duck',name:'Duck',cat:'Poultry',seasons:'all',n:{calories:3,protein:3,fat:3,iron:2,vitB12:2,zinc:2},a:{histidine:2,isoleucine:3,leucine:3,lysine:3,methionine:3,phenylalanine:2,threonine:2,tryptophan:2,valine:3}},
+  // RED MEAT — all calorie-dense
+  {id:'beef',name:'Beef (Muscle)',cat:'Red Meat',seasons:'all',n:{calories:3,protein:3,iron:3,zinc:3,vitB12:3,fat:2},a:{histidine:2,isoleucine:3,leucine:3,lysine:3,methionine:3,phenylalanine:2,threonine:2,tryptophan:2,valine:3}},
+  {id:'beef_liver',name:'Beef Liver',cat:'Red Meat',seasons:'all',n:{calories:2,protein:3,iron:3,vitB12:3,zinc:3,folate:3,vitD:1},a:{histidine:2,isoleucine:3,leucine:3,lysine:3,methionine:3,phenylalanine:2,threonine:2,tryptophan:2,valine:3}},
+  {id:'thyroid_gland',name:'Thyroid Gland (Inland iodine)',cat:'Red Meat',seasons:'all',n:{calories:2,protein:2,iodine:3,vitB12:1},a:{histidine:2,isoleucine:2,leucine:2,lysine:2,methionine:2,phenylalanine:2,threonine:2,tryptophan:1,valine:2}},
+  {id:'lamb',name:'Lamb',cat:'Red Meat',seasons:'all',n:{calories:3,protein:3,iron:2,zinc:3,vitB12:3,fat:3},a:{histidine:2,isoleucine:3,leucine:3,lysine:3,methionine:3,phenylalanine:2,threonine:2,tryptophan:2,valine:3}},
+  {id:'pork',name:'Pork',cat:'Red Meat',seasons:'all',n:{calories:3,protein:3,iron:2,zinc:2,vitB12:2,fat:3},a:{histidine:2,isoleucine:3,leucine:3,lysine:3,methionine:3,phenylalanine:2,threonine:2,tryptophan:2,valine:3}},
+  {id:'venison',name:'Venison / Wild Game',cat:'Red Meat',seasons:'all',n:{calories:2,protein:3,iron:3,zinc:2,vitB12:3,fat:1},a:{histidine:2,isoleucine:3,leucine:3,lysine:3,methionine:3,phenylalanine:2,threonine:2,tryptophan:2,valine:3}},
+  {id:'kidney',name:'Kidney (Organ)',cat:'Red Meat',seasons:'all',n:{calories:2,protein:3,iron:3,vitB12:3,zinc:2,folate:2},a:{histidine:2,isoleucine:3,leucine:3,lysine:3,methionine:3,phenylalanine:2,threonine:2,tryptophan:2,valine:3}},
+  // SEAFOOD — fatty fish = calories:3
+  {id:'salmon',name:'Salmon',cat:'Seafood',seasons:'all',n:{calories:3,protein:3,omega3:3,vitD:3,vitB12:3,iodine:2,fat:3},a:{histidine:2,isoleucine:3,leucine:3,lysine:3,methionine:3,phenylalanine:2,threonine:2,tryptophan:2,valine:3}},
+  {id:'sardines',name:'Sardines',cat:'Seafood',seasons:'all',n:{calories:3,protein:3,omega3:3,vitD:3,vitB12:3,calcium:3,iodine:2},a:{histidine:2,isoleucine:3,leucine:3,lysine:3,methionine:3,phenylalanine:2,threonine:2,tryptophan:2,valine:3}},
+  {id:'mackerel',name:'Mackerel',cat:'Seafood',seasons:'all',n:{calories:3,protein:3,omega3:3,vitD:3,vitB12:3,iodine:2,fat:3},a:{histidine:2,isoleucine:3,leucine:3,lysine:3,methionine:3,phenylalanine:2,threonine:2,tryptophan:2,valine:3}},
+  {id:'cod',name:'Cod / White Fish',cat:'Seafood',seasons:'all',n:{calories:2,protein:3,iodine:3,vitB12:2,vitD:1},a:{histidine:2,isoleucine:3,leucine:3,lysine:3,methionine:3,phenylalanine:2,threonine:2,tryptophan:2,valine:3}},
+  {id:'shrimp',name:'Shrimp',cat:'Seafood',seasons:'all',n:{calories:2,protein:3,iodine:3,zinc:2,vitB12:2},a:{histidine:2,isoleucine:3,leucine:3,lysine:3,methionine:3,phenylalanine:2,threonine:2,tryptophan:2,valine:3}},
+  {id:'oysters',name:'Oysters',cat:'Seafood',seasons:'all',n:{calories:2,protein:2,zinc:3,iron:3,vitB12:3,iodine:2,vitD:1,omega3:2},a:{histidine:2,isoleucine:2,leucine:2,lysine:2,methionine:2,phenylalanine:2,threonine:2,tryptophan:2,valine:2}},
+  {id:'tuna',name:'Tuna',cat:'Seafood',seasons:'all',n:{calories:2,protein:3,omega3:2,vitD:2,vitB12:3,iodine:2},a:{histidine:2,isoleucine:3,leucine:3,lysine:3,methionine:3,phenylalanine:2,threonine:2,tryptophan:2,valine:3}},
+  {id:'herring',name:'Herring',cat:'Seafood',seasons:'all',n:{calories:3,protein:3,omega3:3,vitD:3,vitB12:3,iodine:2,fat:3},a:{histidine:2,isoleucine:3,leucine:3,lysine:3,methionine:3,phenylalanine:2,threonine:2,tryptophan:2,valine:3}},
+  {id:'clams',name:'Clams',cat:'Seafood',seasons:'all',n:{calories:2,protein:3,iron:3,vitB12:3,zinc:2,iodine:2,omega3:1},a:{histidine:2,isoleucine:2,leucine:2,lysine:2,methionine:2,phenylalanine:2,threonine:2,tryptophan:2,valine:2}},
+  {id:'crab',name:'Crab',cat:'Seafood',seasons:'all',n:{calories:2,protein:3,zinc:3,vitB12:2,iodine:2,omega3:1},a:{histidine:2,isoleucine:3,leucine:3,lysine:3,methionine:3,phenylalanine:2,threonine:2,tryptophan:2,valine:3}},
+
+  // ===== Region-authentic dairy additions =====
+  {id:'pecorino_sheep_cheese',name:'Pecorino (Sheep Cheese)',cat:'Dairy',seasons:'all',n:{calories:3,calcium:3,protein:2,vitB12:2,fat:3,omega3:1,iodine:1},a:{histidine:2,isoleucine:2,leucine:3,lysine:2,methionine:2,phenylalanine:2,threonine:2,tryptophan:2,valine:2}},
+  {id:'feta_goat_cheese',name:'Feta / Goat Cheese',cat:'Dairy',seasons:'all',n:{calories:3,calcium:3,protein:2,vitD:1,vitB12:2,fat:3,iodine:1},a:{histidine:2,isoleucine:2,leucine:3,lysine:2,methionine:2,phenylalanine:2,threonine:2,tryptophan:2,valine:2}},
+];
+
+const SUPPLEMENTS = [
+  {id:'iodized_salt',name:'Iodized Salt',cat:'Minerals',seasons:'all',n:{iodine:3},a:{}},
+  {id:'vitD_supp',name:'Vitamin D3 Supplement',cat:'Vitamins',seasons:'all',n:{vitD:3},a:{}},
+  {id:'vitB12_supp',name:'Vitamin B12 Supplement',cat:'Vitamins',seasons:'all',n:{vitB12:3},a:{}},
+  {id:'iron_supp',name:'Iron Supplement',cat:'Minerals',seasons:'all',n:{iron:3},a:{}},
+  {id:'calcium_supp',name:'Calcium Supplement',cat:'Minerals',seasons:'all',n:{calcium:3},a:{}},
+  {id:'omega3_supp',name:'Omega-3 / Fish Oil',cat:'Vitamins',seasons:'all',n:{omega3:3,vitD:1},a:{}},
+  {id:'zinc_supp',name:'Zinc Supplement',cat:'Minerals',seasons:'all',n:{zinc:3},a:{}},
+  {id:'folate_supp',name:'Folate / B9 Supplement',cat:'Vitamins',seasons:'all',n:{folate:3},a:{}},
+  {id:'multivitamin',name:'Multivitamin',cat:'Vitamins',seasons:'all',n:{vitD:1,vitB12:1,iron:1,zinc:1,folate:1,calcium:1,iodine:1},a:{}},
+  {id:'seaweed_powder',name:'Seaweed Powder (Iodine)',cat:'Minerals',seasons:'all',n:{iodine:3,calcium:1},a:{}},
+  {id:'nutritional_yeast',name:'Nutritional Yeast (B12)',cat:'Vitamins',seasons:'all',n:{vitB12:2,protein:1,zinc:1,folate:2},a:{}},
+  {id:'bone_broth',name:'Bone Broth',cat:'Animal Derived',seasons:'all',n:{calories:2,calcium:2,protein:1,iron:1},a:{histidine:1,isoleucine:1,leucine:1,lysine:1,methionine:1,phenylalanine:1,threonine:1,tryptophan:0,valine:1}},
+  {id:'cod_liver_oil',name:'Cod Liver Oil',cat:'Animal Derived',seasons:'all',n:{calories:2,vitD:3,omega3:2,iodine:1,vitA:3},a:{}},
+  {id:'whey_protein',name:'Whey Protein',cat:'Animal Derived',seasons:'all',n:{calories:2,protein:3,calcium:2,vitB12:1},a:{histidine:2,isoleucine:3,leucine:3,lysine:3,methionine:3,phenylalanine:2,threonine:2,tryptophan:2,valine:3}},
+  {id:'spirulina',name:'Spirulina',cat:'Algae',seasons:'all',n:{protein:2,iron:2,vitB12:1,omega3:1,calcium:1},a:{histidine:1,isoleucine:2,leucine:2,lysine:1,methionine:1,phenylalanine:2,threonine:2,tryptophan:1,valine:2}},
+  {id:'chlorella',name:'Chlorella',cat:'Algae',seasons:'all',n:{protein:2,iron:2,vitB12:1,omega3:1,vitD:1},a:{histidine:1,isoleucine:2,leucine:2,lysine:1,methionine:1,phenylalanine:2,threonine:2,tryptophan:1,valine:2}},
+  {id:'turmeric',name:'Turmeric / Anti-inflammatory',cat:'Herbs',seasons:'all',n:{},a:{}},
+  {id:'probiotics',name:'Probiotic Supplement',cat:'Gut Health',seasons:'all',n:{},a:{}},
+  {id:'magnesium',name:'Magnesium Supplement',cat:'Minerals',seasons:'all',n:{},a:{}},
+  {id:'ashwagandha',name:'Ashwagandha / Adaptogen',cat:'Herbs',seasons:'all',n:{},a:{}},
+  {id:'lysine_supp',name:'L-Lysine Supplement',cat:'Amino Acids',seasons:'all',n:{},a:{lysine:3}},
+  {id:'methionine_supp',name:'L-Methionine Supplement',cat:'Amino Acids',seasons:'all',n:{},a:{methionine:3}},
+  {id:'tryptophan_supp',name:'L-Tryptophan Supplement',cat:'Amino Acids',seasons:'all',n:{},a:{tryptophan:3}},
+  {id:'bcaa_supp',name:'BCAA Supplement (Leu/Ile/Val)',cat:'Amino Acids',seasons:'all',n:{},a:{leucine:3,isoleucine:3,valine:3}},
+];
+
+const ALL_FOODS = [...PLANT_FOODS, ...ANIMAL_FOODS, ...SUPPLEMENTS];
+
+// ============================================================
+// FOOD-TO-REGION ALIGNMENT — ties whole foods to the Blue Zone(s)
+// where they're traditionally eaten. Any food id NOT listed here
+// (organ meats, wild game, and every item in SUPPLEMENTS) is treated
+// as universally available, so every region always has a feasible
+// path to full nutrition via supplementation.
+// ============================================================
+const FOOD_REGIONS = {
+  // Roots & Tubers
+  potato:['sardinia','ikaria'], sweet_potato:['okinawa','nicoya'], taro:['okinawa','nicoya'],
+  cassava:['nicoya'], turnip:['sardinia','ikaria'], beet:['sardinia','ikaria'],
+  carrot:['sardinia','ikaria','loma_linda'], parsnip:['sardinia','ikaria'],
+  yam:['okinawa','nicoya'], jerusalem_artichoke:['sardinia','ikaria'],
+  // Leafy Greens
+  kale:['loma_linda','sardinia'], spinach:['loma_linda','sardinia'], purslane:['ikaria','nicoya'],
+  dandelion:['ikaria'], chard:['ikaria','sardinia'], collards:['loma_linda','nicoya'],
+  watercress:['ikaria','okinawa'], nettles:['ikaria','sardinia'], arugula:['ikaria','sardinia'],
+  cabbage:['okinawa','sardinia'], bok_choy:['okinawa'],
+  // Legumes
+  pinto_beans:['nicoya','loma_linda'], black_beans:['nicoya','loma_linda'],
+  lentils:['ikaria','sardinia','loma_linda'], chickpeas:['ikaria','sardinia','loma_linda'],
+  soybeans:['okinawa','loma_linda'], fava_beans:['ikaria','sardinia'],
+  kidney_beans:['nicoya','loma_linda'], mung_beans:['okinawa','loma_linda'],
+  peas:['ikaria','sardinia','loma_linda'],
+  // Grains
+  rice:['okinawa','nicoya'], corn:['nicoya'], wheat:['sardinia','ikaria','loma_linda'],
+  oats:['loma_linda'], barley:['sardinia','ikaria'], quinoa:['loma_linda'],
+  millet:['okinawa'], buckwheat:['okinawa'], amaranth:['loma_linda','nicoya'], teff:['loma_linda'],
+  // Fruits & Squash
+  tomato:['sardinia','ikaria','loma_linda'], winter_squash:['nicoya','sardinia'],
+  summer_squash:['nicoya','loma_linda'], avocado:['nicoya','loma_linda'], olives:['sardinia','ikaria'],
+  berries:['loma_linda','sardinia'], citrus:['loma_linda','ikaria','nicoya'],
+  apple:['loma_linda','sardinia'], pear:['loma_linda','sardinia'], pumpkin:['nicoya','okinawa'],
+  bell_pepper:['nicoya','loma_linda'], mango:['nicoya','okinawa'], papaya:['nicoya','okinawa'],
+  // Mushrooms
+  mushroom_sun:['okinawa'], mushroom_fresh:['okinawa','sardinia'], shiitake:['okinawa'],
+  // Nuts & Seeds
+  walnuts:['loma_linda','sardinia'], flaxseed:['loma_linda'], chia:['loma_linda','nicoya'],
+  almonds:['loma_linda','sardinia','ikaria'], hemp_seeds:['loma_linda'],
+  pumpkin_seeds:['nicoya','loma_linda'], sunflower_seeds:['loma_linda','sardinia'],
+  cashews:['nicoya','loma_linda'], brazil_nuts:['nicoya','loma_linda'],
+  // Sea Vegetables
+  seaweed_kelp:['okinawa'], nori:['okinawa'], wakame:['okinawa'], dulse:['okinawa','ikaria'],
+  // Dairy
+  whole_milk:['sardinia','loma_linda'], goat_milk:['sardinia','ikaria'], yogurt:['ikaria','sardinia'],
+  butter:['sardinia'], cheese:['loma_linda'], cream:['sardinia'],
+  pecorino_sheep_cheese:['sardinia'], feta_goat_cheese:['ikaria'],
+  // Eggs
+  eggs:['loma_linda','nicoya','ikaria'], duck_eggs:['nicoya','okinawa'],
+  // Poultry
+  chicken_breast:['nicoya','sardinia'], chicken_liver:['nicoya','sardinia'],
+  chicken_thigh:['nicoya','sardinia'], turkey:['nicoya'], duck:['okinawa','nicoya'],
+  // Red Meat
+  beef:['nicoya'], beef_liver:['nicoya'], lamb:['sardinia'], pork:['okinawa','sardinia'],
+  kidney:['nicoya','sardinia'],
+  // Seafood
+  salmon:['okinawa'], sardines:['sardinia','ikaria'], mackerel:['okinawa','ikaria'],
+  cod:['ikaria'], shrimp:['nicoya','okinawa'], oysters:['nicoya'], tuna:['okinawa','ikaria'],
+  herring:['sardinia','ikaria'], clams:['nicoya','okinawa'], crab:['nicoya','okinawa'],
+  // Region-authentic additions
+  bitter_melon:['okinawa'], daikon_radish:['okinawa'], bamboo_shoots:['okinawa'], natto:['okinawa'],
+  artichoke:['sardinia'], myrtle_berries:['sardinia'],
+  horta_wild_greens:['ikaria'], black_eyed_peas:['ikaria'], ikarian_honey:['ikaria'],
+  veggie_protein:['loma_linda'], california_dates:['loma_linda'], pomegranate:['loma_linda'],
+  plantain:['nicoya'], pejibaye:['nicoya'], chayote_squash:['nicoya'], nixtamal_tortilla:['nicoya'],
+};
+
+let state = { phase:'setup', currentSeason:0, team:null, selections:{} };
+const ITEMS_PER_SEASON = 8;
+
+function isRegionRelevant(food, regionId) {
+  const regionList = FOOD_REGIONS[food.id];
+  return !regionList || regionList.includes(regionId);
+}
+function isSeasonAvailable(food, si) {
+  return food.seasons === 'all' || food.seasons.includes(si);
+}
+function isFoodAvailable(food, si, regionId) {
+  return isRegionRelevant(food, regionId) && isSeasonAvailable(food, si);
+}
+function getSelections(si) { if (!state.selections[si]) state.selections[si] = []; return state.selections[si]; }
+function setPhaseTab(idx) {
+  document.querySelectorAll('.phase-tab').forEach((t,i) => {
+    t.classList.remove('active','done');
+    if (i === idx) t.classList.add('active');
+    else if (i < idx) t.classList.add('done');
+  });
+}
+
+const MACRO_NUTRIENTS = ['calories','protein','carbs','fat','vitC','vitD','vitB12','iodine','iron','zinc','calcium','omega3','fiber','folate'];
+const MACRO_NAMES = { calories:'Calories', protein:'Total Protein', carbs:'Carbohydrates', fat:'Healthy Fats', vitC:'Vitamin C', vitD:'Vitamin D', vitB12:'Vitamin B12', iodine:'Iodine', iron:'Iron', zinc:'Zinc', calcium:'Calcium', omega3:'Omega-3 Fatty Acids', fiber:'Dietary Fiber', folate:'Folate / B9' };
+
+function scoreSeasonNutrients(si) {
+  const sel = getSelections(si);
+  const n = {}; MACRO_NUTRIENTS.forEach(k => n[k] = 0);
+  const a = {}; AMINOS.forEach(k => a[k] = 0);
+  sel.forEach(fid => {
+    const food = ALL_FOODS.find(f => f.id === fid);
+    if (!food) return;
+    Object.entries(food.n||{}).forEach(([k,v]) => { if (n[k]!==undefined) n[k]+=v; });
+    Object.entries(food.a||{}).forEach(([k,v]) => { if (a[k]!==undefined) a[k]+=v; });
+  });
+  return { n, a };
+}
+
+function applyRegionPenalty(n) {
+  const region = REGIONS.find(r => r.id === state.team.region);
+  const result = { ...n };
+  if (!region.iodine) result.iodine = Math.max(0, result.iodine - 1.5);
+  if (!region.vitD) result.vitD = Math.max(0, result.vitD - 1.5);
+  return result;
+}
+
+function evaluateAllSeasons() {
+  const THRESHOLD = 2.0, CRITICAL = 1.0;
+  const seasonResults = SEASONS.map((sName, si) => {
+    const { n: rawN, a } = scoreSeasonNutrients(si);
+    const n = applyRegionPenalty(rawN);
+    const sel = getSelections(si);
+    const foods = sel.map(fid => ALL_FOODS.find(f => f.id === fid)).filter(Boolean);
+    const macroIssues = [];
+    MACRO_NUTRIENTS.forEach(k => {
+      const val = n[k]||0;
+      if (val < THRESHOLD) macroIssues.push({ key:k, name:MACRO_NAMES[k], val, level: val<CRITICAL?'critical':'low' });
+    });
+    const aminoIssues = [];
+    AMINOS.forEach(k => {
+      const val = a[k]||0;
+      if (val < THRESHOLD) aminoIssues.push({ key:k, name:AMINO_NAMES[k], val, level: val<CRITICAL?'critical':'low' });
+    });
+    const hasCritical = macroIssues.some(x=>x.level==='critical') || aminoIssues.some(x=>x.level==='critical');
+    const hasIssues = macroIssues.length>0 || aminoIssues.length>0;
+    return { season:sName, si, n, a, macroIssues, aminoIssues, hasCritical, hasIssues, foods };
+  });
+  let totalScore=0, maxScore=0;
+  const KEY_MACROS = ['calories','protein','vitC','vitD','vitB12','iodine','iron','zinc','calcium','omega3','fiber','folate'];
+  seasonResults.forEach(sr => {
+    KEY_MACROS.forEach(k => { maxScore+=3; totalScore+=Math.min(3,sr.n[k]||0); });
+    AMINOS.forEach(k => { maxScore+=3; totalScore+=Math.min(3,sr.a[k]||0); });
+  });
+  const pct = totalScore/maxScore;
+  let lifeExp = 62+Math.round(pct*33);
+  lifeExp = Math.min(95,Math.max(55,lifeExp));
+  const isBlueZone = pct>=0.88 && seasonResults.every(sr=>!sr.hasIssues);
+  return { seasonResults, lifeExp, isBlueZone, pct };
+}
+
+// Builds a deficiency recommendation from foods actually available to this
+// region + season, falling back to supplements (which are always available).
+function getRegionalRecommendation(key, isAmino, regionId, si) {
+  const wholeFoods = [...PLANT_FOODS, ...ANIMAL_FOODS];
+  const scoreOf = f => (isAmino ? (f.a[key]||0) : (f.n[key]||0));
+  const foodMatches = wholeFoods
+    .filter(f => scoreOf(f) >= 2 && isFoodAvailable(f, si, regionId))
+    .sort((a,b) => scoreOf(b) - scoreOf(a))
+    .slice(0,3)
+    .map(f => f.name);
+  const suppMatches = SUPPLEMENTS
+    .filter(f => scoreOf(f) >= 2)
+    .slice(0,2)
+    .map(f => f.name);
+
+  let text = '';
+  if (foodMatches.length) text += `In this region: ${foodMatches.join(', ')}.`;
+  if (suppMatches.length) text += `${text ? ' Or supplement with ' : 'Supplement with '}${suppMatches.join(' or ')}.`;
+  if (!text) text = 'No strong source available this season — consider a multivitamin.';
+  return text;
+}
+
+function renderSetup() {
+  setPhaseTab(0);
+  const existing = state.team||{};
+  document.getElementById('main-content').innerHTML = `
+    <div class="card" style="max-width:520px;margin:0 auto">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;color:var(--accent3)"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+        <h2>Team Setup</h2>
+      </div>
+      <div style="margin-bottom:14px"><label>Team Name</label><input type="text" id="tname" placeholder="Enter your team name" value="${existing.name||''}"></div>
+      <div style="margin-bottom:8px"><label>Geographic Region</label>
+        <select id="tregion" onchange="updateRegionNote()">
+          ${REGIONS.map(r=>`<option value="${r.id}" ${existing.region===r.id?'selected':''}>${r.name}</option>`).join('')}
+        </select>
+      </div>
+      <div id="region-note" class="region-info"></div>
+      <div id="region-warnings" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div>
+      <div style="margin-top:20px"><button class="btn" onclick="startGame()">Begin Game →</button></div>
+    </div>
+    <div style="max-width:520px;margin:18px auto 0;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      ${[
+        [ICONS.leaf,'Choose your region','Geography determines which foods are available and which nutrients come naturally'],
+        ['<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>','8 foods per season','Pick plants, animals, and supplements'],
+        [ICONS.pill,'Supplement wisely','Supplements fill gaps year-round'],
+        [ICONS.trophy,'Reach the Blue Zone','Click "What Are Blue Zones?" above to learn more'],
+      ].map(([ic,t,d])=>`<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:13px">
+        <div style="margin-bottom:6px;color:var(--accent3)">${ic}</div>
+        <div style="font-size:0.83rem;font-weight:600;color:#fff;margin-bottom:3px">${t}</div>
+        <div style="font-size:0.77rem;color:var(--text-dim)">${d}</div>
+      </div>`).join('')}
+    </div>`;
+  updateRegionNote();
+}
+
+function updateRegionNote() {
+  const sel = document.getElementById('tregion');
+  if (!sel) return;
+  const r = REGIONS.find(x=>x.id===sel.value);
+  const note = document.getElementById('region-note');
+  const warns = document.getElementById('region-warnings');
+  if (note) note.textContent = r?r.notes:'';
+  if (warns) {
+    let w='';
+    if (r&&!r.iodine) w+=`<span class="warn-badge">${ICONS.warning} Low Natural Iodine</span>`;
+    if (r&&!r.vitD) w+=`<span class="warn-badge">${ICONS.warning} Limited Vitamin D</span>`;
+    warns.innerHTML=w;
+  }
+}
+
+function startGame() {
+  const name = document.getElementById('tname').value.trim()||'Team 1';
+  const region = document.getElementById('tregion').value;
+  state.team={name,region}; state.currentSeason=0; state.phase='season';
+  renderSeasonPhase();
+}
+
+function renderSeasonPhase() {
+  const si = state.currentSeason;
+  setPhaseTab(si+1);
+  const sel = getSelections(si);
+  const region = REGIONS.find(r=>r.id===state.team.region);
+  const plantCats = [...new Set(PLANT_FOODS.map(f=>f.cat))];
+  const animalCats = [...new Set(ANIMAL_FOODS.map(f=>f.cat))];
+  const suppCats = [...new Set(SUPPLEMENTS.map(f=>f.cat))];
+
+  function renderGroup(foods, cats, isSupp) {
+    return cats.map(cat => {
+      const items = foods.filter(f=>f.cat===cat && isRegionRelevant(f, region.id));
+      if (!items.length) return '';
+      const chips = items.map(food => {
+        const avail = isSupp ? true : isSeasonAvailable(food,si);
+        const selected = sel.includes(food.id);
+        let cls='food-chip';
+        if (isSupp) cls+=' supplement';
+        if (!avail) cls+=' unavailable';
+        if (selected) cls+=' selected';
+        return `<div class="${cls}" onclick="${avail?`toggleFood(${si},'${food.id}')`:''}"> ${food.name}</div>`;
+      }).join('');
+      return `<div class="food-section"><div class="food-section-header"><span>${cat}</span></div><div class="food-grid">${chips}</div></div>`;
+    }).join('');
+  }
+
+  const steps = SEASONS.map((s,i)=>{
+    const done = state.selections[i]&&state.selections[i].length===ITEMS_PER_SEASON;
+    let cls='progress-step';
+    if (i===si) cls+=' active'; else if (done) cls+=' done';
+    return `<div class="${cls}">${done?`${ICONS.check} `:''}${s}</div>`;
+  }).join('');
+
+  const selTags = sel.map(fid=>{ const f=ALL_FOODS.find(x=>x.id===fid); return f?`<span class="sel-tag">${f.name}</span>`:''; }).join('');
+  let regionWarn='';
+  if (!region.iodine) regionWarn+=`<span class="warn-badge">${ICONS.warning} Low Iodine Region</span>`;
+  if (!region.vitD) regionWarn+=`<span class="warn-badge">${ICONS.warning} Low Vitamin D Region</span>`;
+
+  document.getElementById('main-content').innerHTML = `
+    <div class="card">
+      <div class="season-title-row">
+        <span style="font-size:1.3rem">${SEASON_EMOJI[si]}</span>
+        <h2>${SEASONS[si]} — ${state.team.name}</h2>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+        <span class="meta-pill">${region.name}</span>
+        ${regionWarn}
+      </div>
+      <p style="color:var(--text-dim);font-size:0.82rem;margin-bottom:13px">${region.notes}</p>
+      <div class="progress-track">${steps}</div>
+      <div class="selection-bar">
+        <span class="sel-count">${sel.length}</span><span class="sel-max">/ ${ITEMS_PER_SEASON}</span>
+        <div class="sel-items">${selTags||'<span style="color:var(--text-dim);font-size:0.8rem">No items selected yet</span>'}</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-sm btn-outline" onclick="clearSelections(${si})">Clear</button>
+        <button class="btn btn-sm" onclick="confirmSelections()" ${sel.length<ITEMS_PER_SEASON?'disabled':''}>
+          ${sel.length===ITEMS_PER_SEASON?'Confirm & Continue →':`Select ${ITEMS_PER_SEASON-sel.length} more`}
+        </button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">${ICONS.leaf}<h2>Plant Foods</h2></div>
+      <p style="color:var(--text-dim);font-size:0.79rem;margin-bottom:14px">Only foods typical of this region are shown. Grayed items are simply out of season. Supplements are always available.</p>
+      ${renderGroup(PLANT_FOODS,plantCats,false)}
+    </div>
+    <div class="card">
+      <div class="card-title">${ICONS.meat}<h2>Animal Foods</h2></div>
+      ${renderGroup(ANIMAL_FOODS,animalCats,false)}
+    </div>
+    <div class="card">
+      <div class="card-title">${ICONS.pill}<h2>Supplements <span style="background:#5e35b122;border:1px solid #9575cd55;border-radius:7px;padding:2px 8px;font-size:0.73rem;color:var(--purple);margin-left:7px;font-weight:400">Year-Round</span></h2></div>
+      ${renderGroup(SUPPLEMENTS,suppCats,true)}
+    </div>`;
+}
+
+function toggleFood(si, foodId) {
+  const sel = getSelections(si);
+  const idx = sel.indexOf(foodId);
+  if (idx>=0) { sel.splice(idx,1); }
+  else {
+    if (sel.length>=ITEMS_PER_SEASON) { alert(`Maximum ${ITEMS_PER_SEASON} items per season!`); return; }
+    sel.push(foodId);
+  }
+  renderSeasonPhase();
+}
+
+function clearSelections(si) { state.selections[si]=[]; renderSeasonPhase(); }
+
+function confirmSelections() {
+  const si = state.currentSeason;
+  if (getSelections(si).length<ITEMS_PER_SEASON) return;
+  if (si<SEASONS.length-1) { state.currentSeason=si+1; renderTransition(si); }
+  else { renderResults(); }
+}
+
+function renderTransition(completedSeason) {
+  setPhaseTab(completedSeason+1);
+  const next = SEASONS[completedSeason+1];
+  document.getElementById('main-content').innerHTML = `
+    <div class="card text-center" style="padding:44px 24px;max-width:440px;margin:0 auto">
+      <div style="color:var(--green);margin-bottom:10px">${ICONS.check.replace('13px','32px').replace('13px','32px')}</div>
+      <h2 style="color:#fff;font-size:1.4rem;margin-bottom:8px">${SEASONS[completedSeason]} Complete!</h2>
+      <p style="color:var(--text-sub);margin-bottom:22px">Selections saved. Ready for ${next}?</p>
+      <div style="font-size:2rem;margin-bottom:8px">${SEASON_EMOJI[completedSeason+1]}</div>
+      <button class="btn" onclick="renderSeasonPhase()">Begin ${next} →</button>
+    </div>`;
+}
+
+function renderResults() {
+  setPhaseTab(5);
+  const { seasonResults, lifeExp, isBlueZone, pct } = evaluateAllSeasons();
+  const region = REGIONS.find(r=>r.id===state.team.region);
+
+  const seasonBlocks = seasonResults.map((sr, idx) => {
+    const headerClass = sr.hasCritical?'critical-issues':sr.hasIssues?'has-issues':'all-ok';
+    const badgeClass = sr.hasCritical?'badge-crit':sr.hasIssues?'badge-warn':'badge-ok';
+    const badgeText = sr.hasCritical?'Critical Issues':sr.hasIssues?'Deficiencies Found':'All Adequate';
+    const issueCount = sr.macroIssues.length+sr.aminoIssues.length;
+
+    const macroRows = MACRO_NUTRIENTS.map(k=>{
+      const val=sr.n[k]||0;
+      const p=Math.min(100,(val/3)*100);
+      const isOk=val>=2,isLow=val>=1;
+      const cls=isOk?'nt-ok':isLow?'nt-low':'nt-crit';
+      const fillCls=isOk?'fill-ok':isLow?'fill-low':'fill-crit';
+      const status=isOk?'✓ Adequate':isLow?'⚠ Low':'✗ Deficient';
+      return `<tr><td class="nt-name">${MACRO_NAMES[k]}</td><td class="${cls}">${status}</td><td class="nt-bar-wrap"><div class="nt-bar-track"><div class="nt-bar-fill ${fillCls}" style="width:${p}%"></div></div></td></tr>`;
+    }).join('');
+
+    const aminoChips = AMINOS.map(k=>{
+      const val=sr.a[k]||0;
+      const isOk=val>=2,isLow=val>=1;
+      const cls=isOk?'amino-ok':isLow?'amino-low':'amino-crit';
+      const status=isOk?'✓':isLow?'⚠ Low':'✗ Deficient';
+      return `<div class="amino-chip ${cls}"><span>${AMINO_NAMES[k]}</span><span class="amino-status">${status}</span></div>`;
+    }).join('');
+
+    const foodNames = sr.foods.map(f=>f.name).join(', ')||'No selections';
+    const macroRecs = sr.macroIssues.map(i => ({ name:i.name, text:getRegionalRecommendation(i.key, false, state.team.region, sr.si) }));
+    const aminoRecs = sr.aminoIssues.map(i => ({ name:i.name, text:getRegionalRecommendation(i.key, true, state.team.region, sr.si) }));
+    const recs = [...macroRecs, ...aminoRecs];
+    const recHtml = recs.length>0
+      ? recs.map(r=>`<div class="rec-box"><span class="rec-icon">${ICONS.arrow}</span><span><strong style="color:#fff">${r.name}:</strong> ${r.text}</span></div>`).join('')
+      : `<div class="rec-box" style="border-color:var(--green)"><span class="rec-icon" style="color:var(--green)">${ICONS.check}</span><span style="color:var(--green);font-weight:600">No recommendations needed</span> — this season's diet is nutritionally complete.</div>`;
+
+    return `
+      <div class="season-block">
+        <div class="season-block-header ${headerClass}" onclick="toggleSeasonBlock(${idx})">
+          <div class="season-header-left">
+            <span class="season-name">${SEASON_EMOJI[sr.si]} ${sr.season}</span>
+            <span class="season-score-badge ${badgeClass}">${badgeText}</span>
+            ${issueCount>0?`<span style="color:var(--text-dim);font-size:0.77rem">${issueCount} issue${issueCount!==1?'s':''}</span>`:''}
+          </div>
+          <span style="color:var(--text-dim);font-size:0.8rem" id="chevron-${idx}">▼</span>
+        </div>
+        <div class="season-block-body" id="season-body-${idx}">
+          <div style="font-size:0.8rem;color:var(--text-dim);margin-bottom:10px">Foods: <span style="color:var(--accent3)">${foodNames}</span></div>
+          <h4 style="color:#fff;font-size:0.85rem;margin-bottom:10px;font-weight:600">Macronutrients &amp; Micronutrients</h4>
+          <table class="nutrient-table"><thead><tr><th>Nutrient</th><th>Status</th><th>Level</th></tr></thead><tbody>${macroRows}</tbody></table>
+          <div class="amino-section"><h4>Essential Amino Acids</h4><div class="amino-grid">${aminoChips}</div></div>
+          <hr>
+          <h4 style="color:#fff;font-size:0.85rem;margin-bottom:10px;font-weight:600">Recommendations for ${sr.season}</h4>
+          ${recHtml}
+        </div>
+      </div>`;
+  }).join('');
+
+  const allDefKeys = new Set();
+  seasonResults.forEach(sr=>{ sr.macroIssues.forEach(i=>allDefKeys.add(i.key)); sr.aminoIssues.forEach(i=>allDefKeys.add(i.key)); });
+  const diseaseMap = {
+    vitD:['Rickets / Osteomalacia','Increased infection risk','Seasonal depression'],
+    vitB12:['Pernicious anemia','Neurological damage','Chronic fatigue'],
+    iodine:['Goiter','Hypothyroidism','Cognitive impairment'],
+    iron:['Iron-deficiency anemia','Fatigue','Immune dysfunction'],
+    zinc:['Immune deficiency','Poor wound healing','Growth stunting'],
+    calcium:['Osteoporosis','Muscle cramps','Dental decay'],
+    omega3:['Cardiovascular disease','Chronic inflammation','Poor brain function'],
+    protein:['Muscle wasting','Immune failure'],
+    vitC:['Scurvy','Poor wound healing'],
+    fiber:['Elevated colon cancer risk','Metabolic syndrome'],
+    folate:['Neural tube defects','Megaloblastic anemia'],
+    lysine:['Impaired collagen synthesis','Poor immune function'],
+    methionine:['Impaired detoxification','Poor methylation'],
+    tryptophan:['Depression / mood disorders','Insomnia'],
+  };
+  const allDiseases = [...new Set([...allDefKeys].flatMap(k=>diseaseMap[k]||[]))];
+  const diseaseHtml = allDiseases.length===0
+    ? `<span style="color:var(--green);font-size:0.88rem;display:flex;align-items:center;gap:6px">${ICONS.check} No significant disease risk identified across all seasons</span>`
+    : allDiseases.map(d=>`<span class="disease-chip">${d}</span>`).join('');
+
+  const selectionsSummary = seasonResults.map(sr => {
+    const foodNames = sr.foods.map(f=>f.name).join(', ')||'No selections';
+    const statusBadge = sr.hasIssues
+      ? `<span class="status-bad">${ICONS.x} Deficient</span>`
+      : `<span class="status-ok">${ICONS.check} Complete</span>`;
+    return `<div class="season-summary-row">
+      <span class="season-summary-label">${SEASON_EMOJI[sr.si]} ${sr.season}</span>
+      <span class="season-summary-foods">${foodNames}</span>
+      ${statusBadge}
+    </div>`;
+  }).join('');
+
+  document.getElementById('main-content').innerHTML = `
+    ${isBlueZone?`<div class="bluezone-banner"><div style="color:var(--gold)">${ICONS.trophy}</div><div><h3 style="color:#fff">Blue Zone Achieved!</h3><p style="color:var(--accent4)">${state.team.name} has reached optimal nutritional balance across all four seasons!</p></div></div>`:''}
+    <div class="result-header">
+      <h2 style="color:#fff">${state.team.name}</h2>
+      <p style="color:var(--accent4);margin-bottom:14px">${region?region.name:''}</p>
+      <div style="display:flex;align-items:baseline;gap:6px;justify-content:center;margin-bottom:4px">
+        <span class="life-exp-num">${lifeExp}</span>
+        <span style="color:var(--text-dim);font-size:1rem">years estimated life expectancy</span>
+      </div>
+      <div style="height:7px;background:#ffffff11;border-radius:4px;max-width:300px;margin:12px auto 4px;overflow:hidden">
+        <div style="height:100%;width:${Math.round(pct*100)}%;background:linear-gradient(90deg,#1565c0,#00b0ff);border-radius:4px"></div>
+      </div>
+      <p style="color:var(--text-dim);font-size:0.8rem">Overall Nutritional Score: ${Math.round(pct*100)}%</p>
+    </div>
+    <div class="card">
+      <div class="card-title">${ICONS.clipboard}<h2>Selections by Season</h2></div>
+      <p style="color:var(--text-dim);font-size:0.8rem;margin-bottom:12px">Green = nutritionally complete that season &nbsp;|&nbsp; Red = one or more deficiencies</p>
+      <div>${selectionsSummary}</div>
+    </div>
+    <div class="card">
+      <div class="card-title">${ICONS.chart}<h2>Season-by-Season Detailed Analysis</h2></div>
+      <p style="color:var(--text-dim);font-size:0.82rem;margin-bottom:14px">Click each season to expand the full nutrient breakdown, including all essential amino acids.</p>
+      ${seasonBlocks}
+    </div>
+    <div class="card">
+      <div class="card-title">${ICONS.heart}<h2>Cumulative Health Risks (All Seasons)</h2></div>
+      <div class="disease-chips">${diseaseHtml}</div>
+    </div>
+    <div class="card text-center" style="padding:24px">
+      <button class="btn btn-gold" onclick="resetGame()">${ICONS.refresh} Play Again</button>
+    </div>`;
+
+  seasonResults.forEach((sr,idx)=>{ if (sr.hasIssues) toggleSeasonBlock(idx); });
+}
+
+function toggleSeasonBlock(idx) {
+  const body = document.getElementById(`season-body-${idx}`);
+  const chev = document.getElementById(`chevron-${idx}`);
+  if (!body) return;
+  body.classList.toggle('open');
+  if (chev) chev.textContent = body.classList.contains('open')?'▲':'▼';
+}
+
+function resetGame() { state={phase:'setup',currentSeason:0,team:null,selections:{}}; renderSetup(); }
+
+renderSetup();
+</script>
+</body>
+</html>
