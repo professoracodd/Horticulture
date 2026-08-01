@@ -125,7 +125,6 @@
   .panel h2{font-size:22px; margin-bottom:4px;}
   .panel .desc{color:var(--parchment-dim); font-size:14px; margin-bottom:16px; line-height:1.5;}
 
-  /* Onboarding tooltip */
   .onboarding{
     background:linear-gradient(180deg, rgba(217,164,65,0.12), rgba(217,164,65,0.04));
     border:1px solid rgba(217,164,65,0.4);
@@ -151,7 +150,6 @@
     padding:6px 14px; font-weight:600; font-size:12.5px; cursor:pointer;
   }
 
-  /* Preset row */
   .preset-row{
     display:flex; gap:10px; flex-wrap:wrap; align-items:center;
     margin-bottom:16px;
@@ -412,7 +410,6 @@
 
   footer.credit{text-align:center; margin-top:36px; font-size:12px; color:var(--parchment-dim); font-family:var(--font-head);}
 
-  /* ---------- Print styles ---------- */
   @media print {
     body{background:white !important; color:#1a1a1a !important;}
     .app{max-width:100%; padding:12px;}
@@ -433,9 +430,7 @@
     .scope-view{border-color:#999; background:#fff;}
     .eyebrow{color:#7c5a10 !important;}
     footer.credit{color:#333 !important;}
-    .print-only-summary{display:block !important;}
   }
-  .print-only-summary{display:none;}
 </style>
 </head>
 <body>
@@ -659,7 +654,7 @@
               <button class="scope-toggle" id="scopeToggleBtn">💡 Turn on microscope</button>
               <div style="font-size:12px; color:var(--parchment-dim); line-height:1.4; max-width:240px;">
                 <strong style="color:var(--parchment); display:block; margin-bottom:4px;">Microscope Field of View</strong>
-                Turn on the light to see a living view of the microbes in your compost. Bacteria jitter, protozoa drift, nematodes wave through the field, and fungi branch through the substrate.
+                Turn on the light to see a living view of the microbes in your compost — bacteria jitter, protozoa drift, nematodes wave through the field, and fungi branch through the substrate.
               </div>
             </div>
           </div>
@@ -720,11 +715,11 @@
   const ALL = {green:GREENS, brown:BROWNS, nitro:NITRO};
 
   const PRESET_CLASSIC = {
-    fallleaves: 15,   // brown, 60:1
-    straw: 8,         // brown, 80:1
-    lawn: 10,         // green, 19:1
-    coffee: 5,        // nitro, 15:1
-    vegscraps: 2      // nitro, 17:1
+    fallleaves: 15,
+    straw: 8,
+    lawn: 10,
+    coffee: 5,
+    vegscraps: 2
   };
 
   let state = {
@@ -736,7 +731,6 @@
 
   const STAGES = ["gather","water","turn","cure","result"];
 
-  /* ---------------- Audio ---------------- */
   let audioCtx = null;
   let humOsc = null;
   let humGain = null;
@@ -755,7 +749,6 @@
     if(!state.soundEnabled) return;
     const ctx = ensureAudio();
     if(!ctx) return;
-    // white noise burst through band-pass filter with envelope
     const bufferSize = ctx.sampleRate * 1.2;
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
     const data = buffer.getChannelData(0);
@@ -773,7 +766,6 @@
     gain.gain.setValueAtTime(0, now);
     gain.gain.linearRampToValueAtTime(0.35, now+0.08);
     gain.gain.exponentialRampToValueAtTime(0.001, now+1.1);
-    // sweep filter for whoosh feel
     filter.frequency.setValueAtTime(400, now);
     filter.frequency.exponentialRampToValueAtTime(2200, now+0.5);
     filter.frequency.exponentialRampToValueAtTime(300, now+1.1);
@@ -828,7 +820,6 @@
     btn.title = state.soundEnabled ? "Sound on (click to mute)" : "Sound muted (click to enable)";
   }
 
-  /* ---------------- Onboarding ---------------- */
   function showOnboarding(){
     document.getElementById("onboarding").classList.add("show");
   }
@@ -851,7 +842,6 @@
       el.classList.toggle("active", s===stage);
       el.classList.toggle("done", STAGES.indexOf(s) < STAGES.indexOf(stage));
     });
-    // stop hum when leaving result stage
     if(stage !== "result"){
       state.scopeOn = false;
       updateScopeToggleBtn();
@@ -1270,36 +1260,50 @@
     document.getElementById("totalDaysLabel").textContent = Math.round(total);
   }
 
+  // TIGHTENED SCORE BANDS (Edit #32)
   function computeScore(){
     const sim = state.sim;
     const t = sim.t;
 
+    // Pile size: 40 buckets = perfect, 25-45 = good, less = warn/bad
     let sizeScore;
     if(t.total<12) sizeScore=20;
     else if(t.total<25) sizeScore=55;
     else if(t.total<=45) sizeScore=96;
-    else sizeScore=88;
+    else if(t.total<=60) sizeScore=72;   // over-large = warn
+    else sizeScore=50;                    // huge and unturnable
 
+    // C:N: 25-35 sweet spot, tapers off
     let ratioScore;
     const cn = sim.blendedCN;
     if(cn>=25 && cn<=35) ratioScore=100;
     else ratioScore = Math.max(8, 100 - Math.abs(cn - 30)*2.6);
     if(cn<15) ratioScore = Math.max(5, ratioScore-25);
 
+    // Moisture: TIGHTER — 1-3 drops = good (m 45-62), 4-5 drops = warn (m 63-72), 6+ = bad
     const m = state.moisture;
     let moistureScore;
-    if(m>=45 && m<=65) moistureScore=100;
-    else if(m<45) moistureScore = Math.max(10, 40+(m/45)*50);
-    else moistureScore = Math.max(10, 100-(m-65)*3.2);
+    if(m>=45 && m<=62) moistureScore = 96;              // 1-3 drops sweet spot
+    else if(m>62 && m<=72) moistureScore = 60;          // 4-5 drops = warn territory
+    else if(m>72) moistureScore = Math.max(10, 50 - (m-72)*3); // 6+ drops = bad
+    else if(m>=35) moistureScore = 55 + (m-35)*0.5;     // 1 drop or borderline dry = warn
+    else moistureScore = Math.max(10, 20 + (m/35)*30);  // bone dry = bad
 
-    let turnScore = (sim.turnsCompleted/Math.max(2,sim.turnsPlanned))*100;
-    if(sim.turnsCompleted<2) turnScore = Math.min(turnScore, 45);
+    // Turns: TIGHTER — 2 turns is bare minimum (warn), 3+ turns = good
+    let turnScore;
+    if(sim.turnsCompleted >= 3) turnScore = 96;
+    else if(sim.turnsCompleted === 2) turnScore = 68;   // technically enough but barely
+    else if(sim.turnsCompleted === 1) turnScore = 35;
+    else turnScore = 15;
+    if(sim.turnsCompleted < sim.turnsPlanned) turnScore *= 0.85; // failed to hit plan
 
+    // Cure time: TIGHTER — 8+ weeks (56+ days) = good; 6-8 weeks = warn; <6 = bad
     const totalDays = (state.activeDays||0) + state.cureWeeks*7;
     let cureScore;
-    if(totalDays>=50 && totalDays<=85) cureScore=100;
-    else if(totalDays<50) cureScore = Math.max(15, (totalDays/50)*100);
-    else cureScore = Math.max(60, 100-(totalDays-85)*0.4);
+    if(totalDays >= 56 && totalDays <= 84) cureScore = 96;    // 8-12 weeks sweet spot
+    else if(totalDays >= 42 && totalDays < 56) cureScore = 60; // 6-8 weeks = warn
+    else if(totalDays < 42) cureScore = Math.max(15, (totalDays/42)*55);
+    else cureScore = Math.max(70, 100 - (totalDays-84)*0.5);   // over-cured = mild penalty
 
     let overall = sizeScore*0.15 + ratioScore*0.25 + moistureScore*0.2 + turnScore*0.25 + cureScore*0.15;
     if(sim.anaerobicFlag) overall = Math.min(overall, 42);
@@ -1313,18 +1317,16 @@
     return "bad";
   }
 
-  function contextualBadge(rawScore, sim, overall, contributedToAnaerobic){
+  // Targeted anaerobic escalation: if a factor caused the anaerobic event, it bumps up one level of severity
+  function contextualBadge(rawScore, sim, contributedToAnaerobic){
     let badge = badgeFor(rawScore);
     if(sim.anaerobicFlag && contributedToAnaerobic){
       if(badge === "good") badge = "warn";
+      else if(badge === "warn") badge = "bad";
     }
-    if(sim.anaerobicFlag && badge === "good") badge = "warn";
-    if(overall < 15 && badge === "good") badge = "warn";
-    if(overall < 40 && badge === "good") badge = "warn";
     return badge;
   }
 
-  /* ---------------- Canvas Microscope ---------------- */
   let scopeAnimId = null;
   let scopeMicrobes = null;
 
@@ -1402,7 +1404,6 @@
       ctx.arc(cx, cy, R, 0, Math.PI*2);
       ctx.clip();
 
-      // Field brightness responds to scope on/off
       const on = state.scopeOn;
       let bgInner, bgOuter, alphaMul;
       if(on){
@@ -1420,7 +1421,6 @@
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, W, H);
 
-      // faint grid
       ctx.fillStyle = on ? "rgba(238,227,201,0.06)" : "rgba(238,227,201,0.03)";
       for(let gx=10; gx<W; gx+=20){
         for(let gy=10; gy<H; gy+=20){
@@ -1430,7 +1430,6 @@
         }
       }
 
-      // fungi (static)
       ctx.strokeStyle = "#A8763F";
       ctx.lineWidth = 0.6;
       ctx.globalAlpha = 0.75 * alphaMul;
@@ -1444,7 +1443,6 @@
       });
       ctx.globalAlpha = 1;
 
-      // bacteria (jitter)
       ctx.fillStyle = "#AEDB9C";
       ctx.globalAlpha = alphaMul;
       microbes.bacteria.forEach(b=>{
@@ -1458,7 +1456,6 @@
       });
       ctx.globalAlpha = 1;
 
-      // protozoa (drifting ovals)
       ctx.fillStyle = "rgba(217,100,46," + (0.7*alphaMul) + ")";
       microbes.protozoa.forEach(p=>{
         p.angle += p.turnRate;
@@ -1480,7 +1477,6 @@
         ctx.restore();
       });
 
-      // nematodes (sinuous)
       ctx.strokeStyle = "rgba(217,164,65," + alphaMul + ")";
       ctx.lineWidth = 0.7;
       microbes.nematodes.forEach(n=>{
@@ -1505,7 +1501,6 @@
         ctx.stroke();
       });
 
-      // anaerobes
       microbes.anaerobes.forEach(a=>{
         a.pulsePhase += a.pulseSpeed;
         const pulseR = a.r * (1 + 0.3*Math.sin(a.pulsePhase));
@@ -1517,7 +1512,6 @@
 
       ctx.restore();
 
-      // Iris ring (brighter when on)
       ctx.strokeStyle = on ? "rgba(255,220,150,0.4)" : "rgba(238,227,201,0.06)";
       ctx.lineWidth = on ? 2 : 1;
       ctx.beginPath();
@@ -1628,15 +1622,16 @@
       initMicroscope(microbeVals);
     }, 700);
 
-    renderDebrief(score, overall);
+    renderDebrief(score);
   }
 
-  function renderDebrief(score, overall){
+  function renderDebrief(score){
     const rows = document.getElementById("debriefRows");
     rows.innerHTML = "";
     const sim = state.sim;
 
-    const cnContributed = sim.anaerobicFlag && sim.blendedCN < 25;
+    // Contributed-to-anaerobic flags (only relevant if pile went anaerobic)
+    const cnContributed = sim.anaerobicFlag && sim.blendedCN < 20;
     const moistureContributed = sim.anaerobicFlag && state.moisture > 65;
     const sizeContributed = sim.anaerobicFlag && (sim.yd3 > 1.5 || sim.t.total < 25);
     const turnContributed = sim.anaerobicFlag && sim.turnsCompleted < 3;
@@ -1648,17 +1643,30 @@
 
     let cnNote = `Your blend averaged <span class="ans">${Math.round(sim.blendedCN)}:1</span>. The sweet spot for a hot pile is <span class="ans">25:1–35:1</span>. Below ~18:1 the pile runs hot enough to risk going anaerobic; above ~50:1 it may never reach thermophilic range.`;
     if(cnContributed){
-      cnNote += ` <span class="flag">On its own this ratio is close to workable, but combined with your moisture and pile conditions, it burned hot and fast — consuming oxygen faster than the pile could replace it.</span>`;
+      cnNote += ` <span class="flag">This ratio was too rich in nitrogen — the pile burned hot and fast, consuming oxygen faster than it could be replaced.</span>`;
     }
 
     let moistureNote = `Your squeeze test read ${state.lastSqueezeDrops===null?"untested":state.lastSqueezeDrops+" drops"}. The target is <span class="ans">1–3 drops</span> — enough moisture to activate microbes without drowning out oxygen.`;
     if(moistureContributed){
       moistureNote += ` <span class="flag">The pile was too wet — water displaced oxygen in the pore spaces, which starved the aerobes.</span>`;
+    } else if(state.lastSqueezeDrops >= 4 && state.lastSqueezeDrops <= 5){
+      moistureNote += ` <span class="flag">This reading is a bit wet — you're on the edge of drowning out oxygen.</span>`;
+    } else if(state.lastSqueezeDrops === 0){
+      moistureNote += ` <span class="flag">This reading is too dry — microbes can't stay active without moisture.</span>`;
     }
 
-    let turnNote = `You completed ${sim.turnsCompleted} of ${sim.turnsPlanned} planned turns. The method needs a <span class="ans">minimum of 2 full turns</span>, each held at your trigger temperature, to guarantee even pathogen kill.`;
+    let turnNote = `You completed ${sim.turnsCompleted} of ${sim.turnsPlanned} planned turns. The method needs a <span class="ans">minimum of 2 full turns</span> at your trigger temperature; <span class="ans">3+ turns</span> is ideal for even pathogen kill and oxygen renewal.`;
     if(turnContributed){
       turnNote += ` <span class="flag">More frequent turning would have re-introduced oxygen and could have prevented the anaerobic conditions.</span>`;
+    } else if(sim.turnsCompleted === 2){
+      turnNote += ` <span class="flag">Two turns is the bare minimum — a third turn provides a safety margin for full pathogen kill.</span>`;
+    }
+
+    let cureNote = `Total time from build to finish: ${Math.round(score.totalDays)} days. Aim for roughly <span class="ans">8 weeks (~56–70 days)</span> total so the microbial population has time to fully establish before use.`;
+    if(score.totalDays < 56 && score.totalDays >= 42){
+      cureNote += ` <span class="flag">You're a bit short — a few more weeks of curing would let the food web mature.</span>`;
+    } else if(score.totalDays < 42){
+      cureNote += ` <span class="flag">This pile hasn't had time to finish — the microbial community is still immature.</span>`;
     }
 
     const items = [
@@ -1666,11 +1674,11 @@
       {factor:"C:N ratio", raw:score.ratioScore, contributed:cnContributed, note:cnNote},
       {factor:"Moisture", raw:score.moistureScore, contributed:moistureContributed, note:moistureNote},
       {factor:"Turns", raw:score.turnScore, contributed:turnContributed, note:turnNote},
-      {factor:"Cure time", raw:score.cureScore, contributed:false, note:`Total time from build to finish: ${Math.round(score.totalDays)} days. Aim for roughly <span class="ans">8 weeks (~56–70 days)</span> total so the microbial population has time to fully establish before use.`},
+      {factor:"Cure time", raw:score.cureScore, contributed:false, note:cureNote},
     ];
 
     items.forEach(it=>{
-      const badge = contextualBadge(it.raw, sim, overall, it.contributed);
+      const badge = contextualBadge(it.raw, sim, it.contributed);
       const row = document.createElement("div");
       row.className = "debrief-row";
       row.innerHTML = `<div class="factor">${it.factor}</div><div class="badge ${badge}">${badge}</div><div class="note">${it.note}</div>`;
@@ -1679,7 +1687,6 @@
     document.getElementById("debrief").style.display = "block";
   }
 
-  /* ---------------- Save summary as PNG ---------------- */
   function saveSummary(){
     if(!state.sim || !state.lastOutcome){
       alert("Run the shake test first to generate a summary.");
@@ -1690,14 +1697,12 @@
     canvas.width = W; canvas.height = H;
     const ctx = canvas.getContext("2d");
 
-    // background
     const bg = ctx.createLinearGradient(0,0,0,H);
     bg.addColorStop(0, "#2C2116");
     bg.addColorStop(1, "#161009");
     ctx.fillStyle = bg;
     ctx.fillRect(0,0,W,H);
 
-    // header
     ctx.fillStyle = "#D9A441";
     ctx.font = "600 14px 'Space Grotesk', sans-serif";
     ctx.fillText("HOT COMPOST LAB · SUMMARY", 40, 50);
@@ -1710,11 +1715,9 @@
     ctx.font = "400 13px 'Inter', sans-serif";
     ctx.fillText(date.toLocaleDateString() + "  ·  " + date.toLocaleTimeString(), 40, 115);
 
-    // divider
     ctx.strokeStyle = "rgba(238,227,201,0.2)";
     ctx.beginPath(); ctx.moveTo(40,140); ctx.lineTo(W-40,140); ctx.stroke();
 
-    // Pile composition
     ctx.fillStyle = "#D9A441";
     ctx.font = "600 12px 'Space Grotesk', sans-serif";
     ctx.fillText("PILE COMPOSITION", 40, 170);
@@ -1739,7 +1742,6 @@
     ctx.beginPath(); ctx.moveTo(40,y); ctx.lineTo(W-40,y); ctx.stroke();
     y += 30;
 
-    // Stats grid
     ctx.fillStyle = "#D9A441";
     ctx.font = "600 12px 'Space Grotesk', sans-serif";
     ctx.fillText("KEY METRICS", 40, y);
@@ -1772,7 +1774,6 @@
     });
     y += Math.ceil(stats.length/2)*46 + 30;
 
-    // Microbe bars
     ctx.strokeStyle = "rgba(238,227,201,0.12)";
     ctx.beginPath(); ctx.moveTo(40,y); ctx.lineTo(W-40,y); ctx.stroke();
     y += 30;
@@ -1806,7 +1807,6 @@
     });
     y += 155;
 
-    // Footer
     ctx.strokeStyle = "rgba(238,227,201,0.12)";
     ctx.beginPath(); ctx.moveTo(40,y); ctx.lineTo(W-40,y); ctx.stroke();
     y += 30;
@@ -1814,7 +1814,6 @@
     ctx.font = "400 12px 'Inter', sans-serif";
     ctx.fillText("Hot Compost Lab · A. Codd", 40, y);
 
-    // Download
     const link = document.createElement("a");
     link.download = "hot-compost-lab-summary-" + Date.now() + ".png";
     link.href = canvas.toDataURL("image/png");
@@ -1846,7 +1845,6 @@
     goTo("gather");
   }
 
-  /* ---------------- Wire events ---------------- */
   document.getElementById("toWaterBtn").onclick = ()=> goTo("water");
   document.getElementById("backToGather").onclick = ()=> goTo("gather");
   document.getElementById("toTurnBtn").onclick = ()=> goTo("turn");
