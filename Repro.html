@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Knowledge Check: Plant Reproduction</title>
+  <style>
+    :root {
+      --primary-dark: #0f172a;
+      --primary-blue: #1e3a8a;
+      --accent-blue: #2563eb;
+      --light-blue: #3b82f6;
+      --soft-bg: #f0f6ff;
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #cbd5e1;
+      --success: #059669;
+      --error: #dc2626;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    body { background-color: var(--soft-bg); color: var(--text-main); line-height: 1.6; padding: 20px; }
+    .container { max-width: 850px; margin: 0 auto; background: var(--card-bg); padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(30, 58, 138, 0.08); }
+    header { border-bottom: 3px solid var(--soft-bg); padding-bottom: 20px; margin-bottom: 30px; }
+    h1 { color: var(--primary-blue); font-size: 1.8rem; margin-bottom: 8px; }
+    p.subtitle { color: var(--text-muted); font-size: 0.95rem; }
+    
+    .name-section { background-color: #e0f2fe; padding: 20px; border-radius: 12px; margin-bottom: 30px; border-left: 5px solid var(--accent-blue); }
+    .name-section label { font-weight: 600; color: var(--primary-blue); display: block; margin-bottom: 8px; }
+    .name-section input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; }
+
+    .question-card { background: #fafafa; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 25px; }
+    .question-card h3 { color: var(--primary-blue); font-size: 1.1rem; margin-bottom: 15px; }
+    
+    .options-group label { display: flex; align-items: center; background: white; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 16px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; }
+    .options-group label:hover { border-color: var(--accent-blue); background-color: #f8fafc; }
+    .options-group input { margin-right: 12px; accent-color: var(--accent-blue); }
+
+    select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.95rem; background: white; margin-top: 5px; }
+
+    .btn-submit { background-color: var(--accent-blue); color: white; border: none; padding: 14px 28px; font-size: 1.05rem; font-weight: 600; border-radius: 8px; cursor: pointer; width: 100%; transition: background 0.2s; }
+    .btn-submit:hover { background-color: var(--primary-blue); }
+
+    /* Results Screen Styling */
+    #results-card { display: none; margin-top: 30px; background: linear-gradient(145deg, #ffffff, #f0f6ff); border: 2px solid var(--accent-blue); border-radius: 16px; padding: 35px; box-shadow: 0 15px 30px rgba(37, 99, 235, 0.15); }
+    .results-header { text-align: center; border-bottom: 2px dashed var(--border-color); padding-bottom: 20px; margin-bottom: 20px; }
+    .results-header h2 { color: var(--primary-dark); font-size: 2rem; }
+    .results-meta { display: flex; justify-content: space-between; margin-bottom: 25px; font-size: 0.95rem; color: var(--text-muted); background: white; padding: 15px; border-radius: 10px; border: 1px solid #e2e8f0; }
+    .score-badge { text-align: center; margin: 20px 0; }
+    .score-number { font-size: 3.5rem; font-weight: 800; color: var(--accent-blue); }
+    .breakdown-table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; border-radius: 8px; overflow: hidden; }
+    .breakdown-table th, .breakdown-table td { padding: 12px; text-align: left; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
+    .breakdown-table th { background-color: #e0f2fe; color: var(--primary-blue); }
+    .screenshot-notice { text-align: center; color: var(--accent-blue); font-weight: 600; margin-top: 25px; padding: 10px; background: #eff6ff; border-radius: 8px; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Plant Reproduction: Interactive Knowledge Check</h1>
+    <p class="subtitle">Complete all sections below and generate your verifiable summary report for Canvas submission.</p>
+  </header>
+
+  <form id="quiz-form">
+    <div class="name-section">
+      <label for="student-name">Student Full Name (Required):</label>
+      <input type="text" id="student-name" placeholder="Enter your full name..." required>
+    </div>
+
+    <!-- Q1 -->
+    <div class="question-card">
+      <h3>1. Fundamental Modes: Strategic Plasticity</h3>
+      <p style="margin-bottom: 12px; font-size: 0.95rem; color: #475569;">Why might a plant employ sexual reproduction to adapt to long-term environmental shifts while using asexual reproduction simultaneously?</p>
+      <div class="options-group">
+        <label><input type="radio" name="q1" value="A" required> Asexual reproduction requires more energy than sexual recombination.</label>
+        <label><input type="radio" name="q1" value="B"> Sexual reproduction creates genetic diversity for long-term adaptation, while asexual reproduction rapidly expands successful existing genotypes.</label>
+        <label><input type="radio" name="q1" value="C"> Asexual reproduction is the only way to produce seeds during winter.</label>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question-card">
+      <h3>2. Floral Anatomy Classification</h3>
+      <p style="margin-bottom: 12px; font-size: 0.95rem; color: #475569;">Match each floral designation with its correct anatomical requirement:</p>
+      
+      <div style="margin-bottom: 10px;">
+        <label><strong>Perfect Flower:</strong></label>
+        <select name="q2_1" required>
+          <option value="">-- Select Requirement --</option>
+          <option value="correct">Contains both functional pistils and stamens.</option>
+          <option value="wrong1">Lacks stamens or pistils.</option>
+          <option value="wrong2">Must possess petals, sepals, pistils, and stamens.</option>
+        </select>
+      </div>
+      
+      <div>
+        <label><strong>Complete Flower:</strong></label>
+        <select name="q2_2" required>
+          <option value="">-- Select Requirement --</option>
+          <option value="wrong1">Contains only male reproductive parts.</option>
+          <option value="correct">Must be perfect AND possess both petals and sepals.</option>
+          <option value="wrong2">Lacks one or more floral components.</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question-card">
+      <h3>3. Double Fertilization Sequence</h3>
+      <p style="margin-bottom: 12px; font-size: 0.95rem; color: #475569;">In double fertilization, what tissue is formed when one sperm cell fuses with two polar nuclei, and what is its role?</p>
+      <div class="options-group">
+        <label><input type="radio" name="q3" value="A" required> Zygote; forms the foundational embryo.</label>
+        <label><input type="radio" name="q3" value="B"> Endosperm; acts as a nutrient reservoir for the developing seed.</label>
+        <label><input type="radio" name="q3" value="C"> Elaiosome; attracts ants for seed dispersal.</label>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question-card">
+      <h3>4. Seed Dispersal Mechanisms (Allochory)</h3>
+      <p style="margin-bottom: 12px; font-size: 0.95rem; color: #475569;">Match the seed dispersal mode to its transport agent and mechanism:</p>
+      
+      <div style="margin-bottom: 10px;">
+        <label><strong>Myrmecochory:</strong></label>
+        <select name="q4_1" required>
+          <option value="">-- Select Agent & Mechanism --</option>
+          <option value="correct">Ants — Lipid-rich elaiosomes as food rewards</option>
+          <option value="wrong1">Ingestion — Fleshy fruits consumed by animals</option>
+          <option value="wrong2">Wind — Lightweight structures adapted for flight</option>
+        </select>
+      </div>
+
+      <div>
+        <label><strong>Active Autochory:</strong></label>
+        <select name="q4_2" required>
+          <option value="">-- Select Agent & Mechanism --</option>
+          <option value="wrong1">Water — Internal air envelopes for buoyancy</option>
+          <option value="correct">Internal Forces — Sequence of hydration, desiccation, and violent fracture</option>
+          <option value="wrong2">Clinging — Hooks and barbs attached to animal fur</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="question-card">
+      <h3>5. Evolutionary Logic of Cloning</h3>
+      <p style="margin-bottom: 12px; font-size: 0.95rem; color: #475569;">Which mechanical pathway of asexual reproduction involves the production of viable seeds <em>without</em> fertilization?</p>
+      <div class="options-group">
+        <label><input type="radio" name="q5" value="A" required> Fragmentation</label>
+        <label><input type="radio" name="q5" value="B"> Apomixis</label>
+        <label><input type="radio" name="q5" value="C"> Vegetative Propagation</label>
+      </div>
+    </div>
+
+    <button type="submit" class="btn-submit">Submit Assignment & Generate Results</button>
+  </form>
+
+  <!-- Screenshot Results Card -->
+  <div id="results-card">
+    <div class="results-header">
+      <h2>Assignment Completion Verification</h2>
+      <p style="color: var(--text-muted);">Plant Reproduction: Strategies for Survival and Colonization</p>
+    </div>
+
+    <div class="results-meta">
+      <div><strong>Student Name:</strong> <span id="res-name">--</span></div>
+      <div><strong>Date Submitted:</strong> <span id="res-date">--</span></div>
+    </div>
+
+    <div class="score-badge">
+      <div style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">Final Score</div>
+      <div class="score-number" id="res-score">0 / 5</div>
+      <div style="font-size: 1.1rem; font-weight: 600; color: var(--primary-blue);" id="res-percent">0%</div>
+    </div>
+
+    <table class="breakdown-table">
+      <thead>
+        <tr>
+          <th>Section Topic</th>
+          <th>Result</th>
+        </tr>
+      </thead>
+      <tbody id="breakdown-body">
+      </tbody>
+    </table>
+
+    <div class="screenshot-notice">
+      📸 <strong>Submission Instructions:</strong> Take a clear screenshot of this complete box (including your name and timestamp) and upload it to the Canvas assignment submission portal.
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('quiz-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const name = document.getElementById('student-name').value.trim();
+    if (!name) {
+      alert("Please enter your name before submitting.");
+      return;
+    }
+
+    let score = 0;
+    const total = 5;
+    const breakdown = [];
+
+    // Q1 Check
+    const q1Val = document.querySelector('input[name="q1"]:checked')?.value;
+    if (q1Val === 'B') { score++; breakdown.push({ topic: '1. Modes of Reproduction', status: 'Correct ✔️' }); }
+    else { breakdown.push({ topic: '1. Modes of Reproduction', status: 'Incorrect ❌' }); }
+
+    // Q2 Check
+    const q2_1 = document.querySelector('select[name="q2_1"]').value;
+    const q2_2 = document.querySelector('select[name="q2_2"]').value;
+    if (q2_1 === 'correct' && q2_2 === 'correct') { score++; breakdown.push({ topic: '2. Floral Anatomy', status: 'Correct ✔️' }); }
+    else { breakdown.push({ topic: '2. Floral Anatomy', status: 'Incorrect ❌' }); }
+
+    // Q3 Check
+    const q3Val = document.querySelector('input[name="q3"]:checked')?.value;
+    if (q3Val === 'B') { score++; breakdown.push({ topic: '3. Double Fertilization', status: 'Correct ✔️' }); }
+    else { breakdown.push({ topic: '3. Double Fertilization', status: 'Incorrect ❌' }); }
+
+    // Q4 Check
+    const q4_1 = document.querySelector('select[name="q4_1"]').value;
+    const q4_2 = document.querySelector('select[name="q4_2"]').value;
+    if (q4_1 === 'correct' && q4_2 === 'correct') { score++; breakdown.push({ topic: '4. Seed Dispersal Mechanisms', status: 'Correct ✔️' }); }
+    else { breakdown.push({ topic: '4. Seed Dispersal Mechanisms', status: 'Incorrect ❌' }); }
+
+    // Q5 Check
+    const q5Val = document.querySelector('input[name="q5"]:checked')?.value;
+    if (q5Val === 'B') { score++; breakdown.push({ topic: '5. Evolutionary Logic / Apomixis', status: 'Correct ✔️' }); }
+    else { breakdown.push({ topic: '5. Evolutionary Logic / Apomixis', status: 'Incorrect ❌' }); }
+
+    // Populate Results
+    document.getElementById('res-name').innerText = name;
+    document.getElementById('res-date').innerText = new Date().toLocaleString();
+    document.getElementById('res-score').innerText = `${score} / ${total}`;
+    const percentage = Math.round((score / total) * 100);
+    document.getElementById('res-percent').innerText = `${percentage}%`;
+
+    const breakdownBody = document.getElementById('breakdown-body');
+    breakdownBody.innerHTML = '';
+    breakdown.forEach(item => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${item.topic}</td><td style="font-weight: 600; color: ${item.status.includes('Correct') ? 'var(--success)' : 'var(--error)'}">${item.status}</td>`;
+      breakdownBody.appendChild(tr);
+    });
+
+    // Display card and scroll into view
+    document.getElementById('results-card').style.display = 'block';
+    document.getElementById('results-card').scrollIntoView({ behavior: 'smooth' });
+  });
+</script>
+
+</body>
+</html>
