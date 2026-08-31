@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Interactive Knowledge Check: Plant Reproduction</title>
+  <title>Interactive Knowledge Check: Plant Reproduction (10 Questions)</title>
   <style>
     :root {
       --primary-dark: #0f172a;
@@ -31,7 +31,7 @@
     .name-section input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; }
 
     .question-card { background: #fafafa; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 25px; }
-    .question-card h3 { color: var(--primary-blue); font-size: 1.1rem; margin-bottom: 15px; }
+    .question-card h3 { color: var(--primary-blue); font-size: 1.05rem; margin-bottom: 12px; }
     
     .options-group label { display: flex; align-items: center; background: white; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 16px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; }
     .options-group label:hover { border-color: var(--accent-blue); background-color: #f8fafc; }
@@ -45,22 +45,22 @@
     /* Results Screen Styling */
     #results-card { display: none; margin-top: 30px; background: linear-gradient(145deg, #ffffff, #f0f6ff); border: 2px solid var(--accent-blue); border-radius: 16px; padding: 35px; box-shadow: 0 15px 30px rgba(37, 99, 235, 0.15); }
     .results-header { text-align: center; border-bottom: 2px dashed var(--border-color); padding-bottom: 20px; margin-bottom: 20px; }
-    .results-header h2 { color: var(--primary-dark); font-size: 2rem; }
+    .results-header h2 { color: var(--primary-dark); font-size: 1.8rem; }
     .results-meta { display: flex; justify-content: space-between; margin-bottom: 25px; font-size: 0.95rem; color: var(--text-muted); background: white; padding: 15px; border-radius: 10px; border: 1px solid #e2e8f0; }
     .score-badge { text-align: center; margin: 20px 0; }
     .score-number { font-size: 3.5rem; font-weight: 800; color: var(--accent-blue); }
     .breakdown-table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; border-radius: 8px; overflow: hidden; }
-    .breakdown-table th, .breakdown-table td { padding: 12px; text-align: left; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
+    .breakdown-table th, .breakdown-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #f1f5f9; font-size: 0.88rem; }
     .breakdown-table th { background-color: #e0f2fe; color: var(--primary-blue); }
-    .screenshot-notice { text-align: center; color: var(--accent-blue); font-weight: 600; margin-top: 25px; padding: 10px; background: #eff6ff; border-radius: 8px; font-size: 0.9rem; }
+    .screenshot-notice { text-align: center; color: var(--accent-blue); font-weight: 600; margin-top: 25px; padding: 12px; background: #eff6ff; border-radius: 8px; font-size: 0.9rem; }
   </style>
 </head>
 <body>
 
 <div class="container">
   <header>
-    <h1>Plant Reproduction: Interactive Knowledge Check</h1>
-    <p class="subtitle">Complete all sections below and generate your verifiable summary report for Canvas submission.</p>
+    <h1>Plant Reproduction: Comprehensive Knowledge Check</h1>
+    <p class="subtitle">Complete all 10 questions below to generate your submission card for Canvas.</p>
   </header>
 
   <form id="quiz-form">
@@ -71,97 +71,148 @@
 
     <!-- Q1 -->
     <div class="question-card">
-      <h3>1. Fundamental Modes: Strategic Plasticity</h3>
-      <p style="margin-bottom: 12px; font-size: 0.95rem; color: #475569;">Why might a plant employ sexual reproduction to adapt to long-term environmental shifts while using asexual reproduction simultaneously?</p>
+      <h3>1. Strategic Plasticity</h3>
+      <p style="margin-bottom: 12px; font-size: 0.95rem; color: #475569;">What is the primary adaptive advantage of maintaining both sexual and asexual reproductive capabilities?</p>
       <div class="options-group">
-        <label><input type="radio" name="q1" value="A" required> Asexual reproduction requires more energy than sexual recombination.</label>
-        <label><input type="radio" name="q1" value="B"> Sexual reproduction creates genetic diversity for long-term adaptation, while asexual reproduction rapidly expands successful existing genotypes.</label>
-        <label><input type="radio" name="q1" value="C"> Asexual reproduction is the only way to produce seeds during winter.</label>
+        <label><input type="radio" name="q1" value="A" required> It allows a plant to rely exclusively on animal pollinators for seed dispersal.</label>
+        <label><input type="radio" name="q1" value="B"> It balances high-energy genetic recombination (for long-term adaptation) with rapid, reliable expansion of proven genotypes.</label>
+        <label><input type="radio" name="q1" value="C"> It prevents all forms of resource competition between parent plants and offspring.</label>
       </div>
     </div>
 
     <!-- Q2 -->
     <div class="question-card">
-      <h3>2. Floral Anatomy Classification</h3>
-      <p style="margin-bottom: 12px; font-size: 0.95rem; color: #475569;">Match each floral designation with its correct anatomical requirement:</p>
-      
+      <h3>2. Collective Floral Terminology</h3>
+      <p style="margin-bottom: 12px; font-size: 0.95rem; color: #475569;">Match the individual floral part with its correct collective name:</p>
       <div style="margin-bottom: 10px;">
-        <label><strong>Perfect Flower:</strong></label>
+        <label><strong>Collective term for all Sepals:</strong></label>
         <select name="q2_1" required>
-          <option value="">-- Select Requirement --</option>
-          <option value="correct">Contains both functional pistils and stamens.</option>
-          <option value="wrong1">Lacks stamens or pistils.</option>
-          <option value="wrong2">Must possess petals, sepals, pistils, and stamens.</option>
+          <option value="">-- Select --</option>
+          <option value="correct">Calyx</option>
+          <option value="wrong">Corolla</option>
+          <option value="wrong2">Perianth</option>
         </select>
       </div>
-      
       <div>
-        <label><strong>Complete Flower:</strong></label>
+        <label><strong>Collective term for all Petals:</strong></label>
         <select name="q2_2" required>
-          <option value="">-- Select Requirement --</option>
-          <option value="wrong1">Contains only male reproductive parts.</option>
-          <option value="correct">Must be perfect AND possess both petals and sepals.</option>
-          <option value="wrong2">Lacks one or more floral components.</option>
+          <option value="">-- Select --</option>
+          <option value="wrong">Calyx</option>
+          <option value="correct">Corolla</option>
+          <option value="wrong2">Stamen</option>
         </select>
       </div>
     </div>
 
     <!-- Q3 -->
     <div class="question-card">
-      <h3>3. Double Fertilization Sequence</h3>
-      <p style="margin-bottom: 12px; font-size: 0.95rem; color: #475569;">In double fertilization, what tissue is formed when one sperm cell fuses with two polar nuclei, and what is its role?</p>
+      <h3>3. Reproductive Anatomy Roles</h3>
+      <p style="margin-bottom: 12px; font-size: 0.95rem; color: #475569;">Which structure serves as the receptive surface for pollen germination?</p>
       <div class="options-group">
-        <label><input type="radio" name="q3" value="A" required> Zygote; forms the foundational embryo.</label>
-        <label><input type="radio" name="q3" value="B"> Endosperm; acts as a nutrient reservoir for the developing seed.</label>
-        <label><input type="radio" name="q3" value="C"> Elaiosome; attracts ants for seed dispersal.</label>
+        <label><input type="radio" name="q3" value="A" required> Filament</label>
+        <label><input type="radio" name="q3" value="B"> Style</label>
+        <label><input type="radio" name="q3" value="C"> Stigma</label>
       </div>
     </div>
 
     <!-- Q4 -->
     <div class="question-card">
-      <h3>4. Seed Dispersal Mechanisms (Allochory)</h3>
-      <p style="margin-bottom: 12px; font-size: 0.95rem; color: #475569;">Match the seed dispersal mode to its transport agent and mechanism:</p>
-      
-      <div style="margin-bottom: 10px;">
-        <label><strong>Myrmecochory:</strong></label>
-        <select name="q4_1" required>
-          <option value="">-- Select Agent & Mechanism --</option>
-          <option value="correct">Ants — Lipid-rich elaiosomes as food rewards</option>
-          <option value="wrong1">Ingestion — Fleshy fruits consumed by animals</option>
-          <option value="wrong2">Wind — Lightweight structures adapted for flight</option>
-        </select>
-      </div>
-
-      <div>
-        <label><strong>Active Autochory:</strong></label>
-        <select name="q4_2" required>
-          <option value="">-- Select Agent & Mechanism --</option>
-          <option value="wrong1">Water — Internal air envelopes for buoyancy</option>
-          <option value="correct">Internal Forces — Sequence of hydration, desiccation, and violent fracture</option>
-          <option value="wrong2">Clinging — Hooks and barbs attached to animal fur</option>
-        </select>
+      <h3>4. Flower Classification Logic</h3>
+      <p style="margin-bottom: 12px; font-size: 0.95rem; color: #475569;">What distinguishes a <strong>Complete</strong> flower from a flower that is merely <strong>Perfect</strong>?</p>
+      <div class="options-group">
+        <label><input type="radio" name="q4" value="A" required> A complete flower must possess petals and sepals in addition to being perfect (having both stamens and pistils).</label>
+        <label><input type="radio" name="q4" value="B"> A complete flower has only male reproductive parts, while a perfect flower has both.</label>
+        <label><input type="radio" name="q4" value="C"> Complete flowers produce asexual spores, whereas perfect flowers produce seeds.</label>
       </div>
     </div>
 
     <!-- Q5 -->
     <div class="question-card">
-      <h3>5. Evolutionary Logic of Cloning</h3>
-      <p style="margin-bottom: 12px; font-size: 0.95rem; color: #475569;">Which mechanical pathway of asexual reproduction involves the production of viable seeds <em>without</em> fertilization?</p>
+      <h3>5. Pollination & Genetic Vigor</h3>
+      <p style="margin-bottom: 12px; font-size: 0.95rem; color: #475569;">Which pollination mechanism maximizes genetic variation and population vigor within a species?</p>
       <div class="options-group">
-        <label><input type="radio" name="q5" value="A" required> Fragmentation</label>
-        <label><input type="radio" name="q5" value="B"> Apomixis</label>
-        <label><input type="radio" name="q5" value="C"> Vegetative Propagation</label>
+        <label><input type="radio" name="q5" value="A" required> Self-pollination within a single flower</label>
+        <label><input type="radio" name="q5" value="B"> Cross-pollination between different individual plants</label>
+        <label><input type="radio" name="q5" value="C"> Apomictic seed formation</label>
       </div>
     </div>
 
-    <button type="submit" class="btn-submit">Submit Assignment & Generate Results</button>
+    <!-- Q6 -->
+    <div class="question-card">
+      <h3>6. Outcomes of Double Fertilization</h3>
+      <p style="margin-bottom: 12px; font-size: 0.95rem; color: #475569;">During double fertilization, what tissue is formed when the second sperm cell fuses with two polar nuclei?</p>
+      <div class="options-group">
+        <label><input type="radio" name="q6" value="A" required> The Zygote</label>
+        <label><input type="radio" name="q6" value="B"> The Endosperm (nutrient reservoir)</label>
+        <label><input type="radio" name="q6" value="C"> The Elaiosome</label>
+      </div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="question-card">
+      <h3>7. Dispersal Spatial Dynamics</h3>
+      <p style="margin-bottom: 12px; font-size: 0.95rem; color: #475569;">Why must seeds traverse the "Dispersal Gap" to escape the "Parent Shadow"?</p>
+      <div class="options-group">
+        <label><input type="radio" name="q7" value="A" required> To avoid high competition, resource depletion, and low light adjacent to the parent plant.</label>
+        <label><input type="radio" name="q7" value="B"> To allow pollinators to reach the seed before germination starts.</label>
+        <label><input type="radio" name="q7" value="C"> To enable vegetative propagation via potato tubers.</label>
+      </div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="question-card">
+      <h3>8. Active Autochory Sequence</h3>
+      <p style="margin-bottom: 12px; font-size: 0.95rem; color: #475569;">What is the correct sequence of mechanical forces involved in active self-dispersal ("built-in ballistics")?</p>
+      <div class="options-group">
+        <label><input type="radio" name="q8" value="A" required> Desiccation &rarr; Hydration &rarr; Ingestion</label>
+        <label><input type="radio" name="q8" value="B"> Hydration (tissue growth) &rarr; Desiccation (building pressure) &rarr; Fracture (violent dehiscence)</label>
+        <label><input type="radio" name="q8" value="C"> Fracture &rarr; Elaiosome formation &rarr; Hydration</label>
+      </div>
+    </div>
+
+    <!-- Q9 -->
+    <div class="question-card">
+      <h3>9. Allochory (External Dispersal) Agents</h3>
+      <p style="margin-bottom: 12px; font-size: 0.95rem; color: #475569;">Match the external dispersal mode with its specific transport mechanism:</p>
+      <div style="margin-bottom: 10px;">
+        <label><strong>Myrmecochory:</strong></label>
+        <select name="q9_1" required>
+          <option value="">-- Select --</option>
+          <option value="correct">Ants transport seeds lured by lipid-rich elaiosomes.</option>
+          <option value="wrong">Seeds cling to animal fur via microscopic hooks (uncinate trichomes).</option>
+          <option value="wrong2">Seeds float via internal air envelopes.</option>
+        </select>
+      </div>
+      <div>
+        <label><strong>Epizoochory:</strong></label>
+        <select name="q9_2" required>
+          <option value="">-- Select --</option>
+          <option value="wrong">Seeds are ingested fleshy fruits primed by stomach acid.</option>
+          <option value="correct">Seeds attach externally to animals via hooks, barbs, or sticky coats.</option>
+          <option value="wrong2">Seeds are flung via violent pod dehiscence.</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Q10 -->
+    <div class="question-card">
+      <h3>10. Asexual Reproduction Pathways</h3>
+      <p style="margin-bottom: 12px; font-size: 0.95rem; color: #475569;">Which mechanical pathway represents the production of viable seeds <strong>without</strong> fertilization?</p>
+      <div class="options-group">
+        <label><input type="radio" name="q10" value="A" required> Vegetative Propagation</label>
+        <label><input type="radio" name="q10" value="B"> Apomixis</label>
+        <label><input type="radio" name="q10" value="C"> Fragmentation</label>
+      </div>
+    </div>
+
+    <button type="submit" class="btn-submit">Submit 10-Question Assignment & Generate Results</button>
   </form>
 
   <!-- Screenshot Results Card -->
   <div id="results-card">
     <div class="results-header">
       <h2>Assignment Completion Verification</h2>
-      <p style="color: var(--text-muted);">Plant Reproduction: Strategies for Survival and Colonization</p>
+      <p style="color: var(--text-muted);">Plant Reproduction: Comprehensive Knowledge Check (10 Questions)</p>
     </div>
 
     <div class="results-meta">
@@ -171,7 +222,7 @@
 
     <div class="score-badge">
       <div style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">Final Score</div>
-      <div class="score-number" id="res-score">0 / 5</div>
+      <div class="score-number" id="res-score">0 / 10</div>
       <div style="font-size: 1.1rem; font-weight: 600; color: var(--primary-blue);" id="res-percent">0%</div>
     </div>
 
@@ -187,7 +238,7 @@
     </table>
 
     <div class="screenshot-notice">
-      📸 <strong>Submission Instructions:</strong> Take a clear screenshot of this complete box (including your name and timestamp) and upload it to the Canvas assignment submission portal.
+      📸 <strong>Submission Instructions:</strong> Take a clear screenshot of this complete box (including your name, date, score, and breakdown table) and upload it to Canvas.
     </div>
   </div>
 </div>
@@ -203,35 +254,48 @@
     }
 
     let score = 0;
-    const total = 5;
+    const total = 10;
     const breakdown = [];
 
-    // Q1 Check
-    const q1Val = document.querySelector('input[name="q1"]:checked')?.value;
-    if (q1Val === 'B') { score++; breakdown.push({ topic: '1. Modes of Reproduction', status: 'Correct ✔️' }); }
-    else { breakdown.push({ topic: '1. Modes of Reproduction', status: 'Incorrect ❌' }); }
+    // Q1
+    if (document.querySelector('input[name="q1"]:checked')?.value === 'B') { score++; breakdown.push({ topic: '1. Strategic Plasticity', status: 'Correct ✔️' }); }
+    else { breakdown.push({ topic: '1. Strategic Plasticity', status: 'Incorrect ❌' }); }
 
-    // Q2 Check
-    const q2_1 = document.querySelector('select[name="q2_1"]').value;
-    const q2_2 = document.querySelector('select[name="q2_2"]').value;
-    if (q2_1 === 'correct' && q2_2 === 'correct') { score++; breakdown.push({ topic: '2. Floral Anatomy', status: 'Correct ✔️' }); }
-    else { breakdown.push({ topic: '2. Floral Anatomy', status: 'Incorrect ❌' }); }
+    // Q2
+    if (document.querySelector('select[name="q2_1"]').value === 'correct' && document.querySelector('select[name="q2_2"]').value === 'correct') { score++; breakdown.push({ topic: '2. Collective Terminology', status: 'Correct ✔️' }); }
+    else { breakdown.push({ topic: '2. Collective Terminology', status: 'Incorrect ❌' }); }
 
-    // Q3 Check
-    const q3Val = document.querySelector('input[name="q3"]:checked')?.value;
-    if (q3Val === 'B') { score++; breakdown.push({ topic: '3. Double Fertilization', status: 'Correct ✔️' }); }
-    else { breakdown.push({ topic: '3. Double Fertilization', status: 'Incorrect ❌' }); }
+    // Q3
+    if (document.querySelector('input[name="q3"]:checked')?.value === 'C') { score++; breakdown.push({ topic: '3. Stigma Function', status: 'Correct ✔️' }); }
+    else { breakdown.push({ topic: '3. Stigma Function', status: 'Incorrect ❌' }); }
 
-    // Q4 Check
-    const q4_1 = document.querySelector('select[name="q4_1"]').value;
-    const q4_2 = document.querySelector('select[name="q4_2"]').value;
-    if (q4_1 === 'correct' && q4_2 === 'correct') { score++; breakdown.push({ topic: '4. Seed Dispersal Mechanisms', status: 'Correct ✔️' }); }
-    else { breakdown.push({ topic: '4. Seed Dispersal Mechanisms', status: 'Incorrect ❌' }); }
+    // Q4
+    if (document.querySelector('input[name="q4"]:checked')?.value === 'A') { score++; breakdown.push({ topic: '4. Complete vs. Perfect', status: 'Correct ✔️' }); }
+    else { breakdown.push({ topic: '4. Complete vs. Perfect', status: 'Incorrect ❌' }); }
 
-    // Q5 Check
-    const q5Val = document.querySelector('input[name="q5"]:checked')?.value;
-    if (q5Val === 'B') { score++; breakdown.push({ topic: '5. Evolutionary Logic / Apomixis', status: 'Correct ✔️' }); }
-    else { breakdown.push({ topic: '5. Evolutionary Logic / Apomixis', status: 'Incorrect ❌' }); }
+    // Q5
+    if (document.querySelector('input[name="q5"]:checked')?.value === 'B') { score++; breakdown.push({ topic: '5. Cross-Pollination Vigor', status: 'Correct ✔️' }); }
+    else { breakdown.push({ topic: '5. Cross-Pollination Vigor', status: 'Incorrect ❌' }); }
+
+    // Q6
+    if (document.querySelector('input[name="q6"]:checked')?.value === 'B') { score++; breakdown.push({ topic: '6. Endosperm Development', status: 'Correct ✔️' }); }
+    else { breakdown.push({ topic: '6. Endosperm Development', status: 'Incorrect ❌' }); }
+
+    // Q7
+    if (document.querySelector('input[name="q7"]:checked')?.value === 'A') { score++; breakdown.push({ topic: '7. Parent Shadow Dynamics', status: 'Correct ✔️' }); }
+    else { breakdown.push({ topic: '7. Parent Shadow Dynamics', status: 'Incorrect ❌' }); }
+
+    // Q8
+    if (document.querySelector('input[name="q8"]:checked')?.value === 'B') { score++; breakdown.push({ topic: '8. Autochory Sequence', status: 'Correct ✔️' }); }
+    else { breakdown.push({ topic: '8. Autochory Sequence', status: 'Incorrect ❌' }); }
+
+    // Q9
+    if (document.querySelector('select[name="q9_1"]').value === 'correct' && document.querySelector('select[name="q9_2"]').value === 'correct') { score++; breakdown.push({ topic: '9. Allochory Agents', status: 'Correct ✔️' }); }
+    else { breakdown.push({ topic: '9. Allochory Agents', status: 'Incorrect ❌' }); }
+
+    // Q10
+    if (document.querySelector('input[name="q10"]:checked')?.value === 'B') { score++; breakdown.push({ topic: '10. Apomixis Pathway', status: 'Correct ✔️' }); }
+    else { breakdown.push({ topic: '10. Apomixis Pathway', status: 'Incorrect ❌' }); }
 
     // Populate Results
     document.getElementById('res-name').innerText = name;
