@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blue Zone Challenge — Educator Cheat Sheet</title>
+<style>
+  :root {
+    --bg-dark: #07111f;
+    --bg-mid: #0b1a2e;
+    --bg-card: #0e2040;
+    --bg-card2: #0c1c38;
+    --accent1: #1565c0;
+    --accent2: #1e88e5;
+    --accent3: #64b5f6;
+    --accent4: #90caf9;
+    --highlight: #00b0ff;
+    --gold: #ffd54f;
+    --green: #00e676;
+    --red: #ff1744;
+    --orange: #ff9100;
+    --purple: #ce93d8;
+    --text: #ffffff;
+    --text-sub: #cfd8dc;
+    --text-dim: #78909c;
+    --border: #1a3358;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg-dark); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; line-height: 1.5; }
+
+  header {
+    background: linear-gradient(135deg, #071828 0%, #0d2a50 100%);
+    border-bottom: 2px solid var(--accent1);
+    padding: 26px 32px;
+    box-shadow: 0 4px 32px #000a;
+  }
+  .header-inner { max-width: 1000px; margin: 0 auto; display: flex; align-items: center; gap: 18px; }
+  .header-icon svg { width: 44px; height: 44px; flex-shrink: 0; }
+  .header-text h1 { font-size: 2.1rem; color: #fff; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
+  .header-text p.kicker { color: var(--accent3); font-size: 0.76rem; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; margin-top: 7px; }
+  .audience-badge {
+    margin-left: auto; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--accent1), var(--highlight));
+    color: #fff; font-weight: 700; font-size: 0.78rem;
+    padding: 8px 16px; border-radius: 20px;
+    box-shadow: 0 0 0 3px #00b0ff1f, 0 4px 18px #00b0ff4d;
+    white-space: nowrap;
+  }
+
+  main { padding: 28px 32px 60px; max-width: 1000px; margin: 0 auto; }
+
+  .section-title { font-size: 1.4rem; font-weight: 700; color: #fff; letter-spacing: -0.01em; margin: 34px 0 14px; display: flex; align-items: center; gap: 10px; }
+  .section-title:first-child { margin-top: 0; }
+  .section-title svg { width: 20px; height: 20px; color: var(--accent3); flex-shrink: 0; }
+
+  .card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 22px; margin-bottom: 16px;
+    box-shadow: 0 2px 20px #0006;
+  }
+
+  .intro-lede { font-size: 0.95rem; color: var(--text-sub); line-height: 1.7; margin-bottom: 6px; }
+
+  .mechanics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-top: 4px; }
+  .mechanic-box { background: var(--bg-card2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+  .mechanic-box .num { font-size: 1.5rem; font-weight: 800; color: var(--highlight); line-height: 1; margin-bottom: 6px; }
+  .mechanic-box .label { font-size: 0.82rem; font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .mechanic-box .desc { font-size: 0.78rem; color: var(--text-dim); line-height: 1.5; }
+
+  .tier-strip { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .tier-chip { flex: 1; min-width: 130px; border-radius: 10px; padding: 10px 12px; border: 1px solid; text-align: center; }
+  .tier-chip .range { font-size: 1rem; font-weight: 800; }
+  .tier-chip .name { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+
+  .tips-list { list-style: none; }
+  .tips-list li {
+    display: flex; gap: 10px; padding: 11px 0; border-bottom: 1px solid #1a335822;
+    font-size: 0.87rem; color: var(--text-sub); line-height: 1.6;
+  }
+  .tips-list li:last-child { border-bottom: none; }
+  .tips-list .tip-num {
+    flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+    background: #00b0ff18; border: 1px solid #00b0ff44; color: var(--highlight);
+    font-size: 0.72rem; font-weight: 800; display: flex; align-items: center; justify-content: center;
+  }
+  .tips-list strong { color: #fff; }
+
+  /* Region cards */
+  .region-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 18px; overflow: hidden; box-shadow: 0 2px 20px #0006; }
+  .region-card-header { display: flex; align-items: center; gap: 14px; padding: 18px 22px; background: linear-gradient(135deg, #0d1f3d, #0b1a2e); border-bottom: 1px solid var(--border); }
+  .region-flag { font-size: 2rem; flex-shrink: 0; }
+  .region-card-header h2 { color: #fff; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; }
+  .region-meta-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .meta-pill-lg { font-size: 0.7rem; font-weight: 700; padding: 3px 10px; border-radius: 6px; letter-spacing: 0.02em; text-transform: uppercase; border: 1px solid; }
+  .meta-pill-lg.ok { background: #00e67614; border-color: #00e67644; color: var(--green); }
+  .meta-pill-lg.warn { background: #ff910014; border-color: #ff910044; color: var(--orange); }
+  .ceiling-flag { font-size: 0.7rem; font-weight: 700; padding: 3px 10px; border-radius: 6px; background: #ff174414; border: 1px solid #ff174444; color: #ff6e6e; text-transform: uppercase; letter-spacing: 0.02em; }
+
+  .region-card-body { padding: 20px 22px; }
+  .tip-box { border-radius: 10px; padding: 13px 15px; margin-bottom: 12px; border-left: 3px solid; font-size: 0.85rem; color: var(--text-sub); line-height: 1.6; }
+  .tip-box.challenge { background: #ff910010; border-left-color: var(--orange); }
+  .tip-box.strategy { background: #00b0ff10; border-left-color: var(--highlight); }
+  .tip-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); margin-bottom: 5px; }
+  .tip-box.challenge .tip-label { color: var(--orange); }
+  .tip-box.strategy .tip-label { color: var(--accent3); }
+
+  .score-table { width: 100%; border-collapse: collapse; font-size: 0.83rem; margin-top: 14px; }
+  .score-table th { text-align: left; padding: 8px 10px; color: var(--text-dim); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border); }
+  .score-table td { padding: 10px; border-bottom: 1px solid #1a335822; vertical-align: top; }
+  .score-table tr:last-child td { border-bottom: none; }
+  .season-cell { white-space: nowrap; font-weight: 600; color: #fff; }
+  .pick-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+  .pick-chip { background: #1565c033; border: 1px solid #1e88e555; border-radius: 8px; padding: 2px 9px; font-size: 0.76rem; color: var(--accent3); white-space: nowrap; }
+  .pct-100 { color: var(--green); font-weight: 800; font-size: 0.95rem; }
+  .pct-high { color: var(--accent3); font-weight: 800; font-size: 0.95rem; }
+
+  .verified-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #00e67614; border: 1px solid #00e67640; color: var(--green);
+    font-size: 0.76rem; font-weight: 600; padding: 6px 12px; border-radius: 8px; margin: 10px 0 0;
+  }
+  .verified-badge svg { width: 13px; height: 13px; }
+
+  footer { text-align: center; padding: 30px 20px 40px; color: var(--text-dim); font-size: 0.78rem; border-top: 1px solid var(--border); margin-top: 20px; }
+  footer a { color: var(--accent3); }
+
+  @media print {
+    body { background: #fff; color: #111; }
+    header { background: #0d2a50; }
+    .card, .region-card, .mechanic-box, .tip-box { box-shadow: none; break-inside: avoid; }
+    .region-card { break-before: page; }
+    .region-card:first-of-type { break-before: auto; }
+  }
+  @media (max-width: 640px) {
+    header { padding: 18px; }
+    main { padding: 18px; }
+    .header-inner { flex-wrap: wrap; }
+    .audience-badge { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-icon">
+      <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="22" cy="22" r="20" stroke="#1e88e5" stroke-width="2" fill="#071828"/>
+        <ellipse cx="22" cy="22" rx="8" ry="20" stroke="#1e88e5" stroke-width="1.5" fill="none"/>
+        <line x1="2" y1="22" x2="42" y2="22" stroke="#1e88e5" stroke-width="1.5"/>
+        <path d="M6 14 Q22 18 38 14" stroke="#00b0ff" stroke-width="1.2" fill="none"/>
+        <path d="M6 30 Q22 26 38 30" stroke="#00b0ff" stroke-width="1.2" fill="none"/>
+        <circle cx="22" cy="22" r="3" fill="#00b0ff"/>
+      </svg>
+    </div>
+    <div class="header-text">
+      <h1>Blue Zone Challenge</h1>
+      <p class="kicker">Educator Cheat Sheet</p>
+    </div>
+    <span class="audience-badge">For Teachers Only</span>
+  </div>
+</header>
+
+<main>
+  <p class="intro-lede">This reference gives you the scoring mechanics at a glance, classroom-tested tips, and a <strong style="color:#fff">verified</strong> high-scoring food combination for every region and season — generated by running the game's actual scoring engine, not guessed. Use it to check student answers quickly, unstick a group that's hunting blind, or seed a class discussion about why some regions are structurally harder to "perfect" than others.</p>
+
+  <div class="section-title">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    How Scoring Works
+  </div>
+  <div class="card">
+    <div class="mechanics-grid">
+      <div class="mechanic-box">
+        <div class="num">10</div>
+        <div class="label">Picks per season</div>
+        <div class="desc">Students choose up to 10 foods/supplements each season. Most winning combos in this guide use only 4-6.</div>
+      </div>
+      <div class="mechanic-box">
+        <div class="num">23</div>
+        <div class="label">Tracked nutrients</div>
+        <div class="desc">14 macro/micronutrients (calories, protein, vitamins, minerals) plus 9 essential amino acids, each scored 0-3 per season.</div>
+      </div>
+      <div class="mechanic-box">
+        <div class="num">&lt;2</div>
+        <div class="label">Deficiency threshold</div>
+        <div class="desc">Any nutrient totaling below 2 (of 3) flags as a deficiency; below 1 flags as critical and carries a bigger life-expectancy penalty.</div>
+      </div>
+      <div class="mechanic-box">
+        <div class="num">&minus;1.5</div>
+        <div class="label">Region penalty</div>
+        <div class="desc">Regions flagged low on natural iodine or vitamin D (see each region card) subtract 1.5 from that nutrient's total every season.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="tip-label" style="margin-bottom:8px">Life Expectancy Tiers (Results Screen)</div>
+    <div class="tier-strip">
+      <div class="tier-chip" style="border-color:#ffd54f66;background:#ffd54f14"><div class="range" style="color:var(--gold)">100-105</div><div class="name" style="color:var(--gold)">Centenarian</div></div>
+      <div class="tier-chip" style="border-color:#00e67666;background:#00e67614"><div class="range" style="color:var(--green)">85-99</div><div class="name" style="color:var(--green)">Thriving</div></div>
+      <div class="tier-chip" style="border-color:#64b5f666;background:#64b5f614"><div class="range" style="color:var(--accent3)">70-84</div><div class="name" style="color:var(--accent3)">Healthy Aging</div></div>
+      <div class="tier-chip" style="border-color:#ff910066;background:#ff910014"><div class="range" style="color:var(--orange)">55-69</div><div class="name" style="color:var(--orange)">At Risk</div></div>
+      <div class="tier-chip" style="border-color:#ff174466;background:#ff174414"><div class="range" style="color:var(--red)">50-54</div><div class="name" style="color:var(--red)">Critical Deficiency</div></div>
+    </div>
+    <p style="font-size:0.8rem;color:var(--text-dim);margin-top:12px">Life expectancy isn't pure percentage — <strong style="color:#fff">severity matters</strong>. A season with critical deficiencies (value under 1) is penalized more heavily than one with only mild shortfalls, even at the same overall score. The floor is 50; a flawless, near-100% diet in every season can push past 100.</p>
+  </div>
+
+  <div class="section-title">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+    Classroom Tips
+  </div>
+  <div class="card">
+    <ul class="tips-list">
+      <li><span class="tip-num">1</span><span><strong>Point students to the Nutrient Guide before they guess.</strong> Every food category has a "Nutrient Guide" button showing exactly which foods cover which nutrients — it's an open-book tool by design, not a hidden mechanic. Struggling groups usually haven't opened it yet.</span></li>
+      <li><span class="tip-num">2</span><span><strong>One protein-dense pick beats five vegetables.</strong> Eggs, fish, dairy, and legumes are the only items that move the amino acid dials — an all-produce selection will always show amino acid deficiencies no matter how many items are chosen.</span></li>
+      <li><span class="tip-num">3</span><span><strong>Use Loma Linda to teach "no perfect answer."</strong> It's the only region that structurally cannot reach 100% (see its card below) — a great prompt for discussing real dietary trade-offs rather than "gaming" the system.</span></li>
+      <li><span class="tip-num">4</span><span><strong>Watch for over-selection.</strong> Since students can pick up to 10 items, some will "spray and pray" rather than think about coverage. Ask them to justify each pick's nutrient contribution — most winning combos here use half the budget or less.</span></li>
+      <li><span class="tip-num">5</span><span><strong>Compare life expectancy, not just the percentage.</strong> Two students can land near the same nutritional score but very different life-expectancy numbers if one had critical (vs. mild) deficiencies — a good jumping-off point for discussing severity vs. frequency of deficiency.</span></li>
+      <li><span class="tip-num">6</span><span><strong>Season-swap discussion.</strong> Have students compare their Spring vs. Winter picks for the same region — most regions require a genuinely different food strategy season to season, mirroring real seasonal eating patterns.</span></li>
+    </ul>
+  </div>
+
+  <div class="section-title">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/><circle cx="12" cy="12" r="10"/></svg>
+    Region-by-Region Answer Key
+  </div>
+
+  __REGION_CARDS__
+
+  <div class="verified-badge">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+    Every combination above was generated by running the game's actual scoring engine — not estimated by hand.
+  </div>
+</main>
+
+<footer>
+  Blue Zone Challenge — Educator Cheat Sheet · For instructor use · Not shown to students
+</footer>
+
+</body>
+</html>
