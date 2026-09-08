@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Greenhouse Sanitation Audit v8</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Greenhouse Sanitation Audit v9</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         :root {
             --slate-900: #0f172a; --slate-800: #1e293b; --slate-700: #334155;
@@ -23,28 +23,31 @@
             color: var(--slate-800);
             min-height: 100vh;
             line-height: 1.5;
+            overflow-x: hidden;
         }
 
+        /* Name Modal */
         .name-modal {
             position: fixed; inset: 0;
             background: rgba(15, 23, 42, 0.9);
             z-index: 300;
             display: flex; align-items: center; justify-content: center;
+            padding: 16px;
         }
         .name-modal.hidden { display: none; }
 
         .name-card {
             background: var(--warm-white);
-            padding: 48px; border-radius: 24px;
-            text-align: center; max-width: 420px; width: 90%;
+            padding: 32px; border-radius: 24px;
+            text-align: center; max-width: 420px; width: 100%;
         }
-        .name-card h2 { font-size: 1.5rem; font-weight: 700; color: var(--slate-900); margin-bottom: 8px; }
-        .name-card p { color: var(--slate-600); margin-bottom: 24px; }
+        .name-card h2 { font-size: 1.25rem; font-weight: 700; color: var(--slate-900); margin-bottom: 8px; }
+        .name-card p { color: var(--slate-600); margin-bottom: 24px; font-size: 0.9rem; }
 
         .name-input {
             width: 100%; padding: 14px 18px;
             border: 2px solid var(--slate-200); border-radius: 12px;
-            font-family: inherit; font-size: 1rem; margin-bottom: 20px;
+            font-family: inherit; font-size: 16px; margin-bottom: 20px;
             transition: border-color 0.2s ease;
         }
         .name-input:focus { outline: none; border-color: var(--sage-500); }
@@ -58,20 +61,48 @@
         .start-btn:hover { background: var(--sage-600); }
         .start-btn:disabled { background: var(--slate-300); cursor: not-allowed; }
 
-        .app-container { display: grid; grid-template-columns: 1fr 320px; min-height: 100vh; }
+        /* Main Layout - Desktop */
+        .app-container { 
+            display: grid; 
+            grid-template-columns: 1fr 320px; 
+            min-height: 100vh; 
+        }
 
+        /* Mobile Layout */
         @media (max-width: 900px) {
-            .app-container { grid-template-columns: 1fr; }
+            .app-container { 
+                grid-template-columns: 1fr; 
+                grid-template-rows: auto 1fr auto;
+            }
             .sidebar {
                 position: fixed; bottom: 0; left: 0; right: 0;
-                height: auto; max-height: 40vh;
-                border-radius: 24px 24px 0 0; z-index: 100;
+                max-height: 45vh;
+                border-radius: 24px 24px 0 0; 
+                z-index: 100;
+                padding: 16px;
+                overflow-y: auto;
             }
+            .sidebar.collapsed {
+                max-height: 60px;
+                overflow: hidden;
+            }
+            .main-area {
+                padding: 16px;
+                padding-bottom: 200px;
+            }
+            .header h1 { font-size: 1.1rem; }
+            .scenario-badge { font-size: 0.75rem; padding: 6px 12px; }
+            .scenario-card { padding: 16px; }
+            .scenario-title { font-size: 1rem; }
+            .scenario-instruction { font-size: 0.85rem; margin-bottom: 16px; }
+            .canvas-area { min-height: 320px; }
+            .controls { gap: 8px; margin-top: 16px; }
+            .control-btn { padding: 10px 16px; font-size: 0.8rem; }
         }
 
         .main-area { padding: 32px; display: flex; flex-direction: column; gap: 24px; }
 
-        .header { display: flex; justify-content: space-between; align-items: center; }
+        .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
         .header h1 { font-size: 1.5rem; font-weight: 700; color: var(--slate-900); }
 
         .scenario-badge {
@@ -96,15 +127,15 @@
             background: linear-gradient(180deg, #e8f5e9 0%, #c8e6c9 100%);
             border-radius: 16px; position: relative;
             min-height: 450px; overflow: hidden;
+            touch-action: none;
         }
 
         .greenhouse-floor {
             position: absolute; bottom: 0; left: 0; right: 0; height: 60px;
             background: linear-gradient(180deg, #a1887f 0%, #8d6e63 50%, #6d4c41 100%);
         }
-        .greenhouse-floor::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
-            background: rgba(0,0,0,0.1);
+        @media (max-width: 900px) {
+            .greenhouse-floor { height: 40px; }
         }
 
         /* Scenario 1 */
@@ -116,9 +147,15 @@
             transition: height 0.3s ease, opacity 0.3s ease;
             display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px;
         }
+        @media (max-width: 900px) {
+            .splash-zone { width: 140px; bottom: 40px; }
+        }
         .splash-label {
             font-size: 0.75rem; color: var(--red-500); font-weight: 500;
             background: var(--red-100); padding: 2px 8px; border-radius: 4px;
+        }
+        @media (max-width: 900px) {
+            .splash-label { font-size: 0.65rem; }
         }
 
         .bench {
@@ -126,14 +163,13 @@
             bottom: var(--bench-height, 90px); width: 180px;
             transition: bottom 0.2s ease;
         }
+        @media (max-width: 900px) {
+            .bench { width: 120px; }
+        }
         .bench-top {
             height: 8px;
             background: linear-gradient(90deg, #607d8b 0%, #78909c 50%, #607d8b 100%);
             border-radius: 2px; position: relative;
-        }
-        .bench-top::before {
-            content: ''; position: absolute; top: 2px; left: 4px; right: 4px; bottom: 2px;
-            background: repeating-linear-gradient(90deg, transparent, transparent 8px, rgba(0,0,0,0.15) 8px, rgba(0,0,0,0.15) 10px);
         }
         .bench-legs { display: flex; justify-content: space-between; padding: 0 10px; }
         .bench-leg {
@@ -146,35 +182,53 @@
             position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
             display: flex; gap: 8px; padding: 8px;
         }
+        @media (max-width: 900px) {
+            .plants-row { gap: 4px; padding: 4px; }
+        }
         .plant { width: 28px; height: 36px; position: relative; }
+        @media (max-width: 900px) {
+            .plant { width: 20px; height: 28px; }
+        }
         .plant-pot {
-            position: absolute; bottom: 0; width: 28px; height: 20px;
+            position: absolute; bottom: 0; width: 100%; height: 55%;
             background: linear-gradient(180deg, #bcaaa4 0%, #a1887f 100%);
             clip-path: polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%);
         }
         .plant-leaves {
-            position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
-            width: 24px; height: 24px;
+            position: absolute; bottom: 45%; left: 50%; transform: translateX(-50%);
+            width: 85%; height: 65%;
             background: radial-gradient(ellipse at center, #81c784 0%, #66bb6a 60%, #4caf50 100%);
             border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
         }
 
         .height-ruler {
-            position: absolute; right: 40px; bottom: 60px;
+            position: absolute; right: 20px; bottom: 60px;
             width: 60px; height: 200px;
             display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end;
+        }
+        @media (max-width: 900px) {
+            .height-ruler { right: 10px; bottom: 40px; width: 50px; height: 150px; }
         }
         .ruler-mark {
             display: flex; align-items: center; gap: 8px;
             font-size: 0.75rem; color: var(--slate-600); font-weight: 500;
             transition: color 0.3s ease;
         }
+        @media (max-width: 900px) {
+            .ruler-mark { font-size: 0.6rem; gap: 4px; }
+        }
         .ruler-mark span { white-space: nowrap; }
         .ruler-line {
             width: 20px; height: 2px; background: var(--slate-400);
             transition: background 0.3s ease, width 0.3s ease;
         }
+        @media (max-width: 900px) {
+            .ruler-line { width: 12px; }
+        }
         .ruler-mark.achieved .ruler-line { background: var(--sage-500); width: 30px; }
+        @media (max-width: 900px) {
+            .ruler-mark.achieved .ruler-line { width: 18px; }
+        }
         .ruler-mark.achieved { color: var(--sage-600); font-weight: 600; }
 
         .current-height {
@@ -184,6 +238,9 @@
             padding: 4px 12px; border-radius: 100px;
             font-size: 0.875rem; font-weight: 600;
             transition: bottom 0.2s ease, background 0.3s ease;
+        }
+        @media (max-width: 900px) {
+            .current-height { font-size: 0.75rem; padding: 3px 10px; }
         }
         .current-height.success { background: var(--sage-600); }
         .current-height.hidden { display: none; }
@@ -199,24 +256,43 @@
             font-family: inherit; font-size: 0.875rem; font-weight: 500;
             color: var(--slate-700); cursor: pointer; transition: all 0.2s ease;
         }
-        .control-btn:hover { border-color: var(--slate-400); background: var(--slate-100); }
+        .control-btn:hover, .control-btn:active { border-color: var(--slate-400); background: var(--slate-100); }
         .control-btn:active { transform: scale(0.98); }
         .control-btn.primary { background: var(--sage-500); border-color: var(--sage-500); color: white; }
-        .control-btn.primary:hover { background: var(--sage-600); border-color: var(--sage-600); }
+        .control-btn.primary:hover, .control-btn.primary:active { background: var(--sage-600); border-color: var(--sage-600); }
         .control-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
         /* Sidebar */
         .sidebar {
             background: var(--slate-800); color: var(--warm-white);
-            padding: 32px 24px; display: flex; flex-direction: column; gap: 24px;
+            padding: 32px 24px; display: flex; flex-direction: column; gap: 20px;
         }
         .sidebar-header { display: flex; align-items: center; gap: 12px; }
         .clipboard-icon {
             width: 40px; height: 40px; background: var(--slate-700);
             border-radius: 10px; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        @media (max-width: 900px) {
+            .clipboard-icon { width: 32px; height: 32px; }
         }
         .sidebar-header h2 { font-size: 1.125rem; font-weight: 600; }
+        @media (max-width: 900px) {
+            .sidebar-header h2 { font-size: 1rem; }
+        }
         .student-name-display { font-size: 0.8rem; color: var(--sage-500); margin-top: 4px; }
+
+        /* Mobile sidebar toggle */
+        .sidebar-toggle {
+            display: none;
+            position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+            width: 40px; height: 5px; background: var(--slate-600);
+            border-radius: 3px; cursor: pointer;
+        }
+        @media (max-width: 900px) {
+            .sidebar-toggle { display: block; }
+            .sidebar { position: relative; }
+        }
 
         .progress-bar { height: 6px; background: var(--slate-700); border-radius: 100px; overflow: hidden; }
         .progress-fill {
@@ -224,14 +300,23 @@
             width: var(--progress, 0%); transition: width 0.5s ease; border-radius: 100px;
         }
         .progress-text { font-size: 0.875rem; color: var(--slate-400); margin-top: 8px; }
+        @media (max-width: 900px) {
+            .progress-text { font-size: 0.75rem; }
+        }
 
-        .checklist { display: flex; flex-direction: column; gap: 12px; flex: 1; overflow-y: auto; }
+        .checklist { display: flex; flex-direction: column; gap: 10px; flex: 1; overflow-y: auto; }
+        @media (max-width: 900px) {
+            .checklist { gap: 6px; }
+        }
         .checklist-item {
             display: flex; align-items: flex-start; gap: 12px;
-            padding: 14px; background: var(--slate-700); border-radius: 12px;
+            padding: 12px; background: var(--slate-700); border-radius: 12px;
             cursor: pointer; transition: all 0.2s ease; border: 2px solid transparent;
         }
-        .checklist-item:hover { background: var(--slate-600); }
+        @media (max-width: 900px) {
+            .checklist-item { padding: 10px; gap: 8px; }
+        }
+        .checklist-item:hover, .checklist-item:active { background: var(--slate-600); }
         .checklist-item.active { border-color: var(--sage-500); background: var(--slate-700); }
         .checklist-item.completed { opacity: 0.6; }
 
@@ -240,27 +325,35 @@
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
             flex-shrink: 0; transition: all 0.3s ease;
         }
+        @media (max-width: 900px) {
+            .check-circle { width: 18px; height: 18px; }
+        }
         .checklist-item.completed .check-circle { background: var(--sage-500); border-color: var(--sage-500); }
         .check-icon { opacity: 0; transition: opacity 0.2s ease; }
         .checklist-item.completed .check-icon { opacity: 1; }
 
         .checklist-content h3 { font-size: 0.8rem; font-weight: 600; margin-bottom: 2px; }
         .checklist-content p { font-size: 0.7rem; color: var(--slate-400); line-height: 1.4; }
+        @media (max-width: 900px) {
+            .checklist-content h3 { font-size: 0.75rem; }
+            .checklist-content p { font-size: 0.65rem; }
+        }
 
         /* Toast */
         .toast-container {
-            position: fixed; top: 24px; right: 24px;
+            position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
             display: flex; flex-direction: column; gap: 12px; z-index: 1000;
+            width: 90%; max-width: 320px;
         }
         .toast {
-            background: var(--warm-white); padding: 16px 20px; border-radius: 12px;
+            background: var(--warm-white); padding: 14px 16px; border-radius: 12px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.15);
             display: flex; align-items: center; gap: 12px;
-            animation: slideIn 0.3s ease; max-width: 320px;
+            animation: slideIn 0.3s ease;
         }
         @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
         .toast.success { border-left: 4px solid var(--sage-500); }
         .toast.warning { border-left: 4px solid var(--amber-500); }
@@ -273,7 +366,7 @@
         .toast.success .toast-icon { background: var(--sage-100); color: var(--sage-600); }
         .toast.warning .toast-icon { background: var(--amber-100); color: var(--amber-500); }
         .toast.error .toast-icon { background: var(--red-100); color: var(--red-500); }
-        .toast-text { font-size: 0.875rem; font-weight: 500; color: var(--slate-800); }
+        .toast-text { font-size: 0.8rem; font-weight: 500; color: var(--slate-800); flex: 1; }
 
         /* Scenario 2: Hose */
         .hose-scenario { display: none; }
@@ -285,18 +378,19 @@
             background: radial-gradient(ellipse, rgba(66, 165, 245, 0.5) 0%, rgba(66, 165, 245, 0.2) 60%, transparent 100%);
             border-radius: 50%;
         }
+        @media (max-width: 900px) {
+            .puddle { width: 120px; height: 40px; bottom: 45px; left: 8%; }
+        }
         .hose-coil { position: absolute; cursor: grab; transition: all 0.3s ease; }
         .hose-coil:active { cursor: grabbing; }
+        @media (max-width: 900px) {
+            .hose-coil { transform: scale(0.7); }
+        }
 
         .hose-body {
             width: 120px; height: 30px;
             background: linear-gradient(180deg, #4caf50 0%, #388e3c 30%, #2e7d32 70%, #1b5e20 100%);
             border-radius: 15px; position: relative; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-        .hose-body::before {
-            content: ''; position: absolute; top: 3px; left: 10px; right: 10px; height: 6px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            border-radius: 3px;
         }
         .hose-connector {
             position: absolute; right: -15px; top: 50%; transform: translateY(-50%);
@@ -328,8 +422,11 @@
         .spray-hole { width: 3px; height: 3px; background: #5d4037; border-radius: 50%; }
 
         .wall-hook {
-            position: absolute; top: 60px; right: 80px; width: 60px;
+            position: absolute; top: 40px; right: 60px; width: 60px;
             display: flex; flex-direction: column; align-items: center;
+        }
+        @media (max-width: 900px) {
+            .wall-hook { top: 20px; right: 30px; transform: scale(0.8); }
         }
         .hook-plate {
             width: 50px; height: 24px;
@@ -346,8 +443,11 @@
         }
 
         .drop-zone {
-            position: absolute; top: 40px; right: 55px; width: 100px; height: 120px;
+            position: absolute; top: 20px; right: 35px; width: 100px; height: 120px;
             border: 2px dashed transparent; border-radius: 12px; transition: all 0.3s ease;
+        }
+        @media (max-width: 900px) {
+            .drop-zone { top: 10px; right: 15px; width: 80px; height: 100px; }
         }
         .drop-zone.highlight { border-color: var(--sage-500); background: rgba(132, 204, 22, 0.1); }
 
@@ -355,7 +455,10 @@
         .delivery-scenario { display: none; }
         .delivery-scenario.active { display: block; }
 
-        .truck { position: absolute; top: 40%; left: 30px; transform: translateY(-50%); }
+        .truck { position: absolute; top: 35%; left: 20px; transform: translateY(-50%); }
+        @media (max-width: 900px) {
+            .truck { transform: translateY(-50%) scale(0.65); left: 10px; top: 30%; }
+        }
         .truck-cab {
             width: 70px; height: 55px;
             background: linear-gradient(180deg, #ff7043 0%, #f4511e 100%);
@@ -384,32 +487,32 @@
         }
 
         .delivery-options {
-            position: absolute; right: 30px; top: 50%; transform: translateY(-50%);
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;
+            position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+        }
+        @media (max-width: 900px) {
+            .delivery-options { right: 10px; gap: 8px; }
         }
         .delivery-option {
-            width: 110px; height: 70px; border-radius: 12px; cursor: pointer;
+            width: 100px; height: 65px; border-radius: 12px; cursor: pointer;
             transition: all 0.2s ease;
             display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
             border: 3px solid transparent; position: relative; overflow: hidden;
         }
-        .delivery-option:hover { transform: scale(1.05); }
+        @media (max-width: 900px) {
+            .delivery-option { width: 75px; height: 55px; }
+        }
+        .delivery-option:hover, .delivery-option:active { transform: scale(1.05); }
         .delivery-option.ground { background: linear-gradient(180deg, #8d6e63 0%, #6d4c41 100%); }
         .delivery-option.concrete { background: linear-gradient(180deg, #b0bec5 0%, #90a4ae 100%); }
-        .delivery-option.concrete::before {
-            content: ''; position: absolute; inset: 0;
-            background: repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(0,0,0,0.05) 20px, rgba(0,0,0,0.05) 22px);
-        }
         .delivery-option.lawn { background: linear-gradient(180deg, #81c784 0%, #66bb6a 100%); }
-        .delivery-option.gravel { background: linear-gradient(180deg, #a1887f 0%, #8d6e63 100%); position: relative; }
-        .delivery-option.gravel::before {
-            content: ''; position: absolute; inset: 0;
-            background-image: radial-gradient(circle, #bcaaa4 2px, transparent 2px);
-            background-size: 8px 8px;
-        }
+        .delivery-option.gravel { background: linear-gradient(180deg, #a1887f 0%, #8d6e63 100%); }
         .delivery-option span {
-            font-size: 0.7rem; font-weight: 600; color: white;
+            font-size: 0.65rem; font-weight: 600; color: white;
             text-shadow: 0 1px 3px rgba(0,0,0,0.4); position: relative; z-index: 1;
+        }
+        @media (max-width: 900px) {
+            .delivery-option span { font-size: 0.55rem; }
         }
         .delivery-option.selected { border-color: var(--sage-500); box-shadow: 0 0 0 4px rgba(132, 204, 22, 0.3); }
         .delivery-option.wrong { border-color: var(--red-500); box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.3); }
@@ -419,14 +522,13 @@
         .pruning-scenario.active { display: block; }
 
         .shrub-container { position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%); }
+        @media (max-width: 900px) {
+            .shrub-container { bottom: 40px; transform: translateX(-50%) scale(0.75); }
+        }
         .shrub-trunk {
             width: 24px; height: 140px;
             background: linear-gradient(90deg, #4e342e 0%, #6d4c41 30%, #5d4037 70%, #4e342e 100%);
             margin: 0 auto; border-radius: 6px; position: relative;
-        }
-        .shrub-trunk::before {
-            content: ''; position: absolute; top: 10px; left: 4px;
-            width: 3px; height: 80%; background: rgba(0,0,0,0.15); border-radius: 2px;
         }
 
         .branch-container {
@@ -437,7 +539,7 @@
             position: absolute; cursor: pointer; transition: all 0.2s ease;
             display: flex; align-items: center;
         }
-        .branch:hover { transform: scale(1.08); }
+        .branch:hover, .branch:active { transform: scale(1.08); }
         .branch.selected { filter: brightness(1.15); }
         .branch.correct { filter: drop-shadow(0 0 10px rgba(132, 204, 22, 0.9)); }
         .branch.incorrect { filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.9)); }
@@ -452,22 +554,24 @@
             background: radial-gradient(ellipse at center, #81c784 0%, #66bb6a 50%, #4caf50 100%);
             border-radius: 50%; position: relative;
         }
-        .branch-foliage::before {
-            content: ''; position: absolute; top: 5px; left: 10px;
-            width: 15px; height: 10px; background: rgba(255,255,255,0.2); border-radius: 50%;
-        }
 
         .pruning-ruler {
-            position: absolute; left: 50px; bottom: 60px;
+            position: absolute; left: 30px; bottom: 60px;
             width: 50px; height: 200px; background: var(--warm-white);
             border-radius: 6px; display: flex; flex-direction: column;
             justify-content: space-between; padding: 8px 6px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
+        @media (max-width: 900px) {
+            .pruning-ruler { left: 15px; bottom: 40px; width: 40px; height: 150px; }
+        }
         .pruning-mark {
             font-size: 0.7rem; font-weight: 600; color: var(--slate-500);
             text-align: center; display: flex; align-items: center; justify-content: center;
             gap: 2px; padding: 4px; border-radius: 4px; transition: all 0.3s ease;
+        }
+        @media (max-width: 900px) {
+            .pruning-mark { font-size: 0.55rem; padding: 2px; }
         }
         .pruning-mark.highlight { background: var(--sage-100); color: var(--sage-600); }
 
@@ -476,14 +580,13 @@
         .pasteurization-scenario.active { display: block; }
 
         .steamer-unit { position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); }
+        @media (max-width: 900px) {
+            .steamer-unit { bottom: 50px; transform: translateX(-50%) scale(0.75); }
+        }
         .steamer-box {
             width: 180px; height: 90px;
             background: linear-gradient(180deg, #90a4ae 0%, #78909c 50%, #607d8b 100%);
             border-radius: 10px; position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-        .steamer-box::before {
-            content: ''; position: absolute; top: 8px; left: 8px; right: 8px; height: 4px;
-            background: rgba(255,255,255,0.2); border-radius: 2px;
         }
         .soil-mound {
             position: absolute; top: -25px; left: 25px; right: 25px; height: 45px;
@@ -515,7 +618,7 @@
             color: white; font-family: inherit; font-size: 0.65rem; font-weight: 600;
             cursor: pointer; transition: all 0.3s ease;
         }
-        .power-button:hover { background: var(--slate-500); }
+        .power-button:hover, .power-button:active { background: var(--slate-500); }
         .power-button.on { background: var(--sage-500); border-color: var(--sage-600); }
 
         .indicator-light {
@@ -526,19 +629,25 @@
         .indicator-light.on { background: #f44336; box-shadow: 0 0 10px #f44336; }
 
         .control-panel {
-            position: absolute; top: 60px; right: 30px;
-            background: var(--warm-white); padding: 20px; border-radius: 16px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.1); width: 160px;
+            position: absolute; top: 40px; right: 20px;
+            background: var(--warm-white); padding: 16px; border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1); width: 140px;
         }
-        .control-group { margin-bottom: 16px; }
+        @media (max-width: 900px) {
+            .control-panel { top: 10px; right: 10px; width: 110px; padding: 12px; }
+        }
+        .control-group { margin-bottom: 12px; }
         .control-group:last-child { margin-bottom: 0; }
         .control-label {
-            font-size: 0.7rem; font-weight: 600; color: var(--slate-500);
-            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
+            font-size: 0.65rem; font-weight: 600; color: var(--slate-500);
+            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;
         }
         .control-value {
-            font-size: 1.5rem; font-weight: 700; color: var(--slate-800);
-            text-align: center; margin-bottom: 8px;
+            font-size: 1.25rem; font-weight: 700; color: var(--slate-800);
+            text-align: center; margin-bottom: 6px;
+        }
+        @media (max-width: 900px) {
+            .control-value { font-size: 1rem; }
         }
         .control-value.optimal { color: var(--sage-600); }
         .control-value.warning { color: var(--amber-500); }
@@ -550,15 +659,17 @@
         }
         .control-slider::-webkit-slider-thumb {
             -webkit-appearance: none; appearance: none;
-            width: 18px; height: 18px; background: var(--slate-700);
-            border-radius: 50%; cursor: pointer; transition: background 0.2s ease;
+            width: 20px; height: 20px; background: var(--slate-700);
+            border-radius: 50%; cursor: pointer;
         }
-        .control-slider::-webkit-slider-thumb:hover { background: var(--slate-800); }
 
         .timer-panel {
-            position: absolute; top: 60px; left: 30px;
-            background: var(--warm-white); padding: 20px; border-radius: 16px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.1); width: 140px;
+            position: absolute; top: 40px; left: 20px;
+            background: var(--warm-white); padding: 16px; border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1); width: 120px;
+        }
+        @media (max-width: 900px) {
+            .timer-panel { top: 10px; left: 10px; width: 100px; padding: 12px; }
         }
 
         /* Scenario 6: Tool Cleaning */
@@ -567,22 +678,31 @@
 
         .workbench-surface {
             position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%);
-            width: 400px; height: 16px;
+            width: 90%; max-width: 400px; height: 16px;
             background: linear-gradient(180deg, #8d6e63 0%, #6d4c41 100%);
             border-radius: 4px;
         }
+        @media (max-width: 900px) {
+            .workbench-surface { bottom: 40px; height: 12px; }
+        }
 
         .tools-row {
-            position: absolute; bottom: 95px; left: 50%; transform: translateX(-50%);
-            display: flex; gap: 24px;
+            position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 16px;
         }
-        .tool-station { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        @media (max-width: 900px) {
+            .tools-row { bottom: 60px; gap: 8px; }
+        }
+        .tool-station { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 
         .tool-visual {
-            width: 70px; height: 70px; background: var(--warm-white);
+            width: 60px; height: 60px; background: var(--warm-white);
             border-radius: 12px; display: flex; align-items: center; justify-content: center;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: all 0.3s ease;
             position: relative;
+        }
+        @media (max-width: 900px) {
+            .tool-visual { width: 50px; height: 50px; border-radius: 8px; }
         }
         .tool-visual.highlight {
             box-shadow: 0 0 0 3px var(--sage-500), 0 4px 12px rgba(132, 204, 22, 0.3);
@@ -593,189 +713,227 @@
         .tool-visual.filled::before {
             content: attr(data-chemical);
             position: absolute;
-            top: -24px;
+            top: -20px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 0.65rem;
+            font-size: 0.55rem;
             font-weight: 600;
             color: var(--sage-600);
             white-space: nowrap;
             background: var(--sage-100);
-            padding: 2px 8px;
+            padding: 2px 6px;
             border-radius: 4px;
         }
 
         .tool-visual.wrong { background: var(--red-100); box-shadow: 0 0 0 3px var(--red-500); }
 
-        .pruners { width: 50px; height: 50px; position: relative; }
+        .pruners { width: 40px; height: 40px; position: relative; }
+        @media (max-width: 900px) {
+            .pruners { width: 32px; height: 32px; }
+        }
         .pruner-blade {
-            position: absolute; width: 28px; height: 10px;
+            position: absolute; width: 22px; height: 8px;
             background: linear-gradient(180deg, #b0bec5 0%, #78909c 100%);
-            border-radius: 0 8px 8px 0; top: 12px; left: 20px; transform-origin: left center;
+            border-radius: 0 6px 6px 0; top: 10px; left: 16px; transform-origin: left center;
         }
         .pruner-blade.top { transform: rotate(-15deg); }
-        .pruner-blade.bottom { transform: rotate(15deg); top: 28px; }
+        .pruner-blade.bottom { transform: rotate(15deg); top: 22px; }
         .pruner-handle {
-            position: absolute; width: 22px; height: 12px;
+            position: absolute; width: 18px; height: 10px;
             background: linear-gradient(180deg, #f44336 0%, #c62828 100%);
             border-radius: 4px; left: 0;
         }
-        .pruner-handle.top { top: 8px; }
-        .pruner-handle.bottom { top: 30px; }
+        .pruner-handle.top { top: 6px; }
+        .pruner-handle.bottom { top: 24px; }
         .pruner-pivot {
-            position: absolute; width: 8px; height: 8px; background: #424242;
-            border-radius: 50%; top: 21px; left: 18px;
+            position: absolute; width: 6px; height: 6px; background: #424242;
+            border-radius: 50%; top: 17px; left: 14px;
         }
 
         .benchtop-icon {
-            width: 45px; height: 30px;
+            width: 36px; height: 24px;
             background: linear-gradient(180deg, #90a4ae 0%, #607d8b 100%);
             border-radius: 3px; position: relative;
         }
-        .benchtop-icon::before {
-            content: ''; position: absolute; top: 3px; left: 3px; right: 3px; height: 3px;
-            background: rgba(255,255,255,0.3); border-radius: 2px;
-        }
-        .benchtop-legs { display: flex; justify-content: space-between; width: 45px; }
-        .benchtop-leg { width: 4px; height: 15px; background: #546e7a; }
+        .benchtop-legs { display: flex; justify-content: space-between; width: 36px; }
+        .benchtop-leg { width: 3px; height: 12px; background: #546e7a; }
 
         .tub-icon {
-            width: 40px; height: 28px;
+            width: 32px; height: 22px;
             background: linear-gradient(180deg, #42a5f5 0%, #1e88e5 100%);
             border-radius: 4px 4px 6px 6px; position: relative;
         }
         .tub-icon::before {
-            content: ''; position: absolute; top: -4px; left: -2px; right: -2px; height: 6px;
+            content: ''; position: absolute; top: -3px; left: -2px; right: -2px; height: 5px;
             background: linear-gradient(180deg, #64b5f6 0%, #42a5f5 100%);
             border-radius: 3px 3px 0 0;
         }
 
-        .pot-icon { width: 40px; height: 35px; position: relative; }
+        .pot-icon { width: 32px; height: 28px; position: relative; }
         .pot-icon svg { width: 100%; height: 100%; }
 
-        .tool-name { font-size: 0.65rem; font-weight: 600; color: var(--slate-600); text-align: center; }
+        .tool-name { font-size: 0.55rem; font-weight: 600; color: var(--slate-600); text-align: center; }
+        @media (max-width: 900px) {
+            .tool-name { font-size: 0.5rem; }
+        }
 
         .bottles-shelf {
-            position: absolute; top: 70px; left: 50%; transform: translateX(-50%);
-            display: flex; gap: 50px;
+            position: absolute; top: 50px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 40px;
+        }
+        @media (max-width: 900px) {
+            .bottles-shelf { top: 30px; gap: 24px; }
         }
         .bottle {
-            cursor: grab; display: flex; flex-direction: column; align-items: center; gap: 6px;
+            cursor: grab; display: flex; flex-direction: column; align-items: center; gap: 4px;
             transition: transform 0.2s ease;
         }
-        .bottle:hover { transform: scale(1.08); }
+        .bottle:hover, .bottle:active { transform: scale(1.08); }
         .bottle:active { cursor: grabbing; }
 
         .bottle-body {
-            width: 45px; height: 65px; border-radius: 8px 8px 6px 6px;
+            width: 40px; height: 55px; border-radius: 8px 8px 6px 6px;
             position: relative; box-shadow: 0 2px 6px rgba(0,0,0,0.15);
         }
-        .bottle-body::before {
-            content: ''; position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
-            width: 18px; height: 14px; background: inherit; border-radius: 4px 4px 0 0;
+        @media (max-width: 900px) {
+            .bottle-body { width: 32px; height: 45px; }
         }
-        .bottle-body::after {
-            content: ''; position: absolute; top: 8px; left: 6px;
-            width: 8px; height: 30px; background: rgba(255,255,255,0.25); border-radius: 4px;
+        .bottle-body::before {
+            content: ''; position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+            width: 16px; height: 12px; background: inherit; border-radius: 4px 4px 0 0;
         }
         .bottle.alcohol .bottle-body { background: linear-gradient(180deg, #81d4fa 0%, #4fc3f7 50%, #29b6f6 100%); }
         .bottle.bleach .bottle-body { background: linear-gradient(180deg, #fff9c4 0%, #fff59d 50%, #ffee58 100%); }
         .bottle-label {
-            font-size: 0.6rem; font-weight: 600; color: var(--slate-700);
-            text-align: center; max-width: 70px; line-height: 1.3;
+            font-size: 0.5rem; font-weight: 600; color: var(--slate-700);
+            text-align: center; max-width: 60px; line-height: 1.2;
+        }
+        @media (max-width: 900px) {
+            .bottle-label { font-size: 0.45rem; max-width: 50px; }
         }
 
-        /* Scenario 7: PPE Audit - GRID LAYOUT */
+        /* Scenario 7: PPE Audit */
         .ppe-scenario { display: none; }
-        .ppe-scenario.active { display: block; height: 100%; }
+        .ppe-scenario.active { display: flex; height: 100%; flex-direction: row; }
+        @media (max-width: 900px) {
+            .ppe-scenario.active { flex-direction: column; }
+        }
 
         .sds-button {
-            position: absolute; top: 15px; left: 15px;
-            padding: 10px 16px; background: var(--warm-white);
-            border: 2px solid var(--slate-300); border-radius: 10px;
-            cursor: pointer; display: flex; align-items: center; gap: 8px;
-            font-family: inherit; font-size: 0.8rem; font-weight: 600;
+            position: absolute; top: 10px; left: 10px;
+            padding: 8px 12px; background: var(--warm-white);
+            border: 2px solid var(--slate-300); border-radius: 8px;
+            cursor: pointer; display: flex; align-items: center; gap: 6px;
+            font-family: inherit; font-size: 0.7rem; font-weight: 600;
             color: var(--slate-700); transition: all 0.2s ease;
             box-shadow: 0 2px 6px rgba(0,0,0,0.1); z-index: 10;
         }
-        .sds-button:hover { border-color: var(--sage-500); background: var(--sage-100); }
+        .sds-button:hover, .sds-button:active { border-color: var(--sage-500); background: var(--sage-100); }
 
-        /* UPDATED: 2-column grid layout for PPE items */
         .ppe-shelf {
-            position: absolute; left: 15px; top: 55px; bottom: 15px;
-            width: 220px;
+            position: absolute; left: 10px; top: 45px; bottom: 10px;
+            width: 200px;
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-            padding: 10px;
+            gap: 6px;
+            padding: 8px;
             background: rgba(255,255,255,0.95);
-            border-radius: 12px;
+            border-radius: 10px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             overflow-y: auto;
             align-content: start;
         }
+        @media (max-width: 900px) {
+            .ppe-shelf {
+                position: relative; left: auto; top: auto; bottom: auto;
+                width: 100%; height: auto; max-height: 140px;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 4px; padding: 6px;
+                border-radius: 8px;
+                margin-bottom: 8px;
+            }
+        }
         
         .ppe-item {
-            display: flex; flex-direction: column; align-items: center; gap: 4px;
-            padding: 8px 4px; background: var(--warm-white);
-            border: 2px solid var(--slate-200); border-radius: 8px;
+            display: flex; flex-direction: column; align-items: center; gap: 3px;
+            padding: 6px 4px; background: var(--warm-white);
+            border: 2px solid var(--slate-200); border-radius: 6px;
             cursor: grab; transition: all 0.2s ease;
-            min-height: 70px;
+            min-height: 60px;
         }
-        .ppe-item:hover { border-color: var(--sage-500); transform: scale(1.03); }
+        @media (max-width: 900px) {
+            .ppe-item { min-height: 50px; padding: 4px 2px; }
+        }
+        .ppe-item:hover, .ppe-item:active { border-color: var(--sage-500); transform: scale(1.02); }
         .ppe-item:active { cursor: grabbing; }
         .ppe-item.used { opacity: 0.3; pointer-events: none; }
-        .ppe-item svg { width: 36px; height: 28px; flex-shrink: 0; }
+        .ppe-item svg { width: 28px; height: 22px; flex-shrink: 0; }
+        @media (max-width: 900px) {
+            .ppe-item svg { width: 24px; height: 18px; }
+        }
         .ppe-item-label { 
-            font-size: 0.55rem; font-weight: 500; color: var(--slate-700); 
-            line-height: 1.2; text-align: center;
+            font-size: 0.5rem; font-weight: 500; color: var(--slate-700); 
+            line-height: 1.1; text-align: center;
+        }
+        @media (max-width: 900px) {
+            .ppe-item-label { font-size: 0.4rem; }
         }
 
         .worker-area {
-            position: absolute; right: 40px; top: 50%; transform: translateY(-50%);
-            width: 240px; height: 400px;
+            position: absolute; right: 30px; top: 50%; transform: translateY(-50%);
+            width: 200px; height: 340px;
+        }
+        @media (max-width: 900px) {
+            .worker-area { 
+                position: relative; right: auto; top: auto; transform: none;
+                width: 100%; height: 200px;
+                display: flex; justify-content: center;
+            }
         }
         .worker-body { position: relative; width: 100%; height: 100%; }
+        @media (max-width: 900px) {
+            .worker-body { width: 140px; height: 100%; transform: scale(0.6); transform-origin: top center; }
+        }
 
         .worker-head {
             position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-            width: 60px; height: 70px; background: #d4a574;
+            width: 50px; height: 60px; background: #d4a574;
             border-radius: 50% 50% 45% 45%;
         }
         .worker-torso {
-            position: absolute; top: 65px; left: 50%; transform: translateX(-50%);
-            width: 90px; height: 130px; background: #64b5f6;
+            position: absolute; top: 55px; left: 50%; transform: translateX(-50%);
+            width: 75px; height: 110px; background: #64b5f6;
             border-radius: 10px 10px 5px 5px;
         }
         .worker-arm {
-            position: absolute; top: 75px; width: 30px; height: 100px;
-            background: #64b5f6; border-radius: 15px;
+            position: absolute; top: 65px; width: 25px; height: 85px;
+            background: #64b5f6; border-radius: 12px;
         }
-        .worker-arm.left { left: 35px; }
-        .worker-arm.right { right: 35px; }
+        .worker-arm.left { left: 30px; }
+        .worker-arm.right { right: 30px; }
 
         .worker-hand {
-            position: absolute; top: 170px; width: 28px; height: 35px;
-            background: #d4a574; border-radius: 8px 8px 12px 12px;
+            position: absolute; top: 145px; width: 24px; height: 30px;
+            background: #d4a574; border-radius: 6px 6px 10px 10px;
         }
-        .worker-hand.left { left: 36px; }
-        .worker-hand.right { right: 36px; }
+        .worker-hand.left { left: 31px; }
+        .worker-hand.right { right: 31px; }
 
         .worker-legs {
-            position: absolute; top: 190px; left: 50%; transform: translateX(-50%);
-            width: 70px; height: 140px; display: flex; gap: 10px;
+            position: absolute; top: 160px; left: 50%; transform: translateX(-50%);
+            width: 60px; height: 120px; display: flex; gap: 8px;
         }
-        .worker-leg { flex: 1; background: #455a64; border-radius: 8px; }
+        .worker-leg { flex: 1; background: #455a64; border-radius: 6px; }
 
         .worker-feet {
             position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
-            width: 100px; height: 40px; display: flex; gap: 10px;
+            width: 85px; height: 35px; display: flex; gap: 8px;
         }
-        .worker-foot { flex: 1; background: #37474f; border-radius: 6px 6px 8px 8px; }
+        .worker-foot { flex: 1; background: #37474f; border-radius: 5px 5px 6px 6px; }
 
         .ppe-zone {
-            position: absolute; border: 3px dashed var(--slate-400);
-            border-radius: 10px; background: rgba(255,255,255,0.3);
+            position: absolute; border: 2px dashed var(--slate-400);
+            border-radius: 8px; background: rgba(255,255,255,0.3);
             transition: all 0.3s ease;
             display: flex; align-items: center; justify-content: center;
         }
@@ -783,70 +941,72 @@
         .ppe-zone.filled { border-style: solid; border-color: var(--sage-500); background: rgba(132, 204, 22, 0.15); }
         .ppe-zone.wrong { border-color: var(--red-500); background: rgba(239, 68, 68, 0.15); }
 
-        .zone-eyes { top: 15px; left: 50%; transform: translateX(-50%); width: 70px; height: 35px; }
-        .zone-respiratory { top: 45px; left: 50%; transform: translateX(-50%); width: 60px; height: 35px; }
-        .zone-body { top: 85px; left: 50%; transform: translateX(-50%); width: 100px; height: 110px; }
-        .zone-hands { top: 165px; left: 50%; transform: translateX(-50%); width: 180px; height: 55px; }
-        .zone-feet { bottom: 5px; left: 50%; transform: translateX(-50%); width: 120px; height: 50px; }
+        .zone-eyes { top: 12px; left: 50%; transform: translateX(-50%); width: 60px; height: 28px; }
+        .zone-respiratory { top: 38px; left: 50%; transform: translateX(-50%); width: 50px; height: 28px; }
+        .zone-body { top: 72px; left: 50%; transform: translateX(-50%); width: 85px; height: 95px; }
+        .zone-hands { top: 140px; left: 50%; transform: translateX(-50%); width: 150px; height: 45px; }
+        .zone-feet { bottom: 5px; left: 50%; transform: translateX(-50%); width: 100px; height: 42px; }
 
         .ppe-zone .ppe-svg-content {
             width: 100%; height: 100%;
             display: flex; align-items: center; justify-content: center;
         }
-        .ppe-zone .ppe-svg-content svg { width: 90%; height: 90%; }
+        .ppe-zone .ppe-svg-content svg { width: 85%; height: 85%; }
 
         /* SDS Modal */
         .sds-modal {
             position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9);
             z-index: 400; display: flex; align-items: center; justify-content: center;
+            padding: 16px;
         }
         .sds-modal.hidden { display: none; }
 
         .sds-card {
-            background: var(--warm-white); padding: 32px; border-radius: 20px;
-            max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;
+            background: var(--warm-white); padding: 24px; border-radius: 20px;
+            max-width: 600px; width: 100%; max-height: 85vh; overflow-y: auto;
         }
         .sds-card h2 {
-            font-size: 1.25rem; margin-bottom: 20px; color: var(--slate-900);
-            border-bottom: 2px solid var(--slate-200); padding-bottom: 12px;
+            font-size: 1.1rem; margin-bottom: 16px; color: var(--slate-900);
+            border-bottom: 2px solid var(--slate-200); padding-bottom: 10px;
         }
-        .sds-section { margin-bottom: 20px; }
+        .sds-section { margin-bottom: 16px; }
         .sds-section h3 {
-            font-size: 0.85rem; color: var(--slate-700); margin-bottom: 8px;
+            font-size: 0.8rem; color: var(--slate-700); margin-bottom: 6px;
             text-transform: uppercase; letter-spacing: 0.5px;
         }
-        .sds-section p, .sds-section li { font-size: 0.85rem; color: var(--slate-600); line-height: 1.6; }
-        .sds-section ul { padding-left: 20px; }
-        .sds-section li { margin-bottom: 6px; }
+        .sds-section p, .sds-section li { font-size: 0.8rem; color: var(--slate-600); line-height: 1.5; }
+        .sds-section ul { padding-left: 18px; }
+        .sds-section li { margin-bottom: 4px; }
 
         .sds-warning {
             background: var(--red-100); border-left: 4px solid var(--red-500);
-            padding: 12px; border-radius: 0 8px 8px 0; margin: 12px 0;
+            padding: 10px; border-radius: 0 8px 8px 0; margin: 10px 0;
         }
         .sds-warning strong { color: var(--red-500); }
 
         .close-sds-btn {
             background: var(--sage-500); color: white; border: none;
-            padding: 12px 28px; border-radius: 10px;
-            font-family: inherit; font-size: 0.9rem; font-weight: 600;
-            cursor: pointer; margin-top: 16px; transition: all 0.2s ease;
+            padding: 12px 24px; border-radius: 10px;
+            font-family: inherit; font-size: 0.85rem; font-weight: 600;
+            cursor: pointer; margin-top: 12px; transition: all 0.2s ease;
+            width: 100%;
         }
-        .close-sds-btn:hover { background: var(--sage-600); }
+        .close-sds-btn:hover, .close-sds-btn:active { background: var(--sage-600); }
 
         /* Nav */
         .nav-buttons {
-            display: flex; gap: 12px; margin-top: auto;
-            padding-top: 24px; border-top: 1px solid var(--slate-700);
+            display: flex; gap: 10px; margin-top: auto;
+            padding-top: 16px; border-top: 1px solid var(--slate-700);
         }
         .nav-btn {
-            flex: 1; padding: 12px; border: none; border-radius: 10px;
-            font-family: inherit; font-size: 0.875rem; font-weight: 500;
+            flex: 1; padding: 10px; border: none; border-radius: 10px;
+            font-family: inherit; font-size: 0.8rem; font-weight: 500;
             cursor: pointer; transition: all 0.2s ease;
         }
         .nav-btn.secondary { background: var(--slate-700); color: var(--slate-200); }
-        .nav-btn.secondary:hover { background: var(--slate-600); }
+        .nav-btn.secondary:hover, .nav-btn.secondary:active { background: var(--slate-600); }
         .nav-btn.primary { background: var(--sage-500); color: white; }
-        .nav-btn.primary:hover { background: var(--sage-600); }
+        .nav-btn.primary:hover, .nav-btn.primary:active { background: var(--sage-600); }
         .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
         /* Completion */
@@ -854,50 +1014,62 @@
             display: none; position: fixed; inset: 0;
             background: rgba(15, 23, 42, 0.9); z-index: 200;
             align-items: center; justify-content: center;
+            padding: 16px;
         }
         .completion-screen.active { display: flex; }
 
         .completion-card {
-            background: var(--warm-white); padding: 48px; border-radius: 24px;
-            text-align: center; max-width: 480px; width: 90%;
+            background: var(--warm-white); padding: 32px; border-radius: 24px;
+            text-align: center; max-width: 480px; width: 100%;
+            max-height: 90vh; overflow-y: auto;
         }
         .completion-icon {
-            width: 80px; height: 80px; background: var(--sage-100);
+            width: 70px; height: 70px; background: var(--sage-100);
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 24px;
+            margin: 0 auto 20px;
         }
-        .completion-card h2 { font-size: 1.5rem; font-weight: 700; color: var(--slate-900); margin-bottom: 8px; }
-        .completion-name { font-size: 1.1rem; color: var(--sage-600); font-weight: 600; margin-bottom: 16px; }
-        .completion-card p { color: var(--slate-600); margin-bottom: 24px; line-height: 1.6; }
+        .completion-card h2 { font-size: 1.3rem; font-weight: 700; color: var(--slate-900); margin-bottom: 6px; }
+        .completion-name { font-size: 1rem; color: var(--sage-600); font-weight: 600; margin-bottom: 12px; }
+        .completion-card p { color: var(--slate-600); margin-bottom: 20px; line-height: 1.5; font-size: 0.9rem; }
 
         .completion-details {
             background: var(--slate-100); border-radius: 12px;
-            padding: 20px; margin-bottom: 24px; text-align: left;
+            padding: 16px; margin-bottom: 20px; text-align: left;
         }
         .completion-details h3 {
-            font-size: 0.8rem; font-weight: 600; color: var(--slate-500);
-            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;
+            font-size: 0.75rem; font-weight: 600; color: var(--slate-500);
+            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;
         }
         .completion-task {
-            display: flex; align-items: center; gap: 10px;
-            padding: 8px 0; border-bottom: 1px solid var(--slate-200);
+            display: flex; align-items: center; gap: 8px;
+            padding: 6px 0; border-bottom: 1px solid var(--slate-200);
         }
         .completion-task:last-child { border-bottom: none; }
         .completion-check {
-            width: 20px; height: 20px; background: var(--sage-500);
+            width: 18px; height: 18px; background: var(--sage-500);
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
         }
-        .completion-task span { font-size: 0.85rem; color: var(--slate-700); }
+        .completion-task span { font-size: 0.75rem; color: var(--slate-700); }
 
-        .screenshot-hint { font-size: 0.75rem; color: var(--slate-500); font-style: italic; margin-bottom: 20px; }
+        .screenshot-hint { font-size: 0.7rem; color: var(--slate-500); font-style: italic; margin-bottom: 16px; }
 
         .restart-btn {
             background: var(--sage-500); color: white; border: none;
-            padding: 14px 32px; border-radius: 12px;
-            font-family: inherit; font-size: 1rem; font-weight: 600;
+            padding: 12px 28px; border-radius: 12px;
+            font-family: inherit; font-size: 0.95rem; font-weight: 600;
             cursor: pointer; transition: all 0.2s ease;
+            width: 100%;
         }
-        .restart-btn:hover { background: var(--sage-600); }
+        .restart-btn:hover, .restart-btn:active { background: var(--sage-600); }
+
+        /* Touch-friendly tap targets */
+        @media (max-width: 900px) {
+            .branch, .delivery-option, .ppe-item, .tool-visual {
+                min-width: 44px;
+                min-height: 44px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -914,44 +1086,40 @@
     <!-- SDS Modal -->
     <div class="sds-modal hidden" id="sdsModal">
         <div class="sds-card">
-            <h2>SaniDate® 5.0 - Safety Data Sheet (Abridged)</h2>
+            <h2>SaniDate® 5.0 - Safety Data Sheet</h2>
             
             <div class="sds-section">
                 <h3>Hazard Identification</h3>
                 <p><strong>Signal Word:</strong> DANGER</p>
                 <p><strong>Components:</strong> Hydrogen Peroxide (16-26%), Peroxyacetic Acid (4.2-6%), Acetic Acid (8-12%)</p>
-                <p>Causes severe skin burns and eye damage. Harmful if swallowed or inhaled. May intensify fire; oxidizer. pH: &lt;1 (highly acidic)</p>
+                <p>Causes severe skin burns and eye damage. Harmful if swallowed or inhaled.</p>
             </div>
 
             <div class="sds-section">
-                <h3>Section 8: Exposure Controls / Personal Protection</h3>
+                <h3>Personal Protection</h3>
                 
-                <p><strong>Engineering Controls:</strong> Ensure adequate ventilation. Emergency eye wash stations and showers should be available.</p>
-                
-                <p><strong>Respiratory Protection:</strong></p>
+                <p><strong>Respiratory:</strong></p>
                 <ul>
-                    <li>Use NIOSH-approved air-purifying or supplied air respirator</li>
-                    <li>Recommended: Organic vapor / acid gas cartridge respirator</li>
+                    <li>Organic vapor / acid gas cartridge respirator</li>
                 </ul>
 
-                <p><strong>Eye / Face Protection:</strong></p>
+                <p><strong>Eye Protection:</strong></p>
                 <ul>
-                    <li>Chemical resistant goggles or face shield required</li>
-                    <li>Required if splashes are expected to occur</li>
+                    <li>Chemical resistant goggles required</li>
                 </ul>
 
                 <p><strong>Hand Protection:</strong></p>
                 <ul>
-                    <li>Rubber, latex, neoprene, or other chemical resistant gloves</li>
+                    <li>Rubber, latex, neoprene, or nitrile gloves</li>
                 </ul>
                 <div class="sds-warning">
-                    <strong>DO NOT use leather or cotton gloves.</strong> These materials absorb chemicals and can cause prolonged skin exposure.
+                    <strong>DO NOT use leather or cotton gloves.</strong> These absorb chemicals.
                 </div>
 
-                <p><strong>Skin / Body Protection:</strong></p>
+                <p><strong>Body/Feet:</strong></p>
                 <ul>
-                    <li>Wear non-combustible clothing and footwear (PVC, neoprene, nitrile, or natural rubber)</li>
-                    <li>Chemical-resistant footwear (rubber boots)</li>
+                    <li>PVC, neoprene, or rubber clothing</li>
+                    <li>Chemical-resistant rubber boots</li>
                 </ul>
             </div>
 
@@ -1100,7 +1268,7 @@
                         <div class="bottles-shelf">
                             <div class="bottle alcohol" id="alcoholBottle" draggable="true">
                                 <div class="bottle-body"></div>
-                                <span class="bottle-label">70% Isopropyl Alcohol</span>
+                                <span class="bottle-label">70% Alcohol</span>
                             </div>
                             <div class="bottle bleach" id="bleachBottle" draggable="true">
                                 <div class="bottle-body"></div>
@@ -1125,7 +1293,7 @@
                                         <div class="benchtop-legs"><div class="benchtop-leg"></div><div class="benchtop-leg"></div></div>
                                     </div>
                                 </div>
-                                <span class="tool-name">Metal Benchtops</span>
+                                <span class="tool-name">Metal Bench</span>
                             </div>
                             <div class="tool-station">
                                 <div class="tool-visual" id="tubsVisual" data-correct="bleach">
@@ -1143,8 +1311,6 @@
                                             <path d="M9 24 L41 24" stroke="#2d2d2d" stroke-width="1.5"/>
                                             <path d="M10 30 L40 30" stroke="#2d2d2d" stroke-width="1.5"/>
                                             <path d="M11 36 L39 36" stroke="#2d2d2d" stroke-width="1.5"/>
-                                            <path d="M5 8 L45 8" stroke="#3d3d3d" stroke-width="1"/>
-                                            <path d="M8 14 L10 40" stroke="#2d2d2d" stroke-width="2"/>
                                         </svg>
                                     </div>
                                 </div>
@@ -1153,19 +1319,17 @@
                         </div>
                     </div>
 
-                    <!-- Scenario 7: PPE Audit - GRID LAYOUT with 12 items -->
+                    <!-- Scenario 7: PPE Audit -->
                     <div class="ppe-scenario" id="ppeScenario">
                         <button class="sds-button" onclick="openSDS()">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                                 <polyline points="14 2 14 8 20 8"></polyline>
-                                <line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line>
                             </svg>
-                            Read SDS
+                            SDS
                         </button>
 
                         <div class="ppe-shelf" id="ppeShelf">
-                            <!-- Row 1 -->
                             <div class="ppe-item" draggable="true" data-type="eyes" data-name="Chemical Goggles" data-correct="true">
                                 <svg viewBox="0 0 48 32" fill="none">
                                     <rect x="2" y="8" width="18" height="16" rx="3" fill="#64b5f6" stroke="#1976d2" stroke-width="2"/>
@@ -1173,7 +1337,7 @@
                                     <path d="M20 16 H28" stroke="#1976d2" stroke-width="2"/>
                                     <circle cx="11" cy="16" r="4" fill="#e3f2fd"/><circle cx="37" cy="16" r="4" fill="#e3f2fd"/>
                                 </svg>
-                                <span class="ppe-item-label">Chemical Goggles</span>
+                                <span class="ppe-item-label">Goggles</span>
                             </div>
                             
                             <div class="ppe-item" draggable="true" data-type="eyes" data-name="Sunglasses" data-correct="false">
@@ -1184,53 +1348,46 @@
                                 <span class="ppe-item-label">Sunglasses</span>
                             </div>
 
-                            <!-- Row 2 -->
                             <div class="ppe-item" draggable="true" data-type="respiratory" data-name="Respirator (OV/Acid Gas)" data-correct="true">
                                 <svg viewBox="0 0 48 36" fill="none">
                                     <path d="M8 18 Q8 8 24 8 Q40 8 40 18 L40 28 Q40 32 36 32 L12 32 Q8 32 8 28 Z" fill="#78909c" stroke="#455a64" stroke-width="2"/>
                                     <ellipse cx="16" cy="24" rx="6" ry="5" fill="#546e7a"/><ellipse cx="32" cy="24" rx="6" ry="5" fill="#546e7a"/>
                                     <rect x="20" y="18" width="8" height="10" rx="2" fill="#90a4ae"/>
-                                    <path d="M4 20 L8 18 M44 20 L40 18" stroke="#37474f" stroke-width="3"/>
                                 </svg>
-                                <span class="ppe-item-label">Respirator (OV/Acid)</span>
+                                <span class="ppe-item-label">Respirator</span>
                             </div>
                             
                             <div class="ppe-item" draggable="true" data-type="respiratory" data-name="Cloth Mask" data-correct="false">
                                 <svg viewBox="0 0 48 32" fill="none">
                                     <path d="M4 16 Q4 4 24 4 Q44 4 44 16 Q44 28 24 28 Q4 28 4 16" fill="#90caf9" stroke="#64b5f6" stroke-width="2"/>
                                     <path d="M4 12 L0 10 M44 12 L48 10" stroke="#64b5f6" stroke-width="2"/>
-                                    <path d="M12 16 Q24 22 36 16" stroke="#42a5f5" stroke-width="1" fill="none"/>
                                 </svg>
                                 <span class="ppe-item-label">Cloth Mask</span>
                             </div>
 
-                            <!-- Row 3 -->
                             <div class="ppe-item" draggable="true" data-type="respiratory" data-name="Dust Mask" data-correct="false">
                                 <svg viewBox="0 0 48 32" fill="none">
                                     <path d="M6 16 Q6 6 24 6 Q42 6 42 16 Q42 26 24 26 Q6 26 6 16" fill="#ffffff" stroke="#bdbdbd" stroke-width="2"/>
                                     <path d="M6 12 L2 10 M42 12 L46 10" stroke="#9e9e9e" stroke-width="2"/>
-                                    <path d="M14 14 L14 18 M20 13 L20 19 M28 13 L28 19 M34 14 L34 18" stroke="#e0e0e0" stroke-width="2"/>
                                     <ellipse cx="24" cy="20" rx="6" ry="3" fill="#f5f5f5" stroke="#bdbdbd"/>
                                 </svg>
-                                <span class="ppe-item-label">Dust Mask (N95)</span>
+                                <span class="ppe-item-label">Dust Mask</span>
                             </div>
                             
                             <div class="ppe-item" draggable="true" data-type="hands" data-name="Leather Gloves" data-correct="false">
                                 <svg viewBox="0 0 64 36" fill="none">
                                     <path d="M3 36 L3 18 Q3 14 7 14 L7 6 Q7 2 11 2 L11 14 L15 14 L15 4 Q15 0 19 0 L19 14 L23 14 L23 4 Q23 0 27 0 L27 14 Q31 14 31 18 L31 36" fill="#8d6e63" stroke="#5d4037" stroke-width="1.5"/>
                                     <path d="M33 36 L33 18 Q33 14 37 14 L37 6 Q37 2 41 2 L41 14 L45 14 L45 4 Q45 0 49 0 L49 14 L53 14 L53 4 Q53 0 57 0 L57 14 Q61 14 61 18 L61 36" fill="#8d6e63" stroke="#5d4037" stroke-width="1.5"/>
-                                    <path d="M7 20 L27 20 M37 20 L57 20" stroke="#5d4037" stroke-width="1"/>
                                 </svg>
-                                <span class="ppe-item-label">Leather Gloves</span>
+                                <span class="ppe-item-label">Leather</span>
                             </div>
 
-                            <!-- Row 4 -->
                             <div class="ppe-item" draggable="true" data-type="hands" data-name="Nitrile Gloves" data-correct="true">
                                 <svg viewBox="0 0 80 36" fill="none">
                                     <path d="M3 36 L3 18 Q3 14 7 14 L7 6 Q7 2 11 2 L11 14 L15 14 L15 4 Q15 0 19 0 L19 14 L23 14 L23 4 Q23 0 27 0 L27 14 Q31 14 31 18 L31 36" fill="#26a69a" stroke="#00897b" stroke-width="1.5"/>
                                     <path d="M49 36 L49 18 Q49 14 53 14 L53 6 Q53 2 57 2 L57 14 L61 14 L61 4 Q61 0 65 0 L65 14 L69 14 L69 4 Q69 0 73 0 L73 14 Q77 14 77 18 L77 36" fill="#26a69a" stroke="#00897b" stroke-width="1.5"/>
                                 </svg>
-                                <span class="ppe-item-label">Nitrile Gloves</span>
+                                <span class="ppe-item-label">Nitrile</span>
                             </div>
                             
                             <div class="ppe-item" draggable="true" data-type="body" data-name="Cotton T-Shirt" data-correct="false">
@@ -1238,17 +1395,16 @@
                                     <path d="M8 0 L0 8 L6 14 L6 44 L34 44 L34 14 L40 8 L32 0 L26 6 Q20 10 14 6 L8 0" fill="#e8e8e8" stroke="#bdbdbd" stroke-width="2"/>
                                     <path d="M14 6 Q20 12 26 6" stroke="#bdbdbd" stroke-width="2" fill="none"/>
                                 </svg>
-                                <span class="ppe-item-label">Cotton T-Shirt</span>
+                                <span class="ppe-item-label">T-Shirt</span>
                             </div>
 
-                            <!-- Row 5 -->
                             <div class="ppe-item" draggable="true" data-type="body" data-name="Chemical Apron (PVC)" data-correct="true">
                                 <svg viewBox="0 0 40 48" fill="none">
                                     <path d="M8 4 L16 0 L24 0 L32 4 L34 8 L34 44 Q34 48 30 48 L10 48 Q6 48 6 44 L6 8 Z" fill="#1565c0" stroke="#0d47a1" stroke-width="2"/>
                                     <path d="M16 0 L16 8 L24 8 L24 0" stroke="#0d47a1" stroke-width="2"/>
                                     <rect x="14" y="20" width="12" height="14" rx="2" fill="#1976d2" stroke="#0d47a1"/>
                                 </svg>
-                                <span class="ppe-item-label">Chemical Apron</span>
+                                <span class="ppe-item-label">Apron</span>
                             </div>
                             
                             <div class="ppe-item" draggable="true" data-type="feet" data-name="Sneakers" data-correct="false">
@@ -1261,7 +1417,6 @@
                                 <span class="ppe-item-label">Sneakers</span>
                             </div>
 
-                            <!-- Row 6 -->
                             <div class="ppe-item" draggable="true" data-type="feet" data-name="Rubber Boots" data-correct="true">
                                 <svg viewBox="0 0 80 40" fill="none">
                                     <path d="M2 40 L2 20 Q2 12 10 12 L10 4 Q10 0 16 0 L16 12 L24 12 Q30 12 30 20 L30 40 Z" fill="#212121" stroke="#000" stroke-width="1.5"/>
@@ -1269,7 +1424,7 @@
                                     <path d="M50 40 L50 20 Q50 12 58 12 L58 4 Q58 0 64 0 L64 12 L72 12 Q78 12 78 20 L78 40 Z" fill="#212121" stroke="#000" stroke-width="1.5"/>
                                     <rect x="50" y="32" width="28" height="8" fill="#37474f"/>
                                 </svg>
-                                <span class="ppe-item-label">Rubber Boots</span>
+                                <span class="ppe-item-label">Boots</span>
                             </div>
                         </div>
 
@@ -1297,21 +1452,22 @@
                 <div class="controls" id="controls">
                     <button class="control-btn" onclick="adjustBench(10)">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
-                        Raise Bench
+                        Raise
                     </button>
                     <button class="control-btn" onclick="adjustBench(-10)">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
-                        Lower Bench
+                        Lower
                     </button>
-                    <button class="control-btn primary" onclick="confirmBench()">Confirm Height</button>
+                    <button class="control-btn primary" onclick="confirmBench()">Confirm</button>
                 </div>
             </div>
         </main>
 
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-toggle" onclick="toggleSidebar()"></div>
             <div class="sidebar-header">
                 <div class="clipboard-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
                         <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
                     </svg>
@@ -1326,18 +1482,18 @@
             <p class="progress-text"><span id="completedCount">0</span> of 7 tasks completed</p>
 
             <div class="checklist">
-                <div class="checklist-item active" id="check1" onclick="goToScenario(0)"><div class="check-circle"><svg class="check-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div class="checklist-content"><h3>Vertical Minimums</h3><p>Set proper bench height</p></div></div>
-                <div class="checklist-item" id="check2" onclick="goToScenario(1)"><div class="check-circle"><svg class="check-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div class="checklist-content"><h3>Hose Storage</h3><p>Prevent pathogen transfer</p></div></div>
-                <div class="checklist-item" id="check3" onclick="goToScenario(2)"><div class="check-circle"><svg class="check-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div class="checklist-content"><h3>Soil Delivery</h3><p>Select proper dump location</p></div></div>
-                <div class="checklist-item" id="check4" onclick="goToScenario(3)"><div class="check-circle"><svg class="check-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div class="checklist-content"><h3>Cutting Height</h3><p>Select safe branches</p></div></div>
-                <div class="checklist-item" id="check5" onclick="goToScenario(4)"><div class="check-circle"><svg class="check-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div class="checklist-content"><h3>Soil Pasteurization</h3><p>Set temp and time</p></div></div>
-                <div class="checklist-item" id="check6" onclick="goToScenario(5)"><div class="check-circle"><svg class="check-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div class="checklist-content"><h3>Tool Cleaning</h3><p>Apply correct disinfectants</p></div></div>
-                <div class="checklist-item" id="check7" onclick="goToScenario(6)"><div class="check-circle"><svg class="check-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div class="checklist-content"><h3>PPE Audit</h3><p>Select correct protective equipment</p></div></div>
+                <div class="checklist-item active" id="check1" onclick="goToScenario(0)"><div class="check-circle"><svg class="check-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div class="checklist-content"><h3>Vertical Minimums</h3><p>Set bench height</p></div></div>
+                <div class="checklist-item" id="check2" onclick="goToScenario(1)"><div class="check-circle"><svg class="check-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div class="checklist-content"><h3>Hose Storage</h3><p>Prevent pathogen transfer</p></div></div>
+                <div class="checklist-item" id="check3" onclick="goToScenario(2)"><div class="check-circle"><svg class="check-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div class="checklist-content"><h3>Soil Delivery</h3><p>Select dump location</p></div></div>
+                <div class="checklist-item" id="check4" onclick="goToScenario(3)"><div class="check-circle"><svg class="check-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div class="checklist-content"><h3>Cutting Height</h3><p>Select safe branches</p></div></div>
+                <div class="checklist-item" id="check5" onclick="goToScenario(4)"><div class="check-circle"><svg class="check-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div class="checklist-content"><h3>Soil Pasteurization</h3><p>Set temp and time</p></div></div>
+                <div class="checklist-item" id="check6" onclick="goToScenario(5)"><div class="check-circle"><svg class="check-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div class="checklist-content"><h3>Tool Cleaning</h3><p>Apply disinfectants</p></div></div>
+                <div class="checklist-item" id="check7" onclick="goToScenario(6)"><div class="check-circle"><svg class="check-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div class="checklist-content"><h3>PPE Audit</h3><p>Select protective equipment</p></div></div>
             </div>
 
             <div class="nav-buttons">
-                <button class="nav-btn secondary" id="prevBtn" onclick="prevScenario()" disabled>Previous</button>
-                <button class="nav-btn primary" id="nextBtn" onclick="nextScenario()">Next Task</button>
+                <button class="nav-btn secondary" id="prevBtn" onclick="prevScenario()" disabled>Prev</button>
+                <button class="nav-btn primary" id="nextBtn" onclick="nextScenario()">Next</button>
             </div>
         </aside>
     </div>
@@ -1347,7 +1503,7 @@
     <div class="completion-screen" id="completionScreen">
         <div class="completion-card">
             <div class="completion-icon">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#65a30d" stroke-width="2">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#65a30d" stroke-width="2">
                     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
                 </svg>
             </div>
@@ -1355,15 +1511,15 @@
             <div class="completion-name" id="completionName"></div>
             <div class="completion-details">
                 <h3>Tasks Completed</h3>
-                <div class="completion-task"><div class="completion-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><span>Vertical Minimums (2.5 ft bench height)</span></div>
-                <div class="completion-task"><div class="completion-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><span>Hose Storage (hung on wall hook)</span></div>
-                <div class="completion-task"><div class="completion-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><span>Soil Delivery (concrete slab)</span></div>
-                <div class="completion-task"><div class="completion-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><span>Cutting Height (≥2.5 ft branches)</span></div>
-                <div class="completion-task"><div class="completion-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><span>Soil Pasteurization (160-180°F, 30 min)</span></div>
-                <div class="completion-task"><div class="completion-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><span>Tool Cleaning (alcohol/bleach matching)</span></div>
-                <div class="completion-task"><div class="completion-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><span>PPE Audit (SaniDate mixing protection)</span></div>
+                <div class="completion-task"><div class="completion-check"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><span>Vertical Minimums (2.5 ft)</span></div>
+                <div class="completion-task"><div class="completion-check"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><span>Hose Storage</span></div>
+                <div class="completion-task"><div class="completion-check"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><span>Soil Delivery</span></div>
+                <div class="completion-task"><div class="completion-check"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><span>Cutting Height</span></div>
+                <div class="completion-task"><div class="completion-check"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><span>Soil Pasteurization</span></div>
+                <div class="completion-task"><div class="completion-check"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><span>Tool Cleaning</span></div>
+                <div class="completion-task"><div class="completion-check"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><span>PPE Audit</span></div>
             </div>
-            <p class="screenshot-hint">Take a screenshot of this page for your records.</p>
+            <p class="screenshot-hint">Take a screenshot for your records.</p>
             <button class="restart-btn" onclick="restartAudit()">Start New Audit</button>
         </div>
     </div>
@@ -1379,15 +1535,16 @@
         let selectedTemp = 130;
         let selectedTime = 15;
         let ppeAssignments = { eyes: null, respiratory: null, body: null, hands: null, feet: null };
+        let draggedItem = null;
 
         const scenarios = [
-            { id: 'benchScenario', title: 'Vertical Minimums', instruction: 'This bench is too low. Raise it to the minimum height to prevent biotic water transfer from floor splashing.', controls: 'bench' },
-            { id: 'hoseScenario', title: 'Hose Storage', instruction: 'Figure out what needs to happen with this hose to prevent pathogen contamination (Phytophthora, Pythium).', controls: 'drag' },
-            { id: 'deliveryScenario', title: 'Soil Delivery', instruction: 'A soil delivery has arrived. Select where the soil should be dumped to prevent contamination.', controls: 'select' },
-            { id: 'pruningScenario', title: 'Cutting Height', instruction: 'Select branches that are safe to take cuttings from. Consider the risk of biotic water transfer from the ground.', controls: 'multiselect' },
-            { id: 'pasteurizationScenario', title: 'Soil Pasteurization', instruction: 'Select the right soil temperature and time on the timer. Too hot causes phytotoxicity; too cold fails to kill pathogens.', controls: 'temp' },
-            { id: 'toolScenario', title: 'Tool Cleaning', instruction: 'Drag each disinfectant to the correct tool or surface based on its material properties.', controls: 'dragmatch' },
-            { id: 'ppeScenario', title: 'PPE Audit', instruction: 'Read the SDS document and dress the worker in the correct PPE for mixing SaniDate concentrate. Drag items onto the figure.', controls: 'ppe' }
+            { id: 'benchScenario', title: 'Vertical Minimums', instruction: 'Raise the bench to the minimum height to prevent biotic water transfer from floor splashing.', controls: 'bench' },
+            { id: 'hoseScenario', title: 'Hose Storage', instruction: 'Drag the hose to where it belongs to prevent pathogen contamination.', controls: 'drag' },
+            { id: 'deliveryScenario', title: 'Soil Delivery', instruction: 'Select where the soil should be dumped to prevent contamination.', controls: 'select' },
+            { id: 'pruningScenario', title: 'Cutting Height', instruction: 'Select branches that are safe to take cuttings from.', controls: 'multiselect' },
+            { id: 'pasteurizationScenario', title: 'Soil Pasteurization', instruction: 'Set the right temperature and time. Too hot = phytotoxicity; too cold = pathogens survive.', controls: 'temp' },
+            { id: 'toolScenario', title: 'Tool Cleaning', instruction: 'Drag each disinfectant to the correct tool based on material.', controls: 'dragmatch' },
+            { id: 'ppeScenario', title: 'PPE Audit', instruction: 'Click to read the SDS. Dress the worker in correct PPE for mixing SaniDate by draging items to the worker.', controls: 'ppe' }
         ];
 
         document.getElementById('studentNameInput').addEventListener('input', function() {
@@ -1402,7 +1559,12 @@
             document.getElementById('nameModal').classList.add('hidden');
             document.getElementById('studentNameDisplay').textContent = studentName;
             setupDragAndDrop();
+            setupTouchDragAndDrop();
             updateUI();
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
         }
 
         function updateUI() {
@@ -1422,9 +1584,9 @@
             const controls = document.getElementById('controls');
             if (scenarios[currentScenario].controls === 'bench') {
                 controls.innerHTML = `
-                    <button class="control-btn" onclick="adjustBench(10)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>Raise Bench</button>
-                    <button class="control-btn" onclick="adjustBench(-10)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>Lower Bench</button>
-                    <button class="control-btn primary" onclick="confirmBench()">Confirm Height</button>`;
+                    <button class="control-btn" onclick="adjustBench(10)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>Raise</button>
+                    <button class="control-btn" onclick="adjustBench(-10)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>Lower</button>
+                    <button class="control-btn primary" onclick="confirmBench()">Confirm</button>`;
             } else if (scenarios[currentScenario].controls === 'multiselect') {
                 controls.innerHTML = `<button class="control-btn primary" onclick="confirmBranches()">Confirm Selection</button>`;
                 selectedBranches = [];
@@ -1448,7 +1610,7 @@
             document.getElementById('progressFill').style.setProperty('--progress', `${(completed / 7) * 100}%`);
 
             document.getElementById('prevBtn').disabled = currentScenario === 0;
-            document.getElementById('nextBtn').textContent = currentScenario === 6 ? 'Finish' : 'Next Task';
+            document.getElementById('nextBtn').textContent = currentScenario === 6 ? 'Finish' : 'Next';
         }
 
         function adjustBench(delta) {
@@ -1477,9 +1639,9 @@
         function confirmBench() {
             if (benchHeight >= 150) {
                 completeScenario(0);
-                showToast('success', 'Correct! Bench meets the 2.5 ft minimum height requirement.');
+                showToast('success', 'Correct! Bench meets 2.5 ft minimum.');
             } else {
-                showToast('error', 'The bench needs to be higher to prevent splash contamination.');
+                showToast('error', 'Bench needs to be higher.');
             }
         }
 
@@ -1500,7 +1662,7 @@
                     if (e.dataTransfer.getData('text/plain') === 'hose') {
                         hose.style.display = 'none';
                         completeScenario(1);
-                        showToast('success', 'Correct! Hanging the hose prevents pathogen transfer from puddles.');
+                        showToast('success', 'Correct! Hose hung up.');
                     }
                 });
             }
@@ -1536,7 +1698,7 @@
                             visual.dataset.chemical = chemical === 'alcohol' ? 'Alcohol ✓' : 'Bleach ✓';
                         } else {
                             visual.classList.add('wrong');
-                            showToast('error', `Incorrect! ${chemical === 'alcohol' ? 'Alcohol' : 'Bleach'} is not the right choice for this material.`);
+                            showToast('error', 'Wrong disinfectant for this material.');
                             setTimeout(() => { visual.classList.remove('wrong'); toolAssignments[toolKey] = null; }, 1500);
                         }
                         checkToolCompletion();
@@ -1560,58 +1722,146 @@
                 zone.addEventListener('dragleave', () => zone.classList.remove('highlight'));
                 zone.addEventListener('drop', (e) => {
                     e.preventDefault(); zone.classList.remove('highlight');
-                    if (zone.classList.contains('filled')) return;
-
-                    const ppeType = e.dataTransfer.getData('ppe-type');
-                    const ppeName = e.dataTransfer.getData('ppe-name');
-                    const ppeCorrect = e.dataTransfer.getData('ppe-correct') === 'true';
-                    const ppeSvg = e.dataTransfer.getData('ppe-svg');
-                    const zoneType = zone.dataset.type;
-
-                    if (ppeType !== zoneType) {
-                        showToast('error', `That PPE doesn't go there.`);
-                        return;
-                    }
-
-                    if (!ppeCorrect) {
-                        zone.classList.add('wrong');
-                        let errorMsg = `${ppeName} is not appropriate for chemical handling.`;
-                        if (ppeName === 'Leather Gloves') errorMsg = 'Leather absorbs chemicals! Use rubber, latex, or nitrile gloves.';
-                        if (ppeName === 'Sunglasses') errorMsg = 'Sunglasses do not protect against chemical splashes. Use chemical goggles.';
-                        if (ppeName === 'Cloth Mask') errorMsg = 'Cloth masks do not filter chemical vapors. Use a NIOSH-approved respirator.';
-                        if (ppeName === 'Dust Mask') errorMsg = 'Dust masks (N95) do not protect against chemical vapors. Use an organic vapor/acid gas respirator.';
-                        if (ppeName === 'Cotton T-Shirt') errorMsg = 'Cotton absorbs chemicals. Wear PVC, neoprene, or rubber clothing.';
-                        if (ppeName === 'Sneakers') errorMsg = 'Sneakers are not chemical resistant. Wear rubber boots.';
-                        showToast('error', errorMsg);
-                        setTimeout(() => zone.classList.remove('wrong'), 1500);
-                        return;
-                    }
-
-                    zone.classList.add('filled');
-                    zone.innerHTML = `<div class="ppe-svg-content">${ppeSvg}</div>`;
-                    ppeAssignments[zoneType] = ppeName;
-
-                    document.querySelectorAll('.ppe-item').forEach(item => {
-                        if (item.dataset.name === ppeName) item.classList.add('used');
-                    });
-
-                    checkPPECompletion();
+                    handlePPEDrop(zone, e.dataTransfer.getData('ppe-type'), e.dataTransfer.getData('ppe-name'), e.dataTransfer.getData('ppe-correct') === 'true', e.dataTransfer.getData('ppe-svg'));
                 });
             });
+        }
+
+        function setupTouchDragAndDrop() {
+            // Touch support for hose
+            const hose = document.getElementById('hoseCoil');
+            const hoseDropZone = document.getElementById('hoseDropZone');
+            
+            if (hose) {
+                hose.addEventListener('touchstart', (e) => {
+                    draggedItem = { type: 'hose', element: hose };
+                    hose.style.opacity = '0.5';
+                });
+                hose.addEventListener('touchend', (e) => {
+                    if (draggedItem && draggedItem.type === 'hose') {
+                        const touch = e.changedTouches[0];
+                        const dropZone = document.elementFromPoint(touch.clientX, touch.clientY);
+                        if (dropZone && (dropZone === hoseDropZone || dropZone.closest('.drop-zone'))) {
+                            hose.style.display = 'none';
+                            completeScenario(1);
+                            showToast('success', 'Correct! Hose hung up.');
+                        }
+                        hose.style.opacity = '1';
+                        draggedItem = null;
+                    }
+                });
+            }
+
+            // Touch support for bottles
+            ['alcoholBottle', 'bleachBottle'].forEach(id => {
+                const bottle = document.getElementById(id);
+                if (bottle) {
+                    bottle.addEventListener('touchstart', (e) => {
+                        draggedItem = { type: bottle.classList.contains('alcohol') ? 'alcohol' : 'bleach', element: bottle };
+                        bottle.style.opacity = '0.5';
+                    });
+                    bottle.addEventListener('touchend', (e) => {
+                        if (draggedItem) {
+                            const touch = e.changedTouches[0];
+                            const target = document.elementFromPoint(touch.clientX, touch.clientY);
+                            const visual = target?.closest('.tool-visual');
+                            if (visual && !visual.classList.contains('filled')) {
+                                const chemical = draggedItem.type;
+                                const correct = visual.dataset.correct;
+                                const toolKey = visual.id.replace('Visual', '');
+                                toolAssignments[toolKey] = chemical;
+                                
+                                if (chemical === correct) {
+                                    visual.classList.add('filled');
+                                    visual.dataset.chemical = chemical === 'alcohol' ? 'Alcohol ✓' : 'Bleach ✓';
+                                } else {
+                                    visual.classList.add('wrong');
+                                    showToast('error', 'Wrong disinfectant.');
+                                    setTimeout(() => { visual.classList.remove('wrong'); toolAssignments[toolKey] = null; }, 1500);
+                                }
+                                checkToolCompletion();
+                            }
+                            bottle.style.opacity = '1';
+                            draggedItem = null;
+                        }
+                    });
+                }
+            });
+
+            // Touch support for PPE items
+            document.querySelectorAll('.ppe-item').forEach(item => {
+                item.addEventListener('touchstart', (e) => {
+                    draggedItem = {
+                        type: 'ppe',
+                        ppeType: item.dataset.type,
+                        ppeName: item.dataset.name,
+                        ppeCorrect: item.dataset.correct === 'true',
+                        ppeSvg: item.querySelector('svg').outerHTML,
+                        element: item
+                    };
+                    item.style.opacity = '0.5';
+                });
+                item.addEventListener('touchend', (e) => {
+                    if (draggedItem && draggedItem.type === 'ppe') {
+                        const touch = e.changedTouches[0];
+                        const target = document.elementFromPoint(touch.clientX, touch.clientY);
+                        const zone = target?.closest('.ppe-zone');
+                        if (zone && !zone.classList.contains('filled')) {
+                            handlePPEDrop(zone, draggedItem.ppeType, draggedItem.ppeName, draggedItem.ppeCorrect, draggedItem.ppeSvg);
+                        }
+                        item.style.opacity = '1';
+                        draggedItem = null;
+                    }
+                });
+            });
+        }
+
+        function handlePPEDrop(zone, ppeType, ppeName, ppeCorrect, ppeSvg) {
+            if (zone.classList.contains('filled')) return;
+            const zoneType = zone.dataset.type;
+
+            if (ppeType !== zoneType) {
+                showToast('error', "That PPE doesn't go there.");
+                return;
+            }
+
+            if (!ppeCorrect) {
+                zone.classList.add('wrong');
+                let errorMsg = `${ppeName} is not appropriate.`;
+                if (ppeName === 'Leather Gloves') errorMsg = 'Leather absorbs chemicals!';
+                if (ppeName === 'Sunglasses') errorMsg = 'Use chemical goggles.';
+                if (ppeName === 'Cloth Mask') errorMsg = 'Use a respirator.';
+                if (ppeName === 'Dust Mask') errorMsg = 'Dust masks don\'t filter vapors.';
+                if (ppeName === 'Cotton T-Shirt') errorMsg = 'Cotton absorbs chemicals.';
+                if (ppeName === 'Sneakers') errorMsg = 'Wear rubber boots.';
+                showToast('error', errorMsg);
+                setTimeout(() => zone.classList.remove('wrong'), 1500);
+                return;
+            }
+
+            zone.classList.add('filled');
+            zone.innerHTML = `<div class="ppe-svg-content">${ppeSvg}</div>`;
+            ppeAssignments[zoneType] = ppeName;
+
+            document.querySelectorAll('.ppe-item').forEach(item => {
+                if (item.dataset.name === ppeName) item.classList.add('used');
+            });
+
+            checkPPECompletion();
         }
 
         function checkToolCompletion() {
             const allCorrect = toolAssignments.pruners === 'alcohol' && toolAssignments.benchtops === 'alcohol' && toolAssignments.tubs === 'bleach' && toolAssignments.pots === 'bleach';
             if (Object.values(toolAssignments).every(v => v !== null) && allCorrect) {
                 completeScenario(5);
-                showToast('success', 'Correct! Alcohol for metal (non-corrosive), bleach for plastic (oxidizing resistant).');
+                showToast('success', 'Correct! All tools matched.');
             }
         }
 
         function checkPPECompletion() {
             if (Object.values(ppeAssignments).every(v => v !== null)) {
                 completeScenario(6);
-                showToast('success', 'Correct! Worker is properly protected according to the SDS requirements.');
+                showToast('success', 'Correct! Worker protected.');
             }
         }
 
@@ -1622,10 +1872,10 @@
             if (option === 'concrete') {
                 selected.classList.add('selected');
                 completeScenario(2);
-                showToast('success', 'Correct! Concrete slab prevents soil contamination from ground contact.');
+                showToast('success', 'Correct! Concrete slab.');
             } else {
                 selected.classList.add('wrong');
-                showToast('error', 'Incorrect. Soil that touches the ground must be discarded.');
+                showToast('error', 'Soil touching ground must be discarded.');
                 setTimeout(() => selected.classList.remove('wrong'), 1500);
             }
         }
@@ -1648,7 +1898,7 @@
         }
 
         function confirmBranches() {
-            if (selectedBranches.length === 0) { showToast('warning', 'Please select at least one branch.'); return; }
+            if (selectedBranches.length === 0) { showToast('warning', 'Select at least one branch.'); return; }
 
             let allCorrect = true;
             selectedBranches.forEach(branch => {
@@ -1658,9 +1908,9 @@
 
             if (allCorrect) {
                 completeScenario(3);
-                showToast('success', 'Correct! All selected branches are at or above 2.5 ft.');
+                showToast('success', 'Correct! All branches ≥2.5 ft.');
             } else {
-                showToast('error', 'Some branches are below 2.5 ft and risk pathogen contamination from splash.');
+                showToast('error', 'Some branches too low.');
                 setTimeout(() => {
                     selectedBranches.forEach(b => b.classList.remove('correct', 'incorrect', 'selected'));
                     selectedBranches = [];
@@ -1709,11 +1959,11 @@
                     powerButton.classList.add('on'); powerButton.textContent = 'Running';
                     indicator.classList.add('on'); steam.classList.add('active');
                     completeScenario(4);
-                    showToast('success', 'Correct! 160-180°F for 30 minutes kills pathogens without causing phytotoxicity.');
-                } else if (selectedTemp > 180) showToast('error', 'Temperature too high! Risk of phytotoxicity from manganese and soluble salts.');
-                else if (selectedTemp < 160) showToast('error', 'Temperature too low! Pathogens will not be eliminated.');
-                else if (selectedTime < 30) showToast('error', 'Timer too short! More time is required for proper pasteurization.');
-                else if (selectedTime > 30) showToast('warning', 'Timer longer than necessary. Adjust to the optimal duration.');
+                    showToast('success', 'Correct! 160-180°F, 30 min.');
+                } else if (selectedTemp > 180) showToast('error', 'Too hot! Phytotoxicity risk.');
+                else if (selectedTemp < 160) showToast('error', 'Too cold! Pathogens survive.');
+                else if (selectedTime < 30) showToast('error', 'Timer too short.');
+                else if (selectedTime > 30) showToast('warning', 'Timer longer than needed.');
             } else {
                 steamerOn = false;
                 powerButton.classList.remove('on'); powerButton.textContent = 'Press to Start';
@@ -1745,7 +1995,7 @@
                 document.getElementById('completionScreen').classList.add('active');
             } else {
                 const incomplete = completedScenarios.findIndex(c => !c);
-                showToast('warning', `Task ${incomplete + 1} is not complete.`);
+                showToast('warning', `Task ${incomplete + 1} incomplete.`);
                 goToScenario(incomplete);
             }
         }
@@ -1780,13 +2030,13 @@
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
             const icons = {
-                success: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>',
-                warning: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>',
-                error: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'
+                success: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>',
+                warning: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>',
+                error: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'
             };
             toast.innerHTML = `<div class="toast-icon">${icons[type]}</div><span class="toast-text">${message}</span>`;
             container.appendChild(toast);
-            setTimeout(() => { toast.style.animation = 'slideIn 0.3s ease reverse'; setTimeout(() => toast.remove(), 300); }, 4000);
+            setTimeout(() => { toast.style.animation = 'slideIn 0.3s ease reverse'; setTimeout(() => toast.remove(), 300); }, 3000);
         }
     </script>
 </body>
