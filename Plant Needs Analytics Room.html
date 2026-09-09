@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Digital Phytotron: Plant Needs Lab</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+    <style>
+        :root {
+            --bg-base: #0a0f0d;
+            --bg-panel: #111a14;
+            --bg-card: #162019;
+            --border: #1e3024;
+            --glow-green: #4CAF50;
+            --glow-dim: #2e7d32;
+            --glow-pink: #f06292;
+            --glow-blue: #42A5F5;
+            --glow-yellow: #FBC02D;
+            --glow-red: #ef5350;
+            --text-primary: #e8f5e9;
+            --text-secondary: #81c784;
+            --text-muted: #4a7a50;
+            --border-radius: 10px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-base);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 24px 16px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1320px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 0 60px rgba(76,175,80,0.08), 0 0 120px rgba(76,175,80,0.04);
+        }
+
+        /* WELCOME */
+        #welcome-screen {
+            padding: 80px 40px;
+            text-align: center;
+            background: radial-gradient(ellipse at center, #0d1f10 0%, var(--bg-base) 70%);
+        }
+        .welcome-title {
+            font-size: 2.4rem;
+            font-weight: 300;
+            letter-spacing: 0.08em;
+            color: var(--text-primary);
+            text-shadow: 0 0 30px rgba(76,175,80,0.5);
+            margin-bottom: 8px;
+        }
+        .welcome-subtitle {
+            font-size: 0.85rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+        }
+        .welcome-desc {
+            max-width: 520px;
+            margin: 0 auto 40px;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: var(--text-secondary);
+        }
+        input[type="text"] {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 14px 20px;
+            width: 320px;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            display: block;
+            margin: 0 auto 20px;
+        }
+        input[type="text"]:focus {
+            border-color: var(--glow-green);
+            box-shadow: 0 0 16px rgba(76,175,80,0.25);
+        }
+        .btn-primary {
+            background: transparent;
+            border: 1px solid var(--glow-green);
+            color: var(--glow-green);
+            padding: 12px 36px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover:not(:disabled) {
+            background: rgba(76,175,80,0.12);
+            box-shadow: 0 0 20px rgba(76,175,80,0.3);
+        }
+        .btn-primary:disabled {
+            border-color: var(--text-muted);
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        /* LAB LAYOUT */
+        #lab-interface {
+            display: none;
+            flex-direction: row;
+            flex-wrap: wrap;
+            min-height: 100vh;
+        }
+        .left-panel {
+            flex: 1 1 640px;
+            padding: 24px;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        .right-panel {
+            flex: 1 1 360px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            background: var(--bg-base);
+        }
+
+        /* VISUAL ROW */
+        .visual-row {
+            display: flex;
+            gap: 14px;
+            background: var(--bg-card);
+            padding: 16px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border);
+            align-items: center;
+            flex-wrap: wrap;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.3);
+        }
+
+        /* PLANT */
+        .plant-visualizer { text-align: center; flex: 0 0 auto; }
+        #plant-svg {
+            width: 110px; height: 110px;
+            transition: all 0.5s ease;
+            filter: drop-shadow(0 0 8px rgba(76,175,80,0.4));
+        }
+        #flower-group { display: none; }
+        #condition-status {
+            font-size: 0.68rem;
+            margin-top: 6px;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        /* MICROSCOPE */
+        .microscope-area { flex: 0 0 auto; text-align: center; }
+        .microscope-box {
+            width: 130px; height: 130px;
+            background: #000;
+            border-radius: 50%;
+            border: 3px solid var(--border);
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 20px rgba(76,175,80,0.15), inset 0 0 20px rgba(0,0,0,0.8);
+            transition: box-shadow 0.4s ease;
+        }
+        .microscope-box.scope-on {
+            box-shadow: 0 0 28px rgba(76,175,80,0.35), inset 0 0 10px rgba(0,0,0,0.5);
+        }
+        #microscope-canvas { width: 130px; height: 130px; display: block; }
+
+        /* Dark overlay when scope is off */
+        .scope-overlay {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.92);
+            border-radius: 50%;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            opacity: 1;
+        }
+        .scope-overlay.hidden { opacity: 0; }
+
+        .micro-label {
+            font-size: 0.65rem; font-weight: 700;
+            letter-spacing: 0.12em; text-transform: uppercase;
+            margin-top: 5px; color: var(--text-muted);
+        }
+        #microbe-status {
+            font-size: 0.7rem; margin-top: 2px;
+            font-weight: 700; letter-spacing: 0.08em;
+            min-height: 1em;
+        }
+
+        /* MICROSCOPE TOGGLE */
+        .scope-toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            margin-top: 6px;
+        }
+        .scope-toggle-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+        .toggle-switch {
+            position: relative;
+            width: 36px;
+            height: 18px;
+            cursor: pointer;
+        }
+        .toggle-switch input { display: none; }
+        .toggle-track {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #1a2a1e;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            transition: background 0.3s, border-color 0.3s;
+        }
+        .toggle-thumb {
+            position: absolute;
+            top: 2px; left: 2px;
+            width: 14px; height: 14px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            transition: transform 0.3s, background 0.3s, box-shadow 0.3s;
+        }
+        .toggle-switch input:checked + .toggle-track {
+            background: rgba(76,175,80,0.2);
+            border-color: var(--glow-green);
+        }
+        .toggle-switch input:checked + .toggle-track + .toggle-thumb {
+            transform: translateX(18px);
+            background: var(--glow-green);
+            box-shadow: 0 0 8px rgba(76,175,80,0.7);
+        }
+        #scope-on-label { color: var(--text-muted); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; transition: color 0.3s; }
+        #scope-on-label.active { color: var(--glow-green); }
+
+        /* O2 METER */
+        .o2-meter { flex: 0 0 auto; text-align: center; }
+        #o2-value { font-size: 0.75rem; font-weight: 700; color: var(--glow-blue); margin-bottom: 4px; }
+        .o2-bar-wrap {
+            width: 26px; height: 110px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 13px;
+            margin: 0 auto;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            position: relative;
+        }
+        #o2-fill {
+            position: absolute; bottom: 0; width: 100%;
+            background: linear-gradient(to top, #1565C0, #42A5F5);
+            border-radius: 0 0 12px 12px;
+            transition: height 0.4s ease, background 0.4s ease;
+            box-shadow: 0 0 10px rgba(66,165,245,0.4);
+        }
+        .o2-label {
+            font-size: 0.65rem; font-weight: 700;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            margin-top: 5px; color: var(--text-muted);
+        }
+
+        /* EFFICIENCY DONUT */
+        .chart-box { position: relative; width: 130px; height: 130px; flex: 0 0 auto; }
+        .chart-label {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center; pointer-events: none;
+        }
+        .chart-label .percent { display: block; font-size: 1.3rem; font-weight: 700; color: var(--text-primary); }
+        .chart-label .text { font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
+
+        /* GROWTH CHART */
+        .growth-chart-container {
+            height: 310px; width: 100%;
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border);
+            padding: 12px;
+        }
+
+        /* CONTROLS */
+        .controls-header {
+            font-size: 0.72rem; font-weight: 700;
+            letter-spacing: 0.18em; text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px; margin-bottom: 12px;
+        }
+        .control-group { margin-bottom: 10px; }
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 5px;
+        }
+        .control-label span:first-child {
+            font-size: 0.8rem; font-weight: 600;
+            color: var(--text-secondary); letter-spacing: 0.04em;
+        }
+        .control-val {
+            font-size: 0.78rem; font-weight: 700;
+            color: var(--glow-green); font-variant-numeric: tabular-nums;
+        }
+        .slider-desc { font-size: 0.68rem; color: var(--text-muted); margin-top: 3px; }
+
+        input[type="range"] {
+            width: 100%; cursor: pointer;
+            -webkit-appearance: none; appearance: none;
+            height: 4px; border-radius: 2px;
+            background: var(--border); outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            background: var(--glow-green);
+            box-shadow: 0 0 8px rgba(76,175,80,0.6);
+            cursor: pointer; transition: box-shadow 0.2s;
+        }
+        input[type="range"]:hover::-webkit-slider-thumb {
+            box-shadow: 0 0 14px rgba(76,175,80,0.9);
+        }
+        .spectrum-slider {
+            background: linear-gradient(to right, #4b0082, #0000ff, #00ff00, #ffff00, #ff7f00, #ff0000) !important;
+        }
+
+        /* QUIZ */
+        .quiz-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
+            padding: 18px;
+            box-shadow: 0 0 20px rgba(76,175,80,0.05);
+        }
+        .quiz-header {
+            font-size: 0.72rem; font-weight: 700;
+            letter-spacing: 0.18em; text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px; margin-bottom: 14px;
+        }
+        .q-progress { font-size: 0.68rem; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 0.06em; }
+        .question-text { font-size: 0.88rem; line-height: 1.6; color: var(--text-primary); margin-bottom: 14px; }
+        .scope-hint {
+            font-size: 0.75rem;
+            color: var(--glow-blue);
+            background: rgba(66,165,245,0.08);
+            border: 1px solid rgba(66,165,245,0.2);
+            border-radius: 5px;
+            padding: 7px 10px;
+            margin-bottom: 12px;
+            letter-spacing: 0.03em;
+        }
+        .options { display: flex; flex-direction: column; gap: 8px; }
+        .option-btn {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            text-align: left; padding: 10px 14px;
+            border-radius: 6px; cursor: pointer;
+            font-size: 0.83rem; line-height: 1.4;
+            transition: all 0.2s; width: 100%;
+        }
+        .option-btn:hover:not(:disabled) {
+            background: rgba(76,175,80,0.08);
+            border-color: var(--glow-dim);
+            color: var(--text-primary);
+            box-shadow: 0 0 10px rgba(76,175,80,0.1);
+        }
+        .feedback {
+            margin-top: 12px; padding: 10px 12px;
+            border-radius: 6px; font-size: 0.8rem;
+            line-height: 1.5; font-weight: 500; min-height: 1em;
+        }
+        .next-btn {
+            display: none;
+            margin-top: 12px;
+            width: 100%;
+            background: transparent;
+            border: 1px solid var(--glow-green);
+            color: var(--glow-green);
+            padding: 10px 0;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+        .next-btn:hover {
+            background: rgba(76,175,80,0.12);
+            box-shadow: 0 0 16px rgba(76,175,80,0.25);
+        }
+
+        /* COMPLETION */
+        #completion-screen {
+            display: none; padding: 60px 40px; text-align: center;
+            background: radial-gradient(ellipse at center, #0d1f10 0%, var(--bg-base) 70%);
+        }
+        .cert-border {
+            border: 1px solid var(--glow-green);
+            padding: 50px; border-radius: 16px;
+            max-width: 700px; margin: 0 auto;
+            box-shadow: 0 0 40px rgba(76,175,80,0.15), inset 0 0 40px rgba(0,0,0,0.4);
+        }
+        .cert-title {
+            font-size: 1.8rem; font-weight: 300;
+            letter-spacing: 0.1em; color: var(--text-primary);
+            text-shadow: 0 0 20px rgba(76,175,80,0.5); margin-bottom: 10px;
+        }
+        .cert-name {
+            font-size: 2rem; font-weight: 700;
+            color: var(--glow-green);
+            text-shadow: 0 0 20px rgba(76,175,80,0.6);
+            margin: 16px 0 8px;
+        }
+        .cert-date { font-size: 0.8rem; color: var(--text-muted); letter-spacing: 0.1em; margin-bottom: 30px; }
+        .summary-box {
+            text-align: left;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px; padding: 24px;
+            margin: 24px auto 0;
+            font-size: 0.88rem; line-height: 1.8;
+            color: var(--text-secondary);
+        }
+        .summary-box strong { color: var(--text-primary); }
+        .cert-note { font-size: 0.75rem; color: var(--text-muted); letter-spacing: 0.08em; margin-top: 24px; }
+
+        @media (max-width: 900px) {
+            #lab-interface { flex-direction: column; }
+            .left-panel { border-right: none; border-bottom: 1px solid var(--border); }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- WELCOME -->
+    <div id="welcome-screen">
+        <div class="welcome-title">Plant Needs</div>
+        <div class="welcome-subtitle">Analytics Room</div>
+        <p class="welcome-desc">Manipulate environmental variables to see real-time plant changes utilizing information presented in the Plant Needs lecture.</p>
+        <input type="text" id="student-name" placeholder="Enter Student Name" oninput="checkName()">
+        <button class="btn-primary" id="begin-btn" disabled onclick="startLab()">Enter</button>
+    </div>
+
+    <!-- LAB -->
+    <div id="lab-interface">
+        <div class="left-panel">
+
+            <div class="visual-row">
+                <!-- Plant -->
+                <div class="plant-visualizer">
+                    <svg id="plant-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="35" y="80" width="30" height="20" fill="#3E2723"/>
+                        <path d="M50 80 Q50 55 50 28" stroke="#4CAF50" stroke-width="4" fill="none"/>
+                        <path d="M50 62 Q28 52 18 62 Q28 72 50 62" fill="#388E3C"/>
+                        <path d="M50 50 Q72 40 82 50 Q72 60 50 50" fill="#388E3C"/>
+                        <path d="M50 38 Q38 18 50 6 Q62 18 50 38" fill="#4CAF50"/>
+                        <g id="flower-group">
+                            <circle cx="50" cy="13" r="10" fill="#f06292" opacity="0.9"/>
+                            <circle cx="50" cy="13" r="4" fill="#FFD700"/>
+                            <ellipse cx="40" cy="9" rx="5" ry="3" fill="#f48fb1" opacity="0.75" transform="rotate(-30 40 9)"/>
+                            <ellipse cx="60" cy="9" rx="5" ry="3" fill="#f48fb1" opacity="0.75" transform="rotate(30 60 9)"/>
+                            <ellipse cx="44" cy="19" rx="5" ry="3" fill="#f48fb1" opacity="0.75" transform="rotate(20 44 19)"/>
+                            <ellipse cx="56" cy="19" rx="5" ry="3" fill="#f48fb1" opacity="0.75" transform="rotate(-20 56 19)"/>
+                        </g>
+                    </svg>
+                    <div id="condition-status" style="color:var(--glow-green)">OPTIMAL</div>
+                </div>
+
+                <!-- Microscope -->
+                <div class="microscope-area">
+                    <div class="microscope-box" id="microscope-box">
+                        <canvas id="microscope-canvas" width="130" height="130"></canvas>
+                        <div class="scope-overlay" id="scope-overlay"></div>
+                    </div>
+                    <div class="micro-label">Soil Microbes</div>
+                    <div id="microbe-status"></div>
+                    <div class="scope-toggle-row">
+                        <span class="scope-toggle-label">Off</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="scope-toggle" onchange="toggleScope()">
+                            <div class="toggle-track"></div>
+                            <div class="toggle-thumb"></div>
+                        </label>
+                        <span id="scope-on-label">On</span>
+                    </div>
+                </div>
+
+                <!-- O2 Meter -->
+                <div class="o2-meter">
+                    <div id="o2-value">100%</div>
+                    <div class="o2-bar-wrap">
+                        <div id="o2-fill" style="height:100%"></div>
+                    </div>
+                    <div class="o2-label">Soil O2</div>
+                </div>
+
+                <!-- Efficiency Donut -->
+                <div class="chart-box">
+                    <canvas id="efficiencyChart"></canvas>
+                    <div class="chart-label">
+                        <span class="percent" id="eff-percent">0%</span>
+                        <span class="text">Efficiency</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Growth Chart -->
+            <div class="growth-chart-container">
+                <canvas id="growthChart"></canvas>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <!-- Controls -->
+            <div>
+                <div class="controls-header">Environmental Controls</div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Light Spectrum</span>
+                        <span class="control-val"><span id="val-spectrum">450</span> nm</span>
+                    </div>
+                    <input type="range" id="slider-spectrum" min="400" max="700" value="450" class="spectrum-slider" oninput="updateSim()">
+                    <div class="slider-desc" id="desc-spectrum">Blue -- Vegetative Growth</div>
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Light Intensity</span>
+                        <span class="control-val"><span id="val-intensity">5000</span> lux</span>
+                    </div>
+                    <input type="range" id="slider-intensity" min="250" max="10000" value="5000" oninput="updateSim()">
+                    <div class="slider-desc" id="desc-intensity">Bright Indirect</div>
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Temperature</span>
+                        <span class="control-val"><span id="val-temp">75</span> F</span>
+                    </div>
+                    <input type="range" id="slider-temp" min="20" max="100" value="75" oninput="updateSim()">
+                    <div class="slider-desc" id="desc-temp">Optimal</div>
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Soil Water Content</span>
+                        <span class="control-val"><span id="val-water">25</span>%</span>
+                    </div>
+                    <input type="range" id="slider-water" min="0" max="100" value="25" oninput="updateSim()">
+                    <div class="slider-desc">Soil Air: <span id="val-air">75</span>% &nbsp;|&nbsp; <span id="desc-water">Optimal</span></div>
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Surface Compaction</span>
+                        <span class="control-val"><span id="val-compaction">10</span>%</span>
+                    </div>
+                    <input type="range" id="slider-compaction" min="0" max="100" value="10" oninput="updateSim()">
+                    <div class="slider-desc" id="desc-compaction">Low -- Good Pore Structure</div>
+                </div>
+            </div>
+
+            <!-- Quiz -->
+            <div class="quiz-panel">
+                <div class="quiz-header">Guided Questions</div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- COMPLETION -->
+    <div id="completion-screen">
+        <div class="cert-border">
+            <div class="cert-title">Lab Completed Successfully</div>
+            <div class="cert-name" id="cert-name"></div>
+            <div class="cert-date" id="cert-date"></div>
+            <div class="summary-box">
+                <strong>Questions Completed: 10 / 10</strong>
+                <br><br>
+                <strong>Key Concepts Demonstrated:</strong>
+                <ul style="margin-top:8px;padding-left:18px;">
+                    <li>PAR and light spectrum absorption (Chlorophyll a/b peaks)</li>
+                    <li>Extracellular freezing and osmotic desiccation</li>
+                    <li>Soil water and air balance; anaerobic root stress</li>
+                    <li>Light intensity and photosynthetic output</li>
+                    <li>Surface compaction, pore space, and soil microbiology</li>
+                    <li>Vegetative S-curve growth vs. reproductive plateau</li>
+                </ul>
+            </div>
+            <div class="cert-note">Screenshot this screen for your records.</div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// STATE
+let growthChart, efficiencyChart, microCtx;
+let currentQuestion = 0;
+let studentName = "";
+let microbes = [];
+let animFrame;
+let scopeOn = false;
+
+// QUESTIONS
+const questions = [
+    {
+        text: "Adjust the light spectrum slider. At which wavelength range do you see the highest photosynthetic efficiency? (Hint: Look for the Chlorophyll a absorption peak.)",
+        options: ["400-450 nm (Blue)", "500-550 nm (Green)", "650-700 nm (Red)"],
+        correct: 0,
+        feedback: "Correct. Chlorophyll a has a primary absorption peak near 430 nm. Blue light drives the highest photosynthetic efficiency during vegetative growth."
+    },
+    {
+        text: "Set the temperature to 25 F. What is the primary mechanism of cellular damage during this slow freeze?",
+        options: [
+            "Intracellular ice crystals immediately pierce the vacuole",
+            "Extracellular ice formation draws water out of the cell by osmosis, causing lethal desiccation",
+            "DNA degrades due to cold-induced mutation"
+        ],
+        correct: 1,
+        feedback: "Correct. In slow freezing, ice forms first in extracellular spaces. This lowers external vapor pressure, pulling water out of the cell via osmosis. The resulting desiccation and cell shrinkage -- not direct ice puncture -- is the primary cause of damage."
+    },
+    {
+        text: "Set soil water content to 100%. Even though water is abundant, the plant shows stress. Why?",
+        options: [
+            "Excess water dilutes soil nutrients below usable levels",
+            "Water temperature drops too low for root absorption",
+            "All air pore space is displaced -- roots cannot respire, creating anaerobic conditions"
+        ],
+        correct: 2,
+        feedback: "Correct. Soil pore space holds both water and air. At 100% water content, oxygen is fully displaced. Roots require aerobic respiration to function; without O2, they suffocate and begin to rot."
+    },
+    {
+        text: "What is the relationship between soil water content and soil air content?",
+        options: [
+            "They are independent -- each fills separate pore types",
+            "They have an inverse relationship -- as water increases, air decreases proportionally",
+            "They both increase together as soil becomes more porous"
+        ],
+        correct: 1,
+        feedback: "Correct. Soil pores are shared between water and air. As water fills pore space, air is displaced. The optimal balance for most plants is approximately 25% water and 25% air in the pore volume."
+    },
+    {
+        text: "Set optimal conditions for vegetative (leaf) growth. All three options use blue light. Which combination yields the highest projected growth?",
+        options: [
+            "Blue (450 nm), 95 F, 25% water",
+            "Blue (450 nm), 75 F, 25% water",
+            "Blue (450 nm), 75 F, 60% water"
+        ],
+        correct: 1,
+        feedback: "Correct. While all options use the optimal blue spectrum, only Option B pairs it with the optimal temperature range (65-85 F) and the optimal water/air balance (20-30%). Heat stress at 95 F and waterlogging at 60% both reduce growth factors significantly."
+    },
+    {
+        text: "Shift the light spectrum slider toward the red end of the range. At approximately which wavelength does a visible change appear on the plant?",
+        options: [
+            "Around 510 nm",
+            "Around 580 nm",
+            "Around 620-660 nm"
+        ],
+        correct: 2,
+        feedback: "Correct. Red light in the 620-700 nm range triggers the phytochrome-mediated flowering response in many plants. This is the wavelength range growers use to initiate the reproductive stage."
+    },
+    {
+        text: "Increase light intensity from 250 lux to 10,000 lux while keeping all other variables optimal. What happens to the plant's projected 30-day growth height?",
+        options: [
+            "Growth height decreases -- high intensity causes photoinhibition at all levels",
+            "Growth height increases substantially -- more photons drive higher photosynthetic output",
+            "Growth height stays the same -- light intensity has no effect on growth rate"
+        ],
+        correct: 1,
+        feedback: "Correct. Light intensity directly scales the photosynthetic rate up to the light saturation point. Moving from low indirect (250 lux) to direct light (10,000 lux) dramatically increases the daily growth rate and projected final height."
+    },
+    {
+        text: "Increase surface compaction to 90%. Turn on your microscope to observe the soil microbe panel. What change do you see, and what does it mean for the plant?",
+        scopeHint: "Turn on your microscope using the toggle below the scope view before answering.",
+        options: [
+            "Microbes become more active (green) -- compaction stimulates microbial growth",
+            "Microbes shift to anaerobic (red/slow) -- compaction reduces pore space and O2, and anaerobic microbes begin offgassing nutrients the plant can no longer absorb",
+            "Microbes disappear entirely -- compaction sterilizes the soil"
+        ],
+        correct: 1,
+        feedback: "Correct. High compaction crushes soil pore structure, reducing oxygen availability. Aerobic microbes are replaced by anaerobic microbes that produce compounds toxic to roots -- such as hydrogen sulfide and organic acids -- and begin offgassing nitrogen and other nutrients that the plant can no longer access."
+    },
+    {
+        text: "With compaction at 90% and water at 100%, observe the Soil O2 meter and your microscope. Why does this combination create the most severe stress for the plant?",
+        scopeHint: "Keep your microscope on. Observe both the O2 meter and the microbe behavior together.",
+        options: [
+            "Compaction physically crushes the root system directly",
+            "Both compaction and waterlogging eliminate air pore space simultaneously, driving O2 to near zero -- anaerobic microbes take over and begin offgassing the nutrients the plant needs",
+            "Compaction blocks sunlight from reaching the leaves"
+        ],
+        correct: 1,
+        feedback: "Correct. Compaction and waterlogging both deplete soil oxygen through the same mechanism -- eliminating air pore space. Together they create severely anaerobic conditions. The O2 meter and the red, slow-moving microbes in your scope both show this depletion in real time."
+    },
+    {
+        text: "Look at the 30-day growth chart with optimal conditions set. The chart shows two phases. Which description is scientifically accurate?",
+        options: [
+            "Vegetative growth is slow and steady; reproductive growth is faster because flowering requires more energy",
+            "Vegetative growth follows an S-curve -- slow establishment, then rapid exponential biomass gain, then a plateau -- while reproductive growth is nearly flat because energy is redirected to flowers and seeds rather than structural growth",
+            "Both phases show identical growth rates because the plant maintains constant energy output"
+        ],
+        correct: 1,
+        feedback: "Correct. During the vegetative phase, plants devote nearly all resources to building leaves, stems, and roots -- producing an S-curve of rapid biomass accumulation. When the plant transitions to reproduction, structural growth slows to near zero as energy is redirected to flowers, fruit, and seeds."
+    }
+];
+
+// INIT
+function checkName() {
+    document.getElementById('begin-btn').disabled = document.getElementById('student-name').value.trim().length === 0;
+}
+
+function startLab() {
+    studentName = document.getElementById('student-name').value.trim();
+    document.getElementById('welcome-screen').style.display = 'none';
+    document.getElementById('lab-interface').style.display = 'flex';
+    initCharts();
+    initMicroscope();
+    renderQuestion();
+    updateSim();
+}
+
+// SCOPE TOGGLE
+function toggleScope() {
+    scopeOn = document.getElementById('scope-toggle').checked;
+    const overlay = document.getElementById('scope-overlay');
+    const box = document.getElementById('microscope-box');
+    const label = document.getElementById('scope-on-label');
+
+    if (scopeOn) {
+        overlay.classList.add('hidden');
+        box.classList.add('scope-on');
+        label.classList.add('active');
+    } else {
+        overlay.classList.remove('hidden');
+        box.classList.remove('scope-on');
+        label.classList.remove('active');
+        document.getElementById('microbe-status').innerText = '';
+    }
+}
+
+// CHARTS
+function initCharts() {
+    const ctxG = document.getElementById('growthChart').getContext('2d');
+    growthChart = new Chart(ctxG, {
+        type: 'line',
+        data: {
+            labels: Array.from({length: 31}, (_, i) => i),
+            datasets: [{
+                label: 'Plant Height (cm)',
+                data: [],
+                borderColor: '#4CAF50',
+                backgroundColor: 'rgba(76,175,80,0.06)',
+                fill: true,
+                tension: 0.45,
+                pointRadius: 0,
+                borderWidth: 2.5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Projected Plant Growth Over 30 Days',
+                    color: '#81c784',
+                    font: { size: 13, weight: '600' }
+                },
+                legend: { display: false },
+                annotation: {
+                    annotations: {
+                        vegBox: {
+                            type: 'box',
+                            xMin: 0, xMax: 18,
+                            backgroundColor: 'rgba(76,175,80,0.05)',
+                            borderColor: 'rgba(76,175,80,0.18)',
+                            borderWidth: 1,
+                            label: {
+                                display: true,
+                                content: 'Vegetative',
+                                position: { x: 'center', y: 'start' },
+                                color: '#66bb6a',
+                                font: { size: 9, weight: '700' }
+                            }
+                        },
+                        repBox: {
+                            type: 'box',
+                            xMin: 18, xMax: 30,
+                            backgroundColor: 'rgba(240,98,146,0.04)',
+                            borderColor: 'rgba(240,98,146,0.18)',
+                            borderWidth: 1,
+                            label: {
+                                display: true,
+                                content: 'Reproductive',
+                                position: { x: 'center', y: 'start' },
+                                color: '#f48fb1',
+                                font: { size: 9, weight: '700' }
+                            }
+                        },
+                        dividerLine: {
+                            type: 'line',
+                            xMin: 18, xMax: 18,
+                            borderColor: 'rgba(255,255,255,0.12)',
+                            borderWidth: 1,
+                            borderDash: [4, 4]
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 70,
+                    title: { display: true, text: 'Height (cm)', color: '#4a7a50', font: { size: 10 } },
+                    grid: { color: 'rgba(255,255,255,0.04)' },
+                    ticks: { color: '#4a7a50', font: { size: 10 } }
+                },
+                x: {
+                    title: { display: true, text: 'Day', color: '#4a7a50', font: { size: 10 } },
+                    grid: { color: 'rgba(255,255,255,0.03)' },
+                    ticks: { color: '#4a7a50', font: { size: 10 } }
+                }
+            }
+        }
+    });
+
+    const ctxE = document.getElementById('efficiencyChart').getContext('2d');
+    efficiencyChart = new Chart(ctxE, {
+        type: 'doughnut',
+        data: {
+            labels: ['Efficiency', 'Loss'],
+            datasets: [{ data: [0, 100], backgroundColor: ['#4CAF50', 'rgba(255,255,255,0.05)'], borderWidth: 0 }]
+        },
+        options: {
+            cutout: '78%',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false }, tooltip: { enabled: false } }
+        }
+    });
+}
+
+// MICROSCOPE
+function initMicroscope() {
+    const canvas = document.getElementById('microscope-canvas');
+    microCtx = canvas.getContext('2d');
+    for (let i = 0; i < 22; i++) {
+        microbes.push({
+            x: 10 + Math.random() * 110,
+            y: 10 + Math.random() * 110,
+            vx: (Math.random() - 0.5) * 1.4,
+            vy: (Math.random() - 0.5) * 1.4,
+            size: 2 + Math.random() * 3,
+            phase: Math.random() * Math.PI * 2
+        });
+    }
+    animateMicroscope();
+}
+
+let bubbles = [];
+
+function animateMicroscope() {
+    const water = parseInt(document.getElementById('slider-water').value);
+    const compaction = parseInt(document.getElementById('slider-compaction').value);
+    const anaerobic = (water > 65) || (compaction > 65);
+    const speedMult = anaerobic ? 0.22 : 1.0;
+
+    microCtx.fillStyle = 'rgba(0,0,0,0.22)';
+    microCtx.fillRect(0, 0, 130, 130);
+
+    if (anaerobic && Math.random() < 0.2) {
+        bubbles.push({
+            x: 10 + Math.random() * 110,
+            y: 125,
+            r: 1 + Math.random() * 2.5,
+            vy: -(0.5 + Math.random() * 0.7),
+            alpha: 0.75
+        });
+    }
+    bubbles = bubbles.filter(b => b.alpha > 0.04);
+    bubbles.forEach(b => {
+        b.y += b.vy;
+        b.alpha -= 0.011;
+        microCtx.beginPath();
+        microCtx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+        microCtx.strokeStyle = `rgba(251,192,45,${b.alpha})`;
+        microCtx.lineWidth = 1;
+        microCtx.stroke();
+    });
+
+    microbes.forEach(m => {
+        m.phase += 0.045;
+        m.x += m.vx * speedMult;
+        m.y += m.vy * speedMult;
+        if (m.x < 3 || m.x > 127) m.vx *= -1;
+        if (m.y < 3 || m.y > 127) m.vy *= -1;
+
+        const pulse = 1 + 0.14 * Math.sin(m.phase);
+        microCtx.beginPath();
+        microCtx.ellipse(m.x, m.y, m.size * pulse, m.size * 0.55 * pulse, m.phase * 0.3, 0, Math.PI * 2);
+        microCtx.fillStyle = anaerobic ? 'rgba(220,50,50,0.88)' : 'rgba(60,190,70,0.88)';
+        microCtx.shadowColor = anaerobic ? '#ef5350' : '#4CAF50';
+        microCtx.shadowBlur = 4;
+        microCtx.fill();
+        microCtx.shadowBlur = 0;
+    });
+
+    // Only show status text when scope is on
+    if (scopeOn) {
+        document.getElementById('microbe-status').innerText = anaerobic ? 'Anaerobic' : 'Aerobic';
+        document.getElementById('microbe-status').style.color = anaerobic ? 'var(--glow-red)' : 'var(--glow-green)';
+    }
+
+    animFrame = requestAnimationFrame(animateMicroscope);
+}
+
+// SIMULATION
+function updateSim() {
+    const spectrum   = parseInt(document.getElementById('slider-spectrum').value);
+    const intensity  = parseInt(document.getElementById('slider-intensity').value);
+    const temp       = parseInt(document.getElementById('slider-temp').value);
+    const water      = parseInt(document.getElementById('slider-water').value);
+    const compaction = parseInt(document.getElementById('slider-compaction').value);
+    const air        = 100 - water;
+
+    document.getElementById('val-spectrum').innerText   = spectrum;
+    document.getElementById('val-intensity').innerText  = intensity;
+    document.getElementById('val-temp').innerText       = temp;
+    document.getElementById('val-water').innerText      = water;
+    document.getElementById('val-air').innerText        = air;
+    document.getElementById('val-compaction').innerText = compaction;
+
+    const specDesc  = spectrum <= 500 ? 'Blue -- Vegetative Growth' : (spectrum <= 600 ? 'Green -- Minimal Absorption' : 'Red -- Flowering / Fruiting');
+    const intDesc   = intensity < 800 ? 'Low Indirect' : (intensity < 1500 ? 'Medium Indirect' : (intensity < 5000 ? 'Bright Indirect' : 'Direct Light'));
+    const tempDesc  = temp < 28 ? 'Hard Frost -- Osmotic Desiccation' : (temp <= 32 ? 'Soft Frost' : (temp < 50 ? 'Cold Stress' : (temp < 65 ? 'Sub-optimal' : (temp <= 85 ? 'Optimal' : (temp <= 95 ? 'Heat Stress' : 'Extreme Heat')))));
+    const waterDesc = water <= 10 ? 'Drought Stress' : (water <= 20 ? 'Low Water' : (water <= 35 ? 'Optimal Balance' : (water <= 55 ? 'High Water' : 'Waterlogged -- Anaerobic')));
+    const compDesc  = compaction <= 25 ? 'Low -- Good Pore Structure' : (compaction <= 60 ? 'Moderate -- Reduced Pores' : 'High -- Severely Compacted');
+
+    document.getElementById('desc-spectrum').innerText   = specDesc;
+    document.getElementById('desc-intensity').innerText  = intDesc;
+    document.getElementById('desc-temp').innerText       = tempDesc;
+    document.getElementById('desc-water').innerText      = waterDesc;
+    document.getElementById('desc-compaction').innerText = compDesc;
+
+    const specFactor  = spectrum <= 500 ? 1.2 : (spectrum <= 600 ? 0.4 : 1.0);
+    const intFactor   = 0.2 + ((intensity - 250) / (10000 - 250)) * 1.3;
+    const tempFactor  = temp < 28 ? 0 : (temp <= 32 ? 0.3 : (temp < 50 ? 0.3 : (temp < 65 ? 0.7 : (temp <= 85 ? 1.0 : (temp <= 95 ? 0.6 : 0.2)))));
+    const waterFactor = water <= 10 ? 0.2 : (water <= 20 ? 0.7 : (water <= 35 ? 1.0 : (water <= 55 ? 0.7 : 0.3)));
+    const compFactor  = 1.0 - (compaction / 100) * 0.55;
+
+    // O2 meter
+    const o2 = Math.max(0, Math.round(100 - (water * 0.6) - (compaction * 0.4)));
+    document.getElementById('o2-value').innerText = o2 + '%';
+    document.getElementById('o2-fill').style.height = o2 + '%';
+    document.getElementById('o2-fill').style.background = o2 > 50
+        ? 'linear-gradient(to top,#1565C0,#42A5F5)'
+        : (o2 > 20 ? 'linear-gradient(to top,#E65100,#FFA726)' : 'linear-gradient(to top,#B71C1C,#EF5350)');
+    document.getElementById('o2-fill').style.boxShadow = o2 > 50
+        ? '0 0 10px rgba(66,165,245,0.5)'
+        : (o2 > 20 ? '0 0 10px rgba(255,167,38,0.5)' : '0 0 10px rgba(239,83,80,0.5)');
+
+    // Efficiency
+    const rawEff = (specFactor / 1.2) * intFactor * tempFactor * waterFactor * compFactor;
+    const displayEff = Math.min(100, Math.max(0, Math.round(rawEff * 100)));
+    document.getElementById('eff-percent').innerText = displayEff + '%';
+    const effColor = displayEff > 60 ? '#4CAF50' : (displayEff > 30 ? '#FBC02D' : '#ef5350');
+    efficiencyChart.data.datasets[0].data = [displayEff, 100 - displayEff];
+    efficiencyChart.data.datasets[0].backgroundColor[0] = effColor;
+    efficiencyChart.update('none');
+
+    // Growth curve
+    const peakVeg = 58 * rawEff * (specFactor / 1.2);
+    const k = 0.55;
+    const midpoint = 9;
+
+    const growthData = Array.from({length: 31}, (_, x) => {
+        if (x <= 18) {
+            return peakVeg / (1 + Math.exp(-k * (x - midpoint)));
+        } else {
+            const vegPlateau = peakVeg / (1 + Math.exp(-k * (18 - midpoint)));
+            const repGain = peakVeg * 0.04 * ((x - 18) / 12);
+            return Math.max(0, vegPlateau + repGain);
+        }
+    });
+
+    growthChart.data.datasets[0].data = growthData;
+    growthChart.update('none');
+
+    // Flower
+    document.getElementById('flower-group').style.display = spectrum >= 610 ? 'block' : 'none';
+
+    // Plant status
+    const statusEl = document.getElementById('condition-status');
+    const plantSvg = document.getElementById('plant-svg');
+    if (tempFactor === 0 || rawEff < 0.08) {
+        statusEl.innerText = 'CRITICAL STRESS';
+        statusEl.style.color = 'var(--glow-red)';
+        plantSvg.style.transform = 'rotate(22deg) translateY(10px)';
+        plantSvg.style.filter = 'drop-shadow(0 0 6px rgba(239,83,80,0.5))';
+    } else if (rawEff < 0.35) {
+        statusEl.innerText = 'SUB-OPTIMAL';
+        statusEl.style.color = 'var(--glow-yellow)';
+        plantSvg.style.transform = 'rotate(8deg)';
+        plantSvg.style.filter = 'drop-shadow(0 0 6px rgba(251,192,45,0.4))';
+    } else {
+        statusEl.innerText = 'OPTIMAL GROWTH';
+        statusEl.style.color = 'var(--glow-green)';
+        plantSvg.style.transform = 'rotate(0deg) scale(1.05)';
+        plantSvg.style.filter = 'drop-shadow(0 0 10px rgba(76,175,80,0.55))';
+    }
+}
+
+// QUIZ
+function renderQuestion() {
+    const q = questions[currentQuestion];
+    const hintHTML = q.scopeHint
+        ? `<div class="scope-hint">${q.scopeHint}</div>`
+        : '';
+
+    document.getElementById('quiz-container').innerHTML = `
+        <div class="q-progress">Question ${currentQuestion + 1} of ${questions.length}</div>
+        <div class="question-text">${q.text}</div>
+        ${hintHTML}
+        <div class="options">
+            ${q.options.map((o, i) => `<button class="option-btn" onclick="checkAnswer(${i})">${o}</button>`).join('')}
+        </div>
+        <div id="feedback" class="feedback"></div>
+        <button class="next-btn" id="next-btn" onclick="advanceQuestion()">Next Question</button>
+    `;
+}
+
+function checkAnswer(idx) {
+    const q = questions[currentQuestion];
+    const fb = document.getElementById('feedback');
+    const nextBtn = document.getElementById('next-btn');
+
+    if (idx === q.correct) {
+        fb.innerText = q.feedback || 'Correct.';
+        fb.style.background = 'rgba(76,175,80,0.12)';
+        fb.style.color = '#81c784';
+        document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+        // Show Next Question button instead of auto-advancing
+        nextBtn.style.display = currentQuestion < questions.length - 1 ? 'block' : 'none';
+        if (currentQuestion === questions.length - 1) {
+            // Last question -- show completion after a brief pause
+            setTimeout(showCompletion, 2800);
+        }
+    } else {
+        fb.innerText = 'Incorrect. Adjust the sliders, observe the changes, and try again.';
+        fb.style.background = 'rgba(239,83,80,0.1)';
+        fb.style.color = '#ef9a9a';
+    }
+}
+
+function advanceQuestion() {
+    currentQuestion++;
+    if (currentQuestion < questions.length) {
+        renderQuestion();
+    } else {
+        showCompletion();
+    }
+}
+
+function showCompletion() {
+    cancelAnimationFrame(animFrame);
+    document.getElementById('lab-interface').style.display = 'none';
+    document.getElementById('completion-screen').style.display = 'block';
+    document.getElementById('cert-name').innerText = studentName;
+    document.getElementById('cert-date').innerText = 'Completed: ' + new Date().toLocaleString();
+}
+</script>
+</body>
+</html>
