@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What Plants Actually Need: Environmental Drivers of Growth</title>
+    <style>
+        :root {
+            --bg: #0a0f0d;
+            --surface: #111a14;
+            --card: #162019;
+            --border: #1e3024;
+            --green: #4CAF50;
+            --green-dim: #2e7d32;
+            --green-pale: #81c784;
+            --blue: #42A5F5;
+            --yellow: #FBC02D;
+            --pink: #f06292;
+            --red: #ef5350;
+            --text: #e8f5e9;
+            --text-secondary: #81c784;
+            --text-muted: #4a7a50;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.8;
+            padding: 40px 20px 80px;
+        }
+
+        .page { max-width: 820px; margin: 0 auto; }
+
+        /* HEADER */
+        .doc-header {
+            text-align: center;
+            padding: 60px 40px 50px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 56px;
+            position: relative;
+        }
+        .doc-header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 50%;
+            transform: translateX(-50%);
+            width: 1px; height: 40px;
+            background: linear-gradient(to bottom, transparent, var(--green));
+        }
+        .course-tag {
+            font-size: 0.72rem;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 18px;
+        }
+        .doc-title {
+            font-size: 2.2rem;
+            font-weight: 300;
+            letter-spacing: 0.04em;
+            color: var(--text);
+            text-shadow: 0 0 40px rgba(76,175,80,0.3);
+            margin-bottom: 14px;
+            line-height: 1.3;
+        }
+        .doc-title span { color: var(--green); }
+        .doc-subtitle {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            letter-spacing: 0.06em;
+        }
+
+        /* SECTION */
+        .section { margin-bottom: 52px; }
+        .section-label {
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--green);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+        .section-title {
+            font-size: 1.35rem;
+            font-weight: 400;
+            color: var(--text);
+            margin-bottom: 18px;
+            letter-spacing: 0.02em;
+        }
+        .section p {
+            font-size: 0.95rem;
+            color: #c8e6c9;
+            margin-bottom: 16px;
+        }
+
+        /* CARDS */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
+            margin: 24px 0;
+        }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 3px; height: 100%;
+            background: var(--accent, var(--green));
+        }
+        .card-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--accent, var(--green));
+            margin-bottom: 8px;
+        }
+        .card p { font-size: 0.85rem; color: #a5d6a7; line-height: 1.6; margin: 0; }
+
+        /* TABLE */
+        .table-wrap {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 24px 0;
+        }
+        table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+        thead { background: var(--card); }
+        thead th {
+            padding: 14px 16px;
+            text-align: left;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+        }
+        tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: rgba(76,175,80,0.04); }
+        tbody td { padding: 13px 16px; color: #c8e6c9; vertical-align: top; }
+        tbody td:first-child { font-weight: 600; color: var(--text); white-space: nowrap; }
+        .tag {
+            display: inline-block;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-top: 4px;
+        }
+        .tag-green { background: rgba(76,175,80,0.15); color: var(--green); }
+        .tag-yellow { background: rgba(251,192,45,0.15); color: var(--yellow); }
+        .tag-red { background: rgba(239,83,80,0.15); color: var(--red); }
+        .tag-blue { background: rgba(66,165,245,0.15); color: var(--blue); }
+
+        /* HIGHLIGHT */
+        .highlight {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--green);
+            border-radius: 0 10px 10px 0;
+            padding: 20px 24px;
+            margin: 24px 0;
+            font-size: 0.92rem;
+            color: #a5d6a7;
+            line-height: 1.75;
+        }
+        .highlight strong { color: var(--text); }
+
+        /* MISCONCEPTION / CORRECTION */
+        .misconception {
+            background: rgba(239,83,80,0.06);
+            border: 1px solid rgba(239,83,80,0.2);
+            border-radius: 10px;
+            padding: 20px 24px;
+            margin: 24px 0;
+        }
+        .misconception-label {
+            font-size: 0.68rem; font-weight: 700;
+            letter-spacing: 0.16em; text-transform: uppercase;
+            color: var(--red); margin-bottom: 8px;
+        }
+        .misconception p { font-size: 0.9rem; color: #ffcdd2; margin: 0; line-height: 1.7; }
+        .correction {
+            background: rgba(76,175,80,0.06);
+            border: 1px solid rgba(76,175,80,0.2);
+            border-radius: 10px;
+            padding: 20px 24px;
+            margin: 24px 0;
+        }
+        .correction-label {
+            font-size: 0.68rem; font-weight: 700;
+            letter-spacing: 0.16em; text-transform: uppercase;
+            color: var(--green); margin-bottom: 8px;
+        }
+        .correction p { font-size: 0.9rem; color: #c8e6c9; margin: 0; line-height: 1.7; }
+
+        /* SVG CURVE CONTAINER */
+        .curve-container {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 24px 16px 16px;
+            margin: 24px 0;
+            overflow: hidden;
+        }
+        .curve-container svg {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* PHASE TIMELINE */
+        .phase-timeline {
+            display: flex;
+            gap: 0;
+            margin: 24px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        .phase-block {
+            flex: 1;
+            padding: 18px 14px;
+            text-align: center;
+            border-right: 1px solid var(--border);
+            background: var(--card);
+        }
+        .phase-block:last-child { border-right: none; }
+        .phase-num { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+        .phase-name { font-size: 0.82rem; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+        .phase-desc { font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; }
+        .phase-block.active-veg { border-top: 2px solid var(--green); }
+        .phase-block.active-rep { border-top: 2px solid var(--pink); }
+        .phase-block.active-seed { border-top: 2px solid var(--yellow); }
+        .phase-block.active-mat { border-top: 2px solid var(--blue); }
+
+        /* SOIL DIAGRAM */
+        .soil-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 24px 0; }
+        .soil-box { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+        .soil-box-title { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 14px; }
+        .soil-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.78rem; }
+        .soil-bar-label { width: 60px; color: var(--text-muted); flex-shrink: 0; }
+        .soil-bar-track { flex: 1; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; }
+        .soil-bar-fill { height: 100%; border-radius: 4px; }
+        .soil-bar-val { width: 36px; text-align: right; color: var(--text-secondary); font-weight: 700; font-size: 0.75rem; }
+        .soil-note { font-size: 0.75rem; color: var(--text-muted); margin-top: 12px; line-height: 1.5; }
+
+        /* DIVIDER */
+        .divider { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+
+        /* FOOTER */
+        .doc-footer {
+            text-align: center;
+            padding-top: 40px;
+            border-top: 1px solid var(--border);
+            font-size: 0.72rem;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 600px) {
+            .doc-title { font-size: 1.6rem; }
+            .soil-grid { grid-template-columns: 1fr; }
+            .phase-timeline { flex-direction: column; }
+            .phase-block { border-right: none; border-bottom: 1px solid var(--border); }
+            .phase-block:last-child { border-bottom: none; }
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+
+    <!-- HEADER -->
+    <header class="doc-header">
+        <div class="course-tag">Plant Science -- Student Reading</div>
+        <h1 class="doc-title">What Plants <span>Actually</span> Need</h1>
+        <div class="doc-subtitle">Environmental Drivers of Growth, Physiology, and Development</div>
+    </header>
+
+    <!-- SECTION 1: BIOMASS -->
+    <section class="section">
+        <div class="section-label">Section 1</div>
+        <h2 class="section-title">Where Does a Plant's Mass Come From?</h2>
+
+        <div class="misconception">
+            <div class="misconception-label">Common Misconception</div>
+            <p>95% of a tree's physical mass comes directly from carbon dioxide (CO₂) absorbed from the air.</p>
+        </div>
+
+        <div class="correction">
+            <div class="correction-label">The Reality</div>
+            <p>While almost all dry plant biomass originates from photosynthetic processes rather than the soil, atmospheric CO₂ accounts for only about <strong>50% of that mass</strong>. The remaining elements come from water and soil minerals. Soil provides anchorage and essential mineral cofactors, but over 96% of the raw elements that build plant tissue come from water and the atmosphere.</p>
+        </div>
+
+        <p>When plant tissue is completely dehydrated to remove all free liquid water, the remaining solid structural material consists of three organic polymers: cellulose, hemicellulose, and lignin. These are built from just three elements: Carbon, Oxygen, and Hydrogen.</p>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Element</th>
+                        <th>% Dry Mass</th>
+                        <th>Primary Source</th>
+                        <th>Role in the Plant</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Carbon (C)</td>
+                        <td>48% to 50%</td>
+                        <td>Atmosphere (CO₂)</td>
+                        <td>Fixed during the Calvin cycle; forms the backbone of all organic molecules.</td>
+                    </tr>
+                    <tr>
+                        <td>Oxygen (O)</td>
+                        <td>42% to 44%</td>
+                        <td>Water (H₂O) and Atmosphere</td>
+                        <td>Incorporated during carbon fixation; structural component of carbohydrates.</td>
+                    </tr>
+                    <tr>
+                        <td>Hydrogen (H)</td>
+                        <td>6%</td>
+                        <td>Soil Water (H₂O)</td>
+                        <td>Extracted during the light reactions of photosynthesis via water splitting (photolysis).</td>
+                    </tr>
+                    <tr>
+                        <td>Minerals and Nitrogen</td>
+                        <td>1% to 4%</td>
+                        <td>Soil Solution</td>
+                        <td>Absorbed by roots; used for enzymes, chlorophyll, DNA, and osmotic regulation.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- SECTION 2: LIGHT -->
+    <section class="section">
+        <div class="section-label">Section 2</div>
+        <h2 class="section-title">Light: Spectrum and Intensity</h2>
+
+        <p>Plants do not use all wavelengths of sunlight equally. The range of light usable for photosynthesis is called Photosynthetically Active Radiation (PAR), spanning 400 nm to 700 nm. Within this range, different wavelengths produce very different biological responses.</p>
+
+        <div class="card-grid">
+            <div class="card" style="--accent: #42A5F5;">
+                <div class="card-title">Blue Light -- 400 to 500 nm</div>
+                <p>Chlorophyll a has a primary absorption peak near 430 nm. Blue light drives the highest photosynthetic efficiency and stimulates vegetative leaf development and stomatal opening.</p>
+            </div>
+            <div class="card" style="--accent: #66BB6A;">
+                <div class="card-title">Green Light -- 500 to 600 nm</div>
+                <p>Largely reflected or transmitted through the leaf canopy. Green light is poorly absorbed by chlorophylls, resulting in low photosynthetic efficiency at these wavelengths.</p>
+            </div>
+            <div class="card" style="--accent: #ef5350;">
+                <div class="card-title">Red Light -- 600 to 700 nm</div>
+                <p>Highly absorbed by Chlorophyll a and b. Red wavelengths activate phytochrome receptors, regulating the transition to flowering, fruiting, and photoperiod responses.</p>
+            </div>
+        </div>
+
+        <div class="highlight">
+            <strong>Light Intensity and Growth Rate:</strong> Intensity determines total energy throughput. At low levels (below 800 lux), light limits the photosynthetic rate. As intensity climbs toward direct sunlight (5,000 to 10,000 lux), daily carbon assimilation rises until the plant reaches its light saturation point. More photons mean more photosynthesis -- up to a ceiling.
+        </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- SECTION 3: TEMPERATURE -->
+    <section class="section">
+        <div class="section-label">Section 3</div>
+        <h2 class="section-title">Temperature: Thresholds and Freezing Mechanics</h2>
+
+        <p>Biochemical reactions have temperature windows. The optimal zone for most crop species ranges between 65°F and 85°F, where photosynthetic enzymes operate at peak efficiency without thermal degradation. Outside this window, growth slows or stops entirely.</p>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Temperature Range</th>
+                        <th>Plant Response</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Below 28°F</td>
+                        <td>Hard frost -- cellular damage through osmotic desiccation or intracellular ice formation</td>
+                        <td><span class="tag tag-red">Critical</span></td>
+                    </tr>
+                    <tr>
+                        <td>28°F to 32°F</td>
+                        <td>Soft frost -- partial damage, some recovery possible depending on species</td>
+                        <td><span class="tag tag-red">Stress</span></td>
+                    </tr>
+                    <tr>
+                        <td>32°F to 65°F</td>
+                        <td>Cold stress -- enzymatic slowdown, reduced growth rate</td>
+                        <td><span class="tag tag-yellow">Sub-optimal</span></td>
+                    </tr>
+                    <tr>
+                        <td>65°F to 85°F</td>
+                        <td>Optimal growth -- enzymes at peak velocity, full photosynthetic capacity</td>
+                        <td><span class="tag tag-green">Optimal</span></td>
+                    </tr>
+                    <tr>
+                        <td>Above 86°F to 95°F</td>
+                        <td>Heat stress -- photosynthetic enzyme complexes destabilize, respiration outpaces fixation</td>
+                        <td><span class="tag tag-yellow">Stress</span></td>
+                    </tr>
+                    <tr>
+                        <td>Above 95°F</td>
+                        <td>Extreme heat -- protein denaturation, rapid cellular breakdown</td>
+                        <td><span class="tag tag-red">Critical</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 style="font-size:1rem; font-weight:600; color:var(--text); margin: 28px 0 14px; letter-spacing:0.02em;">How Freezing Actually Damages Plant Cells</h3>
+        <p>Freezing damage is not simply a matter of ice forming inside cells. The mechanism depends on how quickly temperatures drop.</p>
+
+        <div class="card-grid">
+            <div class="card" style="--accent: #42A5F5;">
+                <div class="card-title">Slow Freezing -- Extracellular Ice</div>
+                <p>Ice forms first in the spaces outside the cell wall, where fluids are more dilute. This lowers external vapor pressure, pulling water out of the cell interior by osmosis. The cell undergoes severe dehydration and shrinkage, crushing organelles and tearing the plasma membrane. The primary damage is desiccation, not direct puncture.</p>
+            </div>
+            <div class="card" style="--accent: #ef5350;">
+                <div class="card-title">Rapid Freezing -- Intracellular Ice</div>
+                <p>When temperatures drop too quickly, water cannot leave the cell fast enough. Ice crystals form inside the cytoplasm and vacuole, growing internally and physically rupturing membranes. This is typically lethal and irreversible.</p>
+            </div>
+        </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- SECTION 4: SOIL -->
+    <section class="section">
+        <div class="section-label">Section 4</div>
+        <h2 class="section-title">Soil Water, Aeration, and Microbiology</h2>
+
+        <p>Soil pore space is a shared volume between liquid water and air. In healthy, uncompacted soil, pore space consists of approximately 25% water and 25% air. Because water and air occupy the same pores, their relationship is directly inverse: as one increases, the other decreases proportionally.</p>
+
+        <div class="soil-grid">
+            <div class="soil-box">
+                <div class="soil-box-title" style="color: var(--green);">Healthy Soil -- Optimal Balance</div>
+                <div class="soil-bar-row">
+                    <div class="soil-bar-label">Solid</div>
+                    <div class="soil-bar-track"><div class="soil-bar-fill" style="width:50%; background:#5D4037;"></div></div>
+                    <div class="soil-bar-val">50%</div>
+                </div>
+                <div class="soil-bar-row">
+                    <div class="soil-bar-label">Water</div>
+                    <div class="soil-bar-track"><div class="soil-bar-fill" style="width:25%; background:#1565C0;"></div></div>
+                    <div class="soil-bar-val">25%</div>
+                </div>
+                <div class="soil-bar-row">
+                    <div class="soil-bar-label">Air</div>
+                    <div class="soil-bar-track"><div class="soil-bar-fill" style="width:25%; background:#4CAF50;"></div></div>
+                    <div class="soil-bar-val">25%</div>
+                </div>
+                <div class="soil-note">Aerobic root respiration active. Nutrient transport functioning. Beneficial aerobic microbes thriving.</div>
+            </div>
+            <div class="soil-box" style="border-color: rgba(239,83,80,0.3);">
+                <div class="soil-box-title" style="color: var(--red);">Waterlogged or Compacted Soil</div>
+                <div class="soil-bar-row">
+                    <div class="soil-bar-label">Solid</div>
+                    <div class="soil-bar-track"><div class="soil-bar-fill" style="width:50%; background:#5D4037;"></div></div>
+                    <div class="soil-bar-val">50%</div>
+                </div>
+                <div class="soil-bar-row">
+                    <div class="soil-bar-label">Water</div>
+                    <div class="soil-bar-track"><div class="soil-bar-fill" style="width:50%; background:#1565C0;"></div></div>
+                    <div class="soil-bar-val">50%</div>
+                </div>
+                <div class="soil-bar-row">
+                    <div class="soil-bar-label">Air</div>
+                    <div class="soil-bar-track"><div class="soil-bar-fill" style="width:2%; background:#ef5350;"></div></div>
+                    <div class="soil-bar-val">~0%</div>
+                </div>
+                <div class="soil-note" style="color: #ef9a9a;">Roots suffocate. Active nutrient transport halts. Anaerobic microbes take over and begin off-gassing nutrients.</div>
+            </div>
+        </div>
+
+        <h3 style="font-size:1rem; font-weight:600; color:var(--text); margin: 28px 0 14px; letter-spacing:0.02em;">The Microbial Shift</h3>
+        <p>When soil oxygen drops due to waterlogging or heavy surface compaction, the microbial community undergoes a phase shift. Aerobic microbes that support plant health go dormant. Anaerobic microorganisms take over and carry out denitrification, converting nitrate into nitrogen gases (N₂O and N₂) that escape into the atmosphere. They also generate compounds like hydrogen sulfide that are directly toxic to root tissue. The plant loses access to nutrients that are physically present in the soil but chemically unavailable or actively harmful.</p>
+    </section>
+
+    <hr class="divider">
+
+    <!-- SECTION 5: S-CURVE -->
+    <section class="section">
+        <div class="section-label">Section 5</div>
+        <h2 class="section-title">The Sigmoid Growth Curve</h2>
+
+        <p>Plant biomass accumulation over a lifecycle is not linear. Total growth follows a sigmoid (S-shaped) curve, reflecting the shifting balance between structural expansion and reproductive allocation. The graph below shows biomass and nutrient uptake as a percentage of total over time -- nitrogen uptake mirrors biomass production because the plant is building new tissue at the same rate it is absorbing nutrients.</p>
+
+        <!-- SVG S-CURVE DIAGRAM -->
+        <div class="curve-container">
+            <svg viewBox="0 0 700 380" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', Tahoma, sans-serif">
+
+                <!-- Background -->
+                <rect width="700" height="380" fill="#162019" rx="8"/>
+
+                <!-- Grid lines -->
+                <g stroke="#1e3024" stroke-width="1">
+                    <!-- Horizontal grid -->
+                    <line x1="70" y1="40"  x2="640" y2="40"/>
+                    <line x1="70" y1="96"  x2="640" y2="96"/>
+                    <line x1="70" y1="152" x2="640" y2="152"/>
+                    <line x1="70" y1="208" x2="640" y2="208"/>
+                    <line x1="70" y1="264" x2="640" y2="264"/>
+                    <line x1="70" y1="320" x2="640" y2="320"/>
+                    <!-- Vertical axis -->
+                    <line x1="70" y1="30" x2="70" y2="330" stroke="#2e4a34" stroke-width="1.5"/>
+                    <!-- Horizontal axis -->
+                    <line x1="70" y1="320" x2="650" y2="320" stroke="#2e4a34" stroke-width="1.5"/>
+                    <!-- Arrow on x-axis -->
+                    <polygon points="650,316 660,320 650,324" fill="#2e4a34"/>
+                </g>
+
+                <!-- Y-axis labels -->
+                <g fill="#4a7a50" font-size="11" text-anchor="end">
+                    <text x="62" y="44">100%</text>
+                    <text x="62" y="100">80%</text>
+                    <text x="62" y="156">60%</text>
+                    <text x="62" y="212">40%</text>
+                    <text x="62" y="268">20%</text>
+                    <text x="62" y="324">0%</text>
+                </g>
+
+                <!-- Y-axis title (rotated) -->
+                <text transform="rotate(-90, 18, 180)" x="18" y="180" fill="#81c784" font-size="11" text-anchor="middle" font-weight="600">Biomass / Nutrient Uptake (% of total)</text>
+
+                <!-- X-axis label -->
+                <text x="355" y="355" fill="#81c784" font-size="12" text-anchor="middle" font-weight="600">Time</text>
+
+                <!--
+                    S-CURVE PATH
+                    Logistic curve mapped to SVG coordinates:
+                    Y-axis: 320 (0%) to 40 (100%), so height = 280px
+                    X-axis: 70 (start) to 640 (end), width = 570px
+
+                    Points calculated from logistic function:
+                    f(t) = 1 / (1 + exp(-0.42*(t-11))) for t in [0,30]
+                    Mapped: x = 70 + (t/30)*570, y = 320 - f(t)*280
+                -->
+                <path d="
+                    M 70,319
+                    C 90,318 110,316 130,312
+                    C 150,308 160,300 175,290
+                    C 190,278 200,262 215,245
+                    C 230,228 242,208 258,188
+                    C 274,168 288,148 305,130
+                    C 322,112 338,98  355,88
+                    C 372,78  390,70  410,64
+                    C 430,59  450,55  475,52
+                    C 500,49  530,46  570,44
+                    C 600,43  625,42  640,41
+                " fill="none" stroke="#ef5350" stroke-width="3" stroke-linecap="round"/>
+
+                <!-- Phase boundary lines (dashed) -->
+                <!-- Seedling/Vegetative boundary ~day 5, x=165 -->
+                <line x1="165" y1="295" x2="165" y2="320" stroke="#4a7a50" stroke-width="1" stroke-dasharray="3,3"/>
+                <!-- Vegetative/Flowering boundary ~day 16, x=374 -->
+                <line x1="374" y1="82" x2="374" y2="320" stroke="#4a7a50" stroke-width="1" stroke-dasharray="3,3"/>
+                <!-- Flowering/Seed dev boundary ~day 22, x=488 -->
+                <line x1="488" y1="51" x2="488" y2="320" stroke="#4a7a50" stroke-width="1" stroke-dasharray="3,3"/>
+
+                <!--
+                    PHASE LABELS with arrows pointing to curve
+                    Matching the reference image style
+                -->
+
+                <!-- Seedling growth label -->
+                <g>
+                    <text x="88" y="268" fill="#81c784" font-size="11" font-weight="600">Seedling</text>
+                    <text x="88" y="282" fill="#81c784" font-size="11" font-weight="600">growth</text>
+                    <!-- Arrow from label to curve point ~day 2, y~315 -->
+                    <line x1="105" y1="284" x2="105" y2="313" stroke="#81c784" stroke-width="1"/>
+                    <polygon points="102,313 105,319 108,313" fill="#81c784"/>
+                </g>
+
+                <!-- Vegetative growth label -->
+                <g>
+                    <text x="195" y="175" fill="#81c784" font-size="11" font-weight="600">Vegetative</text>
+                    <text x="195" y="189" fill="#81c784" font-size="11" font-weight="600">growth</text>
+                    <!-- Arrow to curve at ~day 10, x=261, y~190 -->
+                    <line x1="240" y1="190" x2="258" y2="190" stroke="#81c784" stroke-width="1"/>
+                    <polygon points="255,187 261,190 255,193" fill="#81c784"/>
+                </g>
+
+                <!-- Flowering label -->
+                <g>
+                    <text x="390" y="148" fill="#f06292" font-size="11" font-weight="600">Flowering</text>
+                    <!-- Arrow to curve at ~day 17, x=393, y~80 -->
+                    <line x1="415" y1="148" x2="393" y2="88" stroke="#f06292" stroke-width="1"/>
+                    <polygon points="390,91 393,84 396,91" fill="#f06292"/>
+                </g>
+
+                <!-- Seed development label -->
+                <g>
+                    <text x="490" y="75" fill="#FBC02D" font-size="11" font-weight="600">Seed</text>
+                    <text x="490" y="89" fill="#FBC02D" font-size="11" font-weight="600">development</text>
+                    <!-- Arrow to curve at ~day 23, x=508, y~50 -->
+                    <line x1="510" y1="91" x2="510" y2="53" stroke="#FBC02D" stroke-width="1"/>
+                    <polygon points="507,56 510,50 513,56" fill="#FBC02D"/>
+                </g>
+
+                <!-- Maturity label -->
+                <g>
+                    <text x="575" y="68" fill="#42A5F5" font-size="11" font-weight="600">Maturity</text>
+                    <!-- Arrow to curve at ~day 28, x=610, y~42 -->
+                    <line x1="600" y1="68" x2="620" y2="43" stroke="#42A5F5" stroke-width="1"/>
+                    <polygon points="617,46 621,41 624,47" fill="#42A5F5"/>
+                </g>
+
+            </svg>
+        </div>
+
+        <div class="phase-timeline">
+            <div class="phase-block active-veg">
+                <div class="phase-num">Phase 1</div>
+                <div class="phase-name">Seedling</div>
+                <div class="phase-desc">Slow start. Relies on seed reserves. Small leaf area limits daily carbon capture.</div>
+            </div>
+            <div class="phase-block active-veg">
+                <div class="phase-num">Phase 2</div>
+                <div class="phase-name">Vegetative</div>
+                <div class="phase-desc">Rapid exponential climb. All energy goes to leaves, stems, and roots. Each new leaf compounds the next.</div>
+            </div>
+            <div class="phase-block active-rep">
+                <div class="phase-num">Phase 3</div>
+                <div class="phase-name">Flowering</div>
+                <div class="phase-desc">Begins on the shoulder of the curve while growth is still occurring. Energy redirects to reproductive organs.</div>
+            </div>
+            <div class="phase-block active-seed">
+                <div class="phase-num">Phase 4</div>
+                <div class="phase-name">Seed Development</div>
+                <div class="phase-desc">Structural growth nearly stops. Nitrogen and phosphorus mobilize from leaves into developing seeds.</div>
+            </div>
+            <div class="phase-block active-mat">
+                <div class="phase-num">Phase 5</div>
+                <div class="phase-name">Maturity</div>
+                <div class="phase-desc">Curve plateaus near 100%. Seed fill complete. Nutrient uptake from soil essentially stops.</div>
+            </div>
+        </div>
+
+        <div class="highlight">
+            <strong>A critical point about the reproductive transition:</strong> Flowering does not begin after the S-curve flattens. It begins while the curve is still on its upper incline -- the decelerating shoulder. The plant is still growing structurally when it initiates reproduction, but the rate of new biomass production slows sharply as energy and nutrients are redirected toward flowers, fruit, and seeds. This is why vegetative growth produces far more total biomass than reproductive growth: the vegetative phase is when the plant operates as a full-capacity biomass factory.
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="doc-footer">
+        Plant Science -- Environmental Physiology and Growth Dynamics
+    </footer>
+
+</div>
+</body>
+</html>
