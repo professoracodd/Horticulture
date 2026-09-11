@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Digital Phytotron: Plant Needs Lab</title>
+    <title>Plant Needs: Analytics Room</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
     <style>
@@ -19,8 +19,8 @@
             --glow-yellow: #FBC02D;
             --glow-red: #ef5350;
             --text-primary: #e8f5e9;
-            --text-secondary: #81c784;
-            --text-muted: #4a7a50;
+            --text-secondary: #a5d6a7;
+            --text-muted: #81c784;
             --border-radius: 10px;
         }
 
@@ -108,8 +108,8 @@
             box-shadow: 0 0 20px rgba(76,175,80,0.3);
         }
         .btn-primary:disabled {
-            border-color: var(--text-muted);
-            color: var(--text-muted);
+            border-color: #2e4a34;
+            color: #4a7a50;
             cursor: not-allowed;
         }
 
@@ -197,12 +197,12 @@
         .scope-overlay.hidden { opacity: 0; }
 
         .micro-label {
-            font-size: 0.65rem; font-weight: 700;
+            font-size: 0.68rem; font-weight: 700;
             letter-spacing: 0.12em; text-transform: uppercase;
-            margin-top: 5px; color: var(--text-muted);
+            margin-top: 5px; color: #a5d6a7;
         }
         #microbe-status {
-            font-size: 0.7rem; margin-top: 2px;
+            font-size: 0.72rem; margin-top: 2px;
             font-weight: 700; letter-spacing: 0.08em;
             min-height: 1em;
             transition: color 0.3s ease;
@@ -221,7 +221,7 @@
             font-weight: 700;
             letter-spacing: 0.1em;
             text-transform: uppercase;
-            color: var(--text-muted);
+            color: #81c784;
         }
         .toggle-switch {
             position: relative;
@@ -243,12 +243,12 @@
             position: absolute;
             top: 2px; left: 2px;
             width: 14px; height: 14px;
-            background: var(--text-muted);
+            background: #81c784;
             border-radius: 50%;
             transition: transform 0.3s, background 0.3s, box-shadow 0.3s;
         }
         .toggle-switch input:checked + .toggle-track {
-            background: rgba(76,175,80,0.2);
+            background: rgba(76,175,80,0.25);
             border-color: var(--glow-green);
         }
         .toggle-switch input:checked + .toggle-track + .toggle-thumb {
@@ -256,12 +256,12 @@
             background: var(--glow-green);
             box-shadow: 0 0 8px rgba(76,175,80,0.7);
         }
-        #scope-on-label { color: var(--text-muted); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; transition: color 0.3s; }
-        #scope-on-label.active { color: var(--glow-green); }
+        #scope-on-label { color: #81c784; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; transition: color 0.3s; }
+        #scope-on-label.active { color: var(--glow-green); text-shadow: 0 0 6px rgba(76,175,80,0.6); }
 
         /* O2 METER */
         .o2-meter { flex: 0 0 auto; text-align: center; }
-        #o2-value { font-size: 0.75rem; font-weight: 700; color: var(--glow-blue); margin-bottom: 4px; }
+        #o2-value { font-size: 0.78rem; font-weight: 700; color: #90CAF9; margin-bottom: 4px; text-shadow: 0 0 6px rgba(144,202,249,0.4); }
         .o2-bar-wrap {
             width: 26px; height: 110px;
             background: rgba(255,255,255,0.05);
@@ -276,12 +276,12 @@
             background: linear-gradient(to top, #1565C0, #42A5F5);
             border-radius: 0 0 12px 12px;
             transition: height 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 0 10px rgba(66,165,245,0.4);
+            box-shadow: 0 0 10px rgba(66,165,245,0.5);
         }
         .o2-label {
-            font-size: 0.65rem; font-weight: 700;
+            font-size: 0.68rem; font-weight: 700;
             letter-spacing: 0.1em; text-transform: uppercase;
-            margin-top: 5px; color: var(--text-muted);
+            margin-top: 5px; color: #a5d6a7;
         }
 
         /* EFFICIENCY DONUT */
@@ -292,7 +292,7 @@
             text-align: center; pointer-events: none;
         }
         .chart-label .percent { display: block; font-size: 1.3rem; font-weight: 700; color: var(--text-primary); transition: color 0.2s; }
-        .chart-label .text { font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
+        .chart-label .text { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em; color: #a5d6a7; font-weight: 600; }
 
         /* GROWTH CHART */
         .growth-chart-container {
@@ -307,7 +307,7 @@
         .controls-header {
             font-size: 0.72rem; font-weight: 700;
             letter-spacing: 0.18em; text-transform: uppercase;
-            color: var(--text-muted);
+            color: #81c784;
             border-bottom: 1px solid var(--border);
             padding-bottom: 8px; margin-bottom: 12px;
         }
@@ -326,7 +326,7 @@
             font-size: 0.78rem; font-weight: 700;
             color: var(--glow-green); font-variant-numeric: tabular-nums;
         }
-        .slider-desc { font-size: 0.68rem; color: var(--text-muted); margin-top: 3px; }
+        .slider-desc { font-size: 0.68rem; color: #81c784; margin-top: 3px; }
 
         input[type="range"] {
             width: 100%; cursor: pointer;
@@ -360,17 +360,17 @@
         .quiz-header {
             font-size: 0.72rem; font-weight: 700;
             letter-spacing: 0.18em; text-transform: uppercase;
-            color: var(--text-muted);
+            color: #81c784;
             border-bottom: 1px solid var(--border);
             padding-bottom: 8px; margin-bottom: 14px;
         }
-        .q-progress { font-size: 0.68rem; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 0.06em; }
+        .q-progress { font-size: 0.68rem; color: #81c784; margin-bottom: 8px; letter-spacing: 0.06em; font-weight: 600; }
         .question-text { font-size: 0.88rem; line-height: 1.6; color: var(--text-primary); margin-bottom: 14px; }
         .scope-hint {
             font-size: 0.75rem;
-            color: var(--glow-blue);
+            color: #90CAF9;
             background: rgba(66,165,245,0.08);
-            border: 1px solid rgba(66,165,245,0.2);
+            border: 1px solid rgba(66,165,245,0.25);
             border-radius: 5px;
             padding: 7px 10px;
             margin-bottom: 12px;
@@ -439,7 +439,7 @@
             text-shadow: 0 0 20px rgba(76,175,80,0.6);
             margin: 16px 0 8px;
         }
-        .cert-date { font-size: 0.8rem; color: var(--text-muted); letter-spacing: 0.1em; margin-bottom: 30px; }
+        .cert-date { font-size: 0.8rem; color: #81c784; letter-spacing: 0.1em; margin-bottom: 30px; }
         .summary-box {
             text-align: left;
             background: var(--bg-card);
@@ -450,7 +450,7 @@
             color: var(--text-secondary);
         }
         .summary-box strong { color: var(--text-primary); }
-        .cert-note { font-size: 0.75rem; color: var(--text-muted); letter-spacing: 0.08em; margin-top: 24px; }
+        .cert-note { font-size: 0.75rem; color: #81c784; letter-spacing: 0.08em; margin-top: 24px; }
 
         @media (max-width: 900px) {
             #lab-interface { flex-direction: column; }
@@ -520,7 +520,7 @@
                     <div class="o2-bar-wrap">
                         <div id="o2-fill" style="height:100%"></div>
                     </div>
-                    <div class="o2-label">Soil O2</div>
+                    <div class="o2-label">Soil O<sub>2</sub></div>
                 </div>
 
                 <!-- Efficiency Donut -->
@@ -843,14 +843,14 @@ function initCharts() {
                 y: {
                     beginAtZero: true,
                     max: 70,
-                    title: { display: true, text: 'Height (cm)', color: '#4a7a50', font: { size: 10 } },
+                    title: { display: true, text: 'Height (cm)', color: '#81c784', font: { size: 10 } },
                     grid: { color: 'rgba(255,255,255,0.04)' },
-                    ticks: { color: '#4a7a50', font: { size: 10 } }
+                    ticks: { color: '#81c784', font: { size: 10 } }
                 },
                 x: {
-                    title: { display: true, text: 'Day', color: '#4a7a50', font: { size: 10 } },
+                    title: { display: true, text: 'Day', color: '#81c784', font: { size: 10 } },
                     grid: { color: 'rgba(255,255,255,0.03)' },
-                    ticks: { color: '#4a7a50', font: { size: 10 } }
+                    ticks: { color: '#81c784', font: { size: 10 } }
                 }
             }
         }
@@ -948,10 +948,6 @@ function animateMicroscope() {
 
 // SMOOTH CONTINUOUS PHYSIOLOGICAL RESPONSE FUNCTIONS
 function calcSpectrumFactor(nm) {
-    // Chlorophyll a/b dual absorption peaks:
-    // Peak 1: Blue ~435nm (magnitude ~1.20)
-    // Valley: Green ~545nm (magnitude ~0.38)
-    // Peak 2: Red ~660nm (magnitude ~1.05)
     const bluePeak = 1.20 * Math.exp(-Math.pow((nm - 435) / 38, 2));
     const redPeak  = 1.05 * Math.exp(-Math.pow((nm - 660) / 36, 2));
     const greenFloor = 0.38;
@@ -959,36 +955,23 @@ function calcSpectrumFactor(nm) {
 }
 
 function calcTempFactor(t) {
-    // 28°F frost threshold, 65-85°F optimal plateau, heat stress >86°F
     if (t < 26) return 0;
-    if (t <= 32) {
-        // Slow freeze desiccation ramp
-        return (t - 26) / 6 * 0.30;
-    }
+    if (t <= 32) return (t - 26) / 6 * 0.30;
     if (t < 65) {
-        // Smooth ascending sigmoid from 0.30 at 32°F to 1.0 at 65°F
         const p = (t - 32) / (65 - 32);
         return 0.30 + 0.70 * (3 * p * p - 2 * p * p * p);
     }
-    if (t <= 85) {
-        return 1.0;
-    }
-    // Smooth heat stress decay from 85°F to 100°F
+    if (t <= 85) return 1.0;
     const p = (t - 85) / 15;
     return Math.max(0.12, 1.0 - 0.85 * (p * p));
 }
 
 function calcWaterFactor(w) {
-    // Optimal 25-30%. Drought <15%, Waterlogged/anaerobic >50%
     if (w <= 25) {
-        // Smooth climb from 0.15 (drought) to 1.0 (25%)
         const p = w / 25;
         return 0.15 + 0.85 * Math.sin((p * Math.PI) / 2);
     }
-    if (w <= 35) {
-        return 1.0;
-    }
-    // Smooth descent as air is displaced (hypoxia)
+    if (w <= 35) return 1.0;
     const p = (w - 35) / 65;
     return Math.max(0.22, 1.0 - 0.78 * (p * 0.85 + 0.15 * p * p));
 }
@@ -1038,7 +1021,7 @@ function updateSim() {
     const waterFactor = calcWaterFactor(water);
     const compFactor  = 1.0 - (compaction / 100) * 0.55;
 
-    // O2 meter (smooth linear depletion)
+    // O2 meter
     const o2 = Math.max(0, Math.round(100 - (water * 0.6) - (compaction * 0.4)));
     document.getElementById('o2-value').innerText = o2 + '%';
     document.getElementById('o2-fill').style.height = o2 + '%';
