@@ -154,7 +154,7 @@
         .plant-visualizer { text-align: center; flex: 0 0 auto; }
         #plant-svg {
             width: 110px; height: 110px;
-            transition: all 0.5s ease;
+            transition: transform 0.35s ease, filter 0.35s ease;
             filter: drop-shadow(0 0 8px rgba(76,175,80,0.4));
         }
         #flower-group { display: none; }
@@ -164,6 +164,7 @@
             font-weight: 700;
             letter-spacing: 0.15em;
             text-transform: uppercase;
+            transition: color 0.3s ease;
         }
 
         /* MICROSCOPE */
@@ -183,7 +184,6 @@
         }
         #microscope-canvas { width: 130px; height: 130px; display: block; }
 
-        /* Dark overlay when scope is off */
         .scope-overlay {
             position: absolute;
             top: 0; left: 0;
@@ -205,6 +205,7 @@
             font-size: 0.7rem; margin-top: 2px;
             font-weight: 700; letter-spacing: 0.08em;
             min-height: 1em;
+            transition: color 0.3s ease;
         }
 
         /* MICROSCOPE TOGGLE */
@@ -274,7 +275,7 @@
             position: absolute; bottom: 0; width: 100%;
             background: linear-gradient(to top, #1565C0, #42A5F5);
             border-radius: 0 0 12px 12px;
-            transition: height 0.4s ease, background 0.4s ease;
+            transition: height 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
             box-shadow: 0 0 10px rgba(66,165,245,0.4);
         }
         .o2-label {
@@ -290,7 +291,7 @@
             transform: translate(-50%, -50%);
             text-align: center; pointer-events: none;
         }
-        .chart-label .percent { display: block; font-size: 1.3rem; font-weight: 700; color: var(--text-primary); }
+        .chart-label .percent { display: block; font-size: 1.3rem; font-weight: 700; color: var(--text-primary); transition: color 0.2s; }
         .chart-label .text { font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
 
         /* GROWTH CHART */
@@ -548,7 +549,7 @@
                         <span>Light Spectrum</span>
                         <span class="control-val"><span id="val-spectrum">450</span> nm</span>
                     </div>
-                    <input type="range" id="slider-spectrum" min="400" max="700" value="450" class="spectrum-slider" oninput="updateSim()">
+                    <input type="range" id="slider-spectrum" min="400" max="700" value="450" class="spectrum-slider" oninput="queueUpdate()">
                     <div class="slider-desc" id="desc-spectrum">Blue -- Vegetative Growth</div>
                 </div>
 
@@ -557,7 +558,7 @@
                         <span>Light Intensity</span>
                         <span class="control-val"><span id="val-intensity">5000</span> lux</span>
                     </div>
-                    <input type="range" id="slider-intensity" min="250" max="10000" value="5000" oninput="updateSim()">
+                    <input type="range" id="slider-intensity" min="250" max="10000" value="5000" oninput="queueUpdate()">
                     <div class="slider-desc" id="desc-intensity">Bright Indirect</div>
                 </div>
 
@@ -566,7 +567,7 @@
                         <span>Temperature</span>
                         <span class="control-val"><span id="val-temp">75</span> F</span>
                     </div>
-                    <input type="range" id="slider-temp" min="20" max="100" value="75" oninput="updateSim()">
+                    <input type="range" id="slider-temp" min="20" max="100" value="75" oninput="queueUpdate()">
                     <div class="slider-desc" id="desc-temp">Optimal</div>
                 </div>
 
@@ -575,7 +576,7 @@
                         <span>Soil Water Content</span>
                         <span class="control-val"><span id="val-water">25</span>%</span>
                     </div>
-                    <input type="range" id="slider-water" min="0" max="100" value="25" oninput="updateSim()">
+                    <input type="range" id="slider-water" min="0" max="100" value="25" oninput="queueUpdate()">
                     <div class="slider-desc">Soil Air: <span id="val-air">75</span>% &nbsp;|&nbsp; <span id="desc-water">Optimal</span></div>
                 </div>
 
@@ -584,7 +585,7 @@
                         <span>Surface Compaction</span>
                         <span class="control-val"><span id="val-compaction">10</span>%</span>
                     </div>
-                    <input type="range" id="slider-compaction" min="0" max="100" value="10" oninput="updateSim()">
+                    <input type="range" id="slider-compaction" min="0" max="100" value="10" oninput="queueUpdate()">
                     <div class="slider-desc" id="desc-compaction">Low -- Good Pore Structure</div>
                 </div>
             </div>
@@ -630,6 +631,7 @@ let studentName = "";
 let microbes = [];
 let animFrame;
 let scopeOn = false;
+let updateScheduled = false;
 
 // QUESTIONS
 const questions = [
@@ -776,7 +778,7 @@ function initCharts() {
             labels: Array.from({length: 31}, (_, i) => i),
             datasets: [{
                 label: 'Plant Height (cm)',
-                data: [],
+                data: Array(31).fill(0),
                 borderColor: '#4CAF50',
                 backgroundColor: 'rgba(76,175,80,0.06)',
                 fill: true,
@@ -788,6 +790,7 @@ function initCharts() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            animation: false,
             plugins: {
                 title: {
                     display: true,
@@ -864,6 +867,7 @@ function initCharts() {
             cutout: '78%',
             responsive: true,
             maintainAspectRatio: false,
+            animation: false,
             plugins: { legend: { display: false }, tooltip: { enabled: false } }
         }
     });
@@ -891,7 +895,7 @@ let bubbles = [];
 function animateMicroscope() {
     const water = parseInt(document.getElementById('slider-water').value);
     const compaction = parseInt(document.getElementById('slider-compaction').value);
-    const anaerobic = (water > 65) || (compaction > 65);
+    const anaerobic = (water > 60) || (compaction > 60);
     const speedMult = anaerobic ? 0.22 : 1.0;
 
     microCtx.fillStyle = 'rgba(0,0,0,0.22)';
@@ -934,13 +938,69 @@ function animateMicroscope() {
         microCtx.shadowBlur = 0;
     });
 
-    // Only show status text when scope is on
     if (scopeOn) {
         document.getElementById('microbe-status').innerText = anaerobic ? 'Anaerobic' : 'Aerobic';
         document.getElementById('microbe-status').style.color = anaerobic ? 'var(--glow-red)' : 'var(--glow-green)';
     }
 
     animFrame = requestAnimationFrame(animateMicroscope);
+}
+
+// SMOOTH CONTINUOUS PHYSIOLOGICAL RESPONSE FUNCTIONS
+function calcSpectrumFactor(nm) {
+    // Chlorophyll a/b dual absorption peaks:
+    // Peak 1: Blue ~435nm (magnitude ~1.20)
+    // Valley: Green ~545nm (magnitude ~0.38)
+    // Peak 2: Red ~660nm (magnitude ~1.05)
+    const bluePeak = 1.20 * Math.exp(-Math.pow((nm - 435) / 38, 2));
+    const redPeak  = 1.05 * Math.exp(-Math.pow((nm - 660) / 36, 2));
+    const greenFloor = 0.38;
+    return Math.max(greenFloor, bluePeak + redPeak);
+}
+
+function calcTempFactor(t) {
+    // 28°F frost threshold, 65-85°F optimal plateau, heat stress >86°F
+    if (t < 26) return 0;
+    if (t <= 32) {
+        // Slow freeze desiccation ramp
+        return (t - 26) / 6 * 0.30;
+    }
+    if (t < 65) {
+        // Smooth ascending sigmoid from 0.30 at 32°F to 1.0 at 65°F
+        const p = (t - 32) / (65 - 32);
+        return 0.30 + 0.70 * (3 * p * p - 2 * p * p * p);
+    }
+    if (t <= 85) {
+        return 1.0;
+    }
+    // Smooth heat stress decay from 85°F to 100°F
+    const p = (t - 85) / 15;
+    return Math.max(0.12, 1.0 - 0.85 * (p * p));
+}
+
+function calcWaterFactor(w) {
+    // Optimal 25-30%. Drought <15%, Waterlogged/anaerobic >50%
+    if (w <= 25) {
+        // Smooth climb from 0.15 (drought) to 1.0 (25%)
+        const p = w / 25;
+        return 0.15 + 0.85 * Math.sin((p * Math.PI) / 2);
+    }
+    if (w <= 35) {
+        return 1.0;
+    }
+    // Smooth descent as air is displaced (hypoxia)
+    const p = (w - 35) / 65;
+    return Math.max(0.22, 1.0 - 0.78 * (p * 0.85 + 0.15 * p * p));
+}
+
+function queueUpdate() {
+    if (!updateScheduled) {
+        updateScheduled = true;
+        requestAnimationFrame(() => {
+            updateSim();
+            updateScheduled = false;
+        });
+    }
 }
 
 // SIMULATION
@@ -959,7 +1019,7 @@ function updateSim() {
     document.getElementById('val-air').innerText        = air;
     document.getElementById('val-compaction').innerText = compaction;
 
-    const specDesc  = spectrum <= 500 ? 'Blue -- Vegetative Growth' : (spectrum <= 600 ? 'Green -- Minimal Absorption' : 'Red -- Flowering / Fruiting');
+    const specDesc  = spectrum <= 490 ? 'Blue -- Vegetative Growth' : (spectrum <= 600 ? 'Green -- Minimal Absorption' : 'Red -- Flowering / Fruiting');
     const intDesc   = intensity < 800 ? 'Low Indirect' : (intensity < 1500 ? 'Medium Indirect' : (intensity < 5000 ? 'Bright Indirect' : 'Direct Light'));
     const tempDesc  = temp < 28 ? 'Hard Frost -- Osmotic Desiccation' : (temp <= 32 ? 'Soft Frost' : (temp < 50 ? 'Cold Stress' : (temp < 65 ? 'Sub-optimal' : (temp <= 85 ? 'Optimal' : (temp <= 95 ? 'Heat Stress' : 'Extreme Heat')))));
     const waterDesc = water <= 10 ? 'Drought Stress' : (water <= 20 ? 'Low Water' : (water <= 35 ? 'Optimal Balance' : (water <= 55 ? 'High Water' : 'Waterlogged -- Anaerobic')));
@@ -971,13 +1031,14 @@ function updateSim() {
     document.getElementById('desc-water').innerText      = waterDesc;
     document.getElementById('desc-compaction').innerText = compDesc;
 
-    const specFactor  = spectrum <= 500 ? 1.2 : (spectrum <= 600 ? 0.4 : 1.0);
-    const intFactor   = 0.2 + ((intensity - 250) / (10000 - 250)) * 1.3;
-    const tempFactor  = temp < 28 ? 0 : (temp <= 32 ? 0.3 : (temp < 50 ? 0.3 : (temp < 65 ? 0.7 : (temp <= 85 ? 1.0 : (temp <= 95 ? 0.6 : 0.2)))));
-    const waterFactor = water <= 10 ? 0.2 : (water <= 20 ? 0.7 : (water <= 35 ? 1.0 : (water <= 55 ? 0.7 : 0.3)));
+    // Smooth continuous physiological responses
+    const specFactor  = calcSpectrumFactor(spectrum);
+    const intFactor   = 0.20 + (Math.pow((intensity - 250) / (10000 - 250), 0.75)) * 1.30;
+    const tempFactor  = calcTempFactor(temp);
+    const waterFactor = calcWaterFactor(water);
     const compFactor  = 1.0 - (compaction / 100) * 0.55;
 
-    // O2 meter
+    // O2 meter (smooth linear depletion)
     const o2 = Math.max(0, Math.round(100 - (water * 0.6) - (compaction * 0.4)));
     document.getElementById('o2-value').innerText = o2 + '%';
     document.getElementById('o2-fill').style.height = o2 + '%';
@@ -989,7 +1050,7 @@ function updateSim() {
         : (o2 > 20 ? '0 0 10px rgba(255,167,38,0.5)' : '0 0 10px rgba(239,83,80,0.5)');
 
     // Efficiency
-    const rawEff = (specFactor / 1.2) * intFactor * tempFactor * waterFactor * compFactor;
+    const rawEff = (specFactor / 1.20) * intFactor * tempFactor * waterFactor * compFactor;
     const displayEff = Math.min(100, Math.max(0, Math.round(rawEff * 100)));
     document.getElementById('eff-percent').innerText = displayEff + '%';
     const effColor = displayEff > 60 ? '#4CAF50' : (displayEff > 30 ? '#FBC02D' : '#ef5350');
@@ -997,8 +1058,8 @@ function updateSim() {
     efficiencyChart.data.datasets[0].backgroundColor[0] = effColor;
     efficiencyChart.update('none');
 
-    // Growth curve
-    const peakVeg = 58 * rawEff * (specFactor / 1.2);
+    // Smooth growth curve projection (S-curve vegetative -> plateau reproductive)
+    const peakVeg = 58 * rawEff * (specFactor / 1.20);
     const k = 0.55;
     const midpoint = 9;
 
@@ -1015,10 +1076,10 @@ function updateSim() {
     growthChart.data.datasets[0].data = growthData;
     growthChart.update('none');
 
-    // Flower
+    // Flower appearance on red wavelengths
     document.getElementById('flower-group').style.display = spectrum >= 610 ? 'block' : 'none';
 
-    // Plant status
+    // Plant status and visual transforms
     const statusEl = document.getElementById('condition-status');
     const plantSvg = document.getElementById('plant-svg');
     if (tempFactor === 0 || rawEff < 0.08) {
@@ -1068,10 +1129,8 @@ function checkAnswer(idx) {
         fb.style.background = 'rgba(76,175,80,0.12)';
         fb.style.color = '#81c784';
         document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
-        // Show Next Question button instead of auto-advancing
         nextBtn.style.display = currentQuestion < questions.length - 1 ? 'block' : 'none';
         if (currentQuestion === questions.length - 1) {
-            // Last question -- show completion after a brief pause
             setTimeout(showCompletion, 2800);
         }
     } else {
