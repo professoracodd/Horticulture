@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plant Growth: A Reading</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#243027;
+    --sub:#4b5b4f;
+    --accent:#3f7d52;
+    --accent-light:#e7f2ea;
+    --accent2:#c97b3f;
+    --rule:#d8e3da;
+    --bg:#fffefb;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:#ebe7de;
+    font-family:'Nunito Sans', 'Segoe UI', sans-serif;
+    color:var(--ink);
+  }
+  .page{
+    max-width:850px;
+    margin:24px auto;
+    background:var(--bg);
+    padding:52px 60px;
+    box-shadow:0 4px 18px rgba(0,0,0,0.08);
+  }
+  h1,h2,h3{
+    font-family:'Poppins', 'Segoe UI', sans-serif;
+    color:var(--ink);
+    margin:0 0 6px 0;
+  }
+  .cover h1{
+    font-size:44px;
+    line-height:1.05;
+    color:var(--accent);
+  }
+  .cover .kicker{
+    text-transform:uppercase;
+    letter-spacing:3px;
+    font-size:12px;
+    font-weight:700;
+    color:var(--accent2);
+    margin-bottom:10px;
+  }
+  .cover .dek{
+    font-size:16px;
+    color:var(--sub);
+    max-width:480px;
+    margin-top:14px;
+  }
+  .cover-rule{
+    height:3px;
+    width:70px;
+    background:var(--accent2);
+    margin:22px 0;
+  }
+  .toc{
+    margin-top:36px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:6px 30px;
+  }
+  .toc div{
+    font-size:13.5px;
+    color:var(--sub);
+    padding:6px 0;
+    border-bottom:1px solid var(--rule);
+  }
+  .toc span{color:var(--accent2); font-weight:700; margin-right:6px;}
+
+  section{margin-bottom:26px;}
+  h2{
+    font-size:20px;
+    color:var(--accent);
+    border-bottom:2px solid var(--accent-light);
+    padding-bottom:6px;
+    margin-bottom:12px;
+  }
+  h3{
+    font-size:14px;
+    color:var(--accent2);
+    margin-top:14px;
+    margin-bottom:4px;
+    font-weight:700;
+  }
+  p{
+    font-size:13px;
+    line-height:1.55;
+    margin:0 0 8px 0;
+    color:var(--ink);
+  }
+  ul{
+    margin:4px 0 10px 0;
+    padding-left:18px;
+  }
+  li{
+    font-size:13px;
+    line-height:1.5;
+    margin-bottom:3px;
+  }
+  .two-col{
+    columns:2;
+    column-gap:34px;
+  }
+  .two-col section{break-inside:avoid;}
+  .callout{
+    background:var(--accent-light);
+    border-left:3px solid var(--accent);
+    padding:10px 14px;
+    font-size:12.5px;
+    margin:8px 0;
+    break-inside:avoid;
+  }
+  .callout b{color:var(--accent);}
+  .stages{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin:8px 0 4px 0;
+  }
+  .stages span{
+    background:var(--accent);
+    color:#fff;
+    font-size:11px;
+    font-weight:700;
+    padding:5px 10px;
+    border-radius:20px;
+  }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:11.5px;
+    margin:8px 0;
+  }
+  th,td{
+    text-align:left;
+    padding:5px 6px;
+    border-bottom:1px solid var(--rule);
+    vertical-align:top;
+  }
+  th{
+    color:var(--accent);
+    font-family:'Poppins',sans-serif;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.4px;
+  }
+  .quiz{
+    display:inline-block;
+    background:var(--accent2);
+    color:#fff;
+    font-size:9.5px;
+    font-weight:700;
+    letter-spacing:0.5px;
+    padding:2px 7px;
+    border-radius:4px;
+    margin-left:6px;
+    vertical-align:middle;
+  }
+  .footer-note{
+    font-size:10.5px;
+    color:var(--sub);
+    text-align:center;
+    margin-top:10px;
+  }
+  @media print{
+    body{background:#fff;}
+    .page{
+      box-shadow:none;
+      margin:0 auto;
+      padding:0.5in 0.6in;
+      max-width:none;
+      page-break-after:always;
+    }
+    .page:last-child{page-break-after:auto;}
+  }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1: Cover + intro + Plant Cells + Growth basics -->
+<div class="page">
+  <div class="cover">
+    <div class="kicker">AGPS-01 · Plant Science</div>
+    <h1>Plant Growth</h1>
+    <div class="cover-rule"></div>
+    <p class="dek">A reading covering how plants build themselves from single cells, respond to light and gravity, move through the six stages of growth, reproduce, and eventually go dormant or die.</p>
+    <div class="toc">
+      <div><span>1</span>Plant Cells &amp; Growth Basics</div>
+      <div><span>2</span>Hormones &amp; Directional Growth</div>
+      <div><span>3</span>Germination &amp; the Seedling Stage</div>
+      <div><span>4</span>Vegetative Growth</div>
+      <div><span>5</span>Reproductive Growth</div>
+      <div><span>6</span>Senescence &amp; Dormancy</div>
+      <div><span>7</span>Plant Life Spans</div>
+    </div>
+  </div>
+
+  <section style="margin-top:34px;">
+    <h2>Plant Cells: The Basic Unit</h2>
+    <p>Every plant is built from cells that are <b>eukaryotic</b>, meaning each one holds a membrane-bound nucleus and a set of organelles that perform specific jobs, similar to how organs work in the human body. A plant cell's organelles include the <b>cell wall</b>, <b>plasma membrane</b>, <b>nucleus</b>, <b>nucleolus</b>, <b>cytoplasm</b>, <b>vacuole</b>, <b>ribosomes</b>, <b>golgi body</b>, <b>endoplasmic reticulum</b>, and <b>mitochondrion</b>. The <b>chloroplast</b>, which carries out photosynthesis, is unique to plant cells.</p>
+  </section>
+
+  <section>
+    <h2>What Is Plant Growth?</h2>
+    <p>Growth happens through two basic mechanisms working together:</p>
+    <ul>
+      <li><b>Cell division</b>: an increase in the number of cells.</li>
+      <li><b>Cell elongation</b>: an increase in the size of individual cells.</li>
+    </ul>
+    <p>Both processes are directed by chemical signals the plant produces itself, its hormones.</p>
+  </section>
+</div>
+
+<!-- PAGE 2: Hormones + Stages overview + Germination -->
+<div class="page">
+  <section>
+    <h2>Phytohormones &amp; Directional Growth</h2>
+    <p><b>Phytohormones</b> are chemicals produced by plant cells that regulate cellular processes, either near where they're made or after being transported to other organs. Two key players are <b>auxins</b> and <b>cytokinins</b>.</p>
+    <h3>Tropisms</h3>
+    <p><b>Phototropism</b> is how a plant grows with respect to light; <b>gravitropism</b> is how it grows with respect to gravity. Auxin drives both, but in opposite directions depending on the organ:</p>
+    <table>
+      <tr><th>Organ</th><th>Phototropism</th><th>Gravitropism</th><th>Auxin Effect</th></tr>
+      <tr><td>Shoots</td><td>Positive</td><td>Negative</td><td>Stimulates cell elongation</td></tr>
+      <tr><td>Roots</td><td>Negative</td><td>Positive</td><td>Inhibits cell elongation</td></tr>
+    </table>
+    <div class="callout"><b>Apical dominance:</b> auxin produced at the shoot tip keeps axillary (side) buds dormant. Pruning removes the source of auxin, which is why cutting a stem's tip triggers bushier, lateral growth.</div>
+  </section>
+
+  <section>
+    <h2>The Six Stages of Growth</h2>
+    <p>All flowering plants move through the same six stages:</p>
+    <div class="stages">
+      <span>Germination</span><span>Seedling</span><span>Vegetative</span><span>Reproductive</span><span>Senescence</span><span>Dormancy</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Germination</h2>
+    <p>Germination is the process by which a seed breaks dormancy and sends out its first roots and shoots. Seeds are typically sown at a depth 2 to 3 times their own size. Inside a seed, the <b>embryo</b> is protected by a <b>seed coat</b> and fueled by stored food, either an <b>endosperm</b> (in <i>albuminous</i> seeds, mostly monocots) or reserves already absorbed into the <b>cotyledon(s)</b> (in <i>exalbuminous</i> seeds, mostly dicots). Dicots emerge with two cotyledons; monocots keep their single cotyledon below ground.</p>
+    <p>The sequence: the seed <b>imbibes</b> water and swells, the seed coat cracks, the <b>radicle</b> (first root) emerges, then the <b>hypocotyl</b> ("below the cotyledons") pushes up and breaks the soil surface. That is the cue to move seedlings out of a germination chamber. Finally the <b>cotyledons</b> emerge and the plant can begin photosynthesizing on its own. Seedlings that stretch unusually tall at this stage are usually short on light.</p>
+  </section>
+</div>
+
+<!-- PAGE 3: Seedling/Vegetative + Reproductive -->
+<div class="page">
+  <section>
+    <h2>Seedling &amp; Vegetative Growth</h2>
+    <p>As the seedling matures, its cotyledons wither, and the <b>epicotyl</b> ("above the cotyledons") stretches upward. Once two sets of <b>true leaves</b> have replaced the cotyledons, seedlings are ready to transplant out of their plug trays.</p>
+    <h3>Meristems: where new growth originates</h3>
+    <p>A <b>meristem</b> is a zone of undifferentiated cells that divide, differentiate, and elongate. The <b>shoot apical meristem (SAM)</b> and <b>root apical meristem (RAM)</b> drive <i>primary growth</i>, extending the tips of roots and shoots and producing new leaves and flowers. <b>Lateral meristem</b> drives <i>secondary growth</i>, widening the plant and building vascular tissue.</p>
+    <p>Vegetative growth itself is characterized by heavy growth of roots and shoots. Dicots typically develop a <b>tap root</b> system; monocots develop a <b>fibrous root</b> system. Leaves show parallel matching patterns: monocot leaves have parallel veins, dicot leaves have netted veins. Leaves may be <b>simple</b> (one blade) or <b>compound</b> (divided into leaflets along a rachis, with no bud in the leaflet axils), and are arranged along the stem as <b>opposite</b>, <b>alternate</b>, or <b>whorled</b>.</p>
+  </section>
+
+  <section>
+    <h2>Reproductive Growth</h2>
+    <p>This stage is marked by the growth of flowers, fruits, and seeds.</p>
+    <h3>Flower Anatomy <span class="quiz">Quiz Alert</span></h3>
+    <p>The <b>petals</b> (together, the <b>corolla</b>) attract pollinators; the <b>sepals</b> (together, the <b>calyx</b>) protect the bud before it opens. The <b>pistil</b>, the female structure, is made of the <b>stigma</b> (receives pollen), <b>style</b> (the stalk holding it), and <b>ovary</b> (holds the ovules/seeds). The <b>stamen</b>, the male structure, is made of the <b>anther</b> (produces pollen) and <b>filament</b> (its supporting stalk). A <i>complete</i> flower has all four whorls; a <i>perfect</i> flower has both petals and sepals.</p>
+    <h3>Pollination &amp; Fertilization</h3>
+    <p>Pollen moves from anther to stigma by insects, wind, animals, or self-pollination, either within the same flower or plant (<b>self</b>) or between different plants (<b>cross</b>). During fertilization: the pollen grain germinates, the egg is fertilized and becomes the embryo, and the polar nuclei are fertilized and become the endosperm.</p>
+  </section>
+</div>
+
+<!-- PAGE 4: Fruit + Senescence/Dormancy + Life spans -->
+<div class="page">
+  <section>
+    <h2>Fruit Types</h2>
+    <table>
+      <tr><th>Type</th><th>Characteristic</th><th>Examples</th></tr>
+      <tr><td>Drupe</td><td>Soft flesh outside, single seed inside</td><td>Peach, cherry, olive</td></tr>
+      <tr><td>Berry</td><td>Fleshy skin, multiple seeds</td><td>Grape, tomato, blueberry</td></tr>
+      <tr><td>Hesperidium</td><td>A specialized berry with a thick, leathery rind</td><td>Orange, lemon, grapefruit</td></tr>
+      <tr><td>Pepo</td><td>A berry with a hard rind</td><td>Cucumber, watermelon, squash</td></tr>
+      <tr><td>Pome</td><td>Accessory fruit; the edible flesh comes from the swollen receptacle, and the true fruit is the core</td><td>Apple, pear, quince</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h2>Senescence</h2>
+    <p>As a plant senesces, it pulls back nutrients and compounds, redirecting them into dormancy or into seeds, while preparing for the death of that structure. Cell structures are dismantled and reallocated; some compounds increase in production while others break down at different rates. This shift in chemistry is visible in <b>pigments</b>: green <b>chlorophyll</b> fades, revealing <b>carotenoids</b>, <b>flavonols</b>, and <b>anthocyanins</b>, part of a much broader family of plant phytochemicals (polyphenols, terpenoids, alkaloids, and more) that give plants their color, flavor, and defenses. Eventually, hormones including auxin, ethylene, and abscisic acid trigger <b>leaf abscission</b>, the shedding of the leaf, which leaves behind a leaf scar.</p>
+  </section>
+
+  <section>
+    <h2>Dormancy</h2>
+    <p>Dormancy is slowed or inactive growth. It can affect an entire plant, its buds, or its seeds. On a dormant branch, every point where a leaf once grew leaves behind a <b>node</b>, bordered by <b>internodes</b>, with <b>lateral buds</b>, <b>leaf scars</b>, and <b>lenticels</b> marking the previous season's growth, capped by a <b>terminal bud</b>.</p>
+  </section>
+
+  <section>
+    <h2>How Long Do Plants Live?</h2>
+    <ul>
+      <li><b>Annuals</b> complete their entire life cycle in one year (seed &rarr; vegetative growth &rarr; reproductive growth &rarr; death/seed), typically propagated by seed. <i>Example: calendula.</i></li>
+      <li><b>Biennials</b> take two years: year one is vegetative growth and dormancy; year two brings reproductive growth and death. <i>Example: carrots</i>, which store nutrients in their taproot over winter to flower in year two.</li>
+      <li><b>Perennials</b> live three or more years, cycling through vegetative growth, reproductive growth, and dormancy annually, and may be herbaceous or woody. <i>Example: agave</i>, a monocarpic perennial that flowers once, at the end of its life.</li>
+    </ul>
+  </section>
+
+  <p class="footer-note">AGPS-01 &middot; Plant Growth lecture reading</p>
+</div>
+
+</body>
+</html>
