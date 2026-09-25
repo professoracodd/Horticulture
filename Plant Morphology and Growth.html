@@ -316,9 +316,16 @@
       overflow: visible;
     }
 
+    .diagram-viewport {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+    }
+
     .image-wrapper {
       position: relative;
       display: inline-block;
+      transform-origin: top left;
     }
 
     #flowerWrapper img {
@@ -719,12 +726,6 @@
       .stage {
         padding: 60px 80px;
       }
-      #flowerWrapper img {
-        width: 500px;
-      }
-      #leafWrapper img {
-        width: 450px;
-      }
       .results-grid {
         grid-template-columns: 1fr;
       }
@@ -733,12 +734,6 @@
     @media (max-width: 600px) {
       .stage {
         padding: 40px 30px;
-      }
-      #flowerWrapper img {
-        width: 350px;
-      }
-      #leafWrapper img {
-        width: 320px;
       }
     }
   </style>
@@ -787,8 +782,10 @@
         <div class="terms-container" id="flowerTerms"></div>
       </div>
       <div class="stage">
+        <div class="diagram-viewport" id="flowerViewport">
         <div class="image-wrapper" id="flowerWrapper">
           <img src="https://raw.githubusercontent.com/professoracodd/Horticulture/1f68d9eda5567e9ad187a2dd366d61fc25a15977/Flower.png" alt="Flower morphology diagram" crossorigin="anonymous">
+        </div>
         </div>
       </div>
     </div>
@@ -821,8 +818,10 @@
         <div class="terms-container" id="leafTerms"></div>
       </div>
       <div class="stage">
+        <div class="diagram-viewport" id="leafViewport">
         <div class="image-wrapper" id="leafWrapper">
           <img src="https://raw.githubusercontent.com/professoracodd/Horticulture/1f68d9eda5567e9ad187a2dd366d61fc25a15977/Simple%20Leaf.png" alt="Leaf morphology diagram" crossorigin="anonymous">
+        </div>
         </div>
       </div>
     </div>
@@ -2230,6 +2229,8 @@ window.AnimEngine = {
     let flowerSkipped = false;
     let leafSkipped = false;
     let quizSkipped = false;
+    let leafInitialized = false;
+    let quizInitialized = false;
     let flowerScore = 0;
     let leafScore = 0;
     let quizScore = 0;
@@ -2350,6 +2351,8 @@ window.AnimEngine = {
         const zone = document.createElement('div');
         zone.className = 'drop-zone';
         zone.dataset.answer = d.term;
+        zone.dataset.x = d.x;
+        zone.dataset.y = d.y;
         zone.style.left = d.x + 'px';
         zone.style.top = d.y + 'px';
         zone.textContent = '?';
@@ -2396,6 +2399,7 @@ window.AnimEngine = {
           if (termEl) termEl.classList.add('placed');
 
           updateStatus(data, stateObj, placedId, checkBtnId);
+          refitDiagram(wrapperId);
         });
 
         zone.addEventListener('click', () => {
@@ -2408,11 +2412,14 @@ window.AnimEngine = {
             zone.dataset.current = '';
             zone.classList.remove('filled', 'correct', 'incorrect');
             updateStatus(data, stateObj, placedId, checkBtnId);
+            refitDiagram(wrapperId);
           }
         });
 
         wrapper.appendChild(zone);
       });
+
+      refitDiagram(wrapperId);
     }
 
     function updateStatus(data, stateObj, placedId, checkBtnId) {
@@ -2946,6 +2953,7 @@ window.AnimEngine = {
       const container = document.getElementById('quizContainer');
       container.innerHTML = '';
       quizState = {};
+      document.getElementById('quizCheckBtn').disabled = true;
 
       quizQuestions.forEach((q, idx) => {
         const card = document.createElement('div');
@@ -3219,7 +3227,100 @@ window.AnimEngine = {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    // Keep each diagram's drop-zones locked to their pixel-calibrated spots on the
+    // artwork by scaling the whole (image + zones) block as one unit, rather than
+    // resizing the image alone and leaving the zones behind at their old coordinates.
+    //
+    // Some labels (e.g. "corolla", "pistil") are deliberately placed just outside
+    // the image's own box so they sit above/beside the artwork. layout() measures
+    // the *actual* combined bounding box of the image plus every drop-zone (using
+    // their real rendered width, not a guess), then repositions the image and
+    // every zone by a shared margin so that box starts at (0,0) and sizes the
+    // wrapper to match it exactly. apply() then scales that whole box down to fit
+    // the available width at any screen size, so nothing is ever clipped and
+    // nothing overflows the page horizontally either.
+    const diagramFit = {};
+
+    function fitDiagram(viewportId, wrapperId, designWidth) {
+      const vp = document.getElementById(viewportId);
+      const wrap = document.getElementById(wrapperId);
+      const img = wrap.querySelector('img');
+      img.style.position = 'absolute';
+      const state = { vp, wrap, designWidth, designHeight: designWidth * 0.6, totalWidth: designWidth, totalHeight: designWidth * 0.6 };
+      diagramFit[wrapperId] = state;
+
+      // Note: padding on the wrapper can't be used to make room for overhanging
+      // zones — absolutely-positioned children are placed relative to the
+      // wrapper's border edge regardless of its own padding, so padding only
+      // ever shifts normal-flow content. Instead we read each zone's original,
+      // never-mutated design coordinates (data-x/data-y) and re-derive its
+      // rendered left/top from scratch every time, offset by the margin needed
+      // to bring the whole (image + zones) bounding box into view.
+      function layout() {
+        let minX = 0, minY = 0, maxX = state.designWidth, maxY = state.designHeight;
+        wrap.querySelectorAll('.drop-zone').forEach(zone => {
+          const x = parseFloat(zone.dataset.x);
+          const y = parseFloat(zone.dataset.y);
+          const w = zone.offsetWidth || 75;
+          const h = zone.offsetHeight || 32;
+          minX = Math.min(minX, x);
+          minY = Math.min(minY, y);
+          maxX = Math.max(maxX, x + w);
+          maxY = Math.max(maxY, y + h);
+        });
+        const marginLeft = -minX;
+        const marginTop = -minY;
+        state.totalWidth = marginLeft + maxX;
+        state.totalHeight = marginTop + maxY;
+
+        img.style.left = marginLeft + 'px';
+        img.style.top = marginTop + 'px';
+        wrap.querySelectorAll('.drop-zone').forEach(zone => {
+          zone.style.left = (parseFloat(zone.dataset.x) + marginLeft) + 'px';
+          zone.style.top = (parseFloat(zone.dataset.y) + marginTop) + 'px';
+        });
+
+        wrap.style.width = state.totalWidth + 'px';
+        wrap.style.height = state.totalHeight + 'px';
+      }
+
+      function apply() {
+        const avail = vp.clientWidth;
+        if (!avail) return;
+        const scale = Math.min(1, avail / state.totalWidth);
+        wrap.style.transform = `scale(${scale})`;
+        vp.style.height = Math.round(state.totalHeight * scale) + 'px';
+      }
+
+      state.layout = layout;
+      state.apply = apply;
+
+      function setDesignHeight() {
+        if (img.naturalWidth) state.designHeight = state.designWidth * (img.naturalHeight / img.naturalWidth);
+        layout();
+        apply();
+      }
+
+      if (img.complete && img.naturalWidth) setDesignHeight();
+      else img.addEventListener('load', setDesignHeight);
+
+      new ResizeObserver(apply).observe(vp);
+      window.addEventListener('orientationchange', apply);
+    }
+
+    // Re-measure and re-fit a diagram after its drop-zones are (re)built or a
+    // zone's text changes width (e.g. filled with a long term like "receptacle").
+    function refitDiagram(wrapperId) {
+      const state = diagramFit[wrapperId];
+      if (!state) return;
+      state.layout();
+      state.apply();
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
+      fitDiagram('flowerViewport', 'flowerWrapper', 700);
+      fitDiagram('leafViewport', 'leafWrapper', 600);
+
       const nameInput = document.getElementById('studentNameInput');
       const startBtn = document.getElementById('startBtn');
       const modal = document.getElementById('nameModal');
@@ -3268,12 +3369,18 @@ window.AnimEngine = {
         flowerScore = 0;
         document.getElementById('dot1').className = 'progress-dot skipped';
         showPage(2);
-        initScenario(leafData, 'leafTerms', 'leafWrapper', leafState, 'leafPlaced', 'leafTotal', 'leafCheckBtn');
+        if (!leafInitialized) {
+          initScenario(leafData, 'leafTerms', 'leafWrapper', leafState, 'leafPlaced', 'leafTotal', 'leafCheckBtn');
+          leafInitialized = true;
+        }
       });
 
       document.getElementById('flowerNextBtn').addEventListener('click', () => {
         showPage(2);
-        initScenario(leafData, 'leafTerms', 'leafWrapper', leafState, 'leafPlaced', 'leafTotal', 'leafCheckBtn');
+        if (!leafInitialized) {
+          initScenario(leafData, 'leafTerms', 'leafWrapper', leafState, 'leafPlaced', 'leafTotal', 'leafCheckBtn');
+          leafInitialized = true;
+        }
       });
 
       document.getElementById('leafCheckBtn').addEventListener('click', () => {
@@ -3299,7 +3406,10 @@ window.AnimEngine = {
         leafScore = 0;
         document.getElementById('dot2').className = 'progress-dot skipped';
         showPage(3);
-        initQuiz();
+        if (!quizInitialized) {
+          initQuiz();
+          quizInitialized = true;
+        }
       });
 
       document.getElementById('leafBackBtn').addEventListener('click', () => {
@@ -3308,7 +3418,10 @@ window.AnimEngine = {
 
       document.getElementById('leafNextBtn').addEventListener('click', () => {
         showPage(3);
-        initQuiz();
+        if (!quizInitialized) {
+          initQuiz();
+          quizInitialized = true;
+        }
       });
 
       document.getElementById('quizCheckBtn').addEventListener('click', checkQuiz);
