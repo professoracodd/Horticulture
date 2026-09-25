@@ -15,7 +15,7 @@
     --panel2:#0b1210;
     --border:rgba(120,220,160,0.18);
     --text:#eaf5ee;
-    --dim:#93ab9d;
+    --dim:#c3d6cb;
     --green:#57e08d;
     --green-glow:rgba(87,224,141,0.55);
     --orange:#ffa657;
@@ -97,6 +97,13 @@
     padding:10px 12px;
     font-family:'Nunito Sans',sans-serif;
     font-size:14px;
+  }
+  .id-field input{
+    transition:border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .id-field input:hover{
+    border-color:var(--green);
+    box-shadow:0 0 14px var(--green-glow);
   }
   .id-field input:focus{
     outline:none;
@@ -265,6 +272,11 @@
     padding:12px;
     line-height:1.5;
     user-select:text;
+    transition:border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  textarea:hover{
+    border-color:var(--green);
+    box-shadow:0 0 16px var(--green-glow);
   }
   textarea:focus{
     outline:none;
@@ -294,6 +306,11 @@
     border:1px solid var(--border);
     padding:8px;
     vertical-align:top;
+    transition:border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .life-table td:not(:first-child):hover{
+    border-color:var(--green);
+    box-shadow:0 0 14px var(--green-glow) inset;
   }
   .life-table td:first-child{
     border-radius:8px 0 0 8px;
