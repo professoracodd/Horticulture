@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AGPS-01: Plant Growth Assignment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#05080a;
+    --panel:#0d1512;
+    --panel2:#0b1210;
+    --border:rgba(120,220,160,0.18);
+    --text:#eaf5ee;
+    --dim:#93ab9d;
+    --green:#57e08d;
+    --green-glow:rgba(87,224,141,0.55);
+    --orange:#ffa657;
+    --orange-glow:rgba(255,166,87,0.5);
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Nunito Sans', 'Segoe UI', sans-serif;
+    overflow-x:hidden;
+  }
+  /* ambient glow blobs */
+  .blob{
+    position:fixed;
+    border-radius:50%;
+    filter:blur(90px);
+    opacity:0.35;
+    z-index:0;
+    pointer-events:none;
+  }
+  .blob.b1{width:420px;height:420px;background:var(--green);top:-120px;left:-100px;}
+  .blob.b2{width:380px;height:380px;background:var(--orange);top:40%;right:-140px;opacity:0.22;}
+  .blob.b3{width:320px;height:320px;background:var(--green);bottom:-100px;left:30%;opacity:0.18;}
+
+  .wrap{
+    position:relative;
+    z-index:1;
+    max-width:880px;
+    margin:0 auto;
+    padding:50px 26px 90px 26px;
+  }
+
+  /* header */
+  .kicker{
+    text-transform:uppercase;
+    letter-spacing:3px;
+    font-size:12px;
+    font-weight:700;
+    color:var(--orange);
+    text-shadow:0 0 12px var(--orange-glow);
+  }
+  h1{
+    font-family:'Poppins',sans-serif;
+    font-size:38px;
+    font-weight:800;
+    margin:8px 0 6px 0;
+    color:#fff;
+    text-shadow:0 0 22px var(--green-glow);
+  }
+  .subtitle{
+    color:var(--dim);
+    font-size:15px;
+    margin-bottom:26px;
+  }
+
+  .id-row{
+    display:flex;
+    gap:16px;
+    flex-wrap:wrap;
+    margin-bottom:8px;
+  }
+  .id-field{flex:1; min-width:220px;}
+  .id-field label{
+    display:block;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:1.5px;
+    color:var(--dim);
+    margin-bottom:6px;
+  }
+  .id-field input{
+    width:100%;
+    background:var(--panel2);
+    border:1px solid var(--border);
+    border-radius:8px;
+    color:var(--text);
+    padding:10px 12px;
+    font-family:'Nunito Sans',sans-serif;
+    font-size:14px;
+  }
+  .id-field input:focus{
+    outline:none;
+    border-color:var(--green);
+    box-shadow:0 0 0 3px rgba(87,224,141,0.15);
+  }
+
+  /* stage tracker */
+  .tracker{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin:34px 0 8px 0;
+    position:relative;
+  }
+  .tracker::before{
+    content:"";
+    position:absolute;
+    left:22px; right:22px; top:22px;
+    height:2px;
+    background:linear-gradient(90deg, var(--green), var(--orange));
+    opacity:0.5;
+    z-index:0;
+  }
+  .stage{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+    position:relative;
+    z-index:1;
+    width:16%;
+  }
+  .stage-icon{
+    width:44px; height:44px;
+    border-radius:50%;
+    background:var(--panel);
+    border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--green);
+    box-shadow:0 0 16px rgba(87,224,141,0.25);
+  }
+  .stage-label{font-size:9.5px; color:var(--dim); text-align:center; letter-spacing:0.3px;}
+
+  /* notice */
+  .notice{
+    margin:26px 0;
+    font-size:12px;
+    color:var(--dim);
+    border:1px dashed var(--border);
+    border-radius:10px;
+    padding:10px 14px;
+    background:rgba(87,224,141,0.04);
+  }
+
+  /* export bar */
+  .export-bar{
+    position:sticky;
+    top:0;
+    z-index:5;
+    display:flex;
+    justify-content:flex-end;
+    padding:12px 0;
+    margin-bottom:6px;
+    background:linear-gradient(var(--bg) 70%, transparent);
+  }
+  .btn{
+    font-family:'Poppins',sans-serif;
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:0.3px;
+    color:#04140a;
+    background:linear-gradient(135deg, var(--green), #8fffc0);
+    border:none;
+    border-radius:10px;
+    padding:12px 20px;
+    cursor:pointer;
+    box-shadow:0 0 22px var(--green-glow);
+    transition:transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .btn:hover{transform:translateY(-1px); box-shadow:0 0 30px var(--green-glow);}
+  .btn:active{transform:translateY(0);}
+  .btn.secondary{
+    background:transparent;
+    color:var(--green);
+    border:1px solid var(--border);
+    box-shadow:none;
+  }
+
+  /* parts */
+  .part{
+    background:linear-gradient(180deg, var(--panel), var(--panel2));
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:28px 28px 20px 28px;
+    margin-bottom:26px;
+    position:relative;
+    overflow:hidden;
+  }
+  .part::after{
+    content:"";
+    position:absolute;
+    width:220px;height:220px;
+    background:var(--green);
+    opacity:0.06;
+    filter:blur(60px);
+    top:-80px; right:-80px;
+    pointer-events:none;
+  }
+  .part-head{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:6px;
+  }
+  .part-icon{
+    width:46px; height:46px;
+    flex-shrink:0;
+    color:var(--green);
+    filter:drop-shadow(0 0 8px var(--green-glow));
+  }
+  .part-title{
+    font-family:'Poppins',sans-serif;
+    font-size:19px;
+    font-weight:700;
+    color:#fff;
+  }
+  .scenario-label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:1.5px;
+    color:var(--orange);
+    margin:16px 0 6px 0;
+  }
+  .protected{
+    user-select:none;
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+  }
+  .scenario-text{
+    font-size:14px;
+    line-height:1.6;
+    color:var(--text);
+    margin-bottom:6px;
+  }
+  .qa-block{margin-top:20px;}
+  .q-text{
+    font-size:14px;
+    font-weight:700;
+    color:var(--text);
+    margin-bottom:8px;
+    line-height:1.5;
+  }
+  .q-text .qnum{color:var(--green); margin-right:6px;}
+  textarea{
+    width:100%;
+    min-height:70px;
+    resize:vertical;
+    background:rgba(255,255,255,0.03);
+    border:1px solid var(--border);
+    border-radius:10px;
+    color:var(--text);
+    font-family:'Nunito Sans',sans-serif;
+    font-size:13.5px;
+    padding:12px;
+    line-height:1.5;
+    user-select:text;
+  }
+  textarea:focus{
+    outline:none;
+    border-color:var(--green);
+    box-shadow:0 0 0 3px rgba(87,224,141,0.15);
+  }
+  textarea.small{min-height:44px;}
+  textarea.large{min-height:150px;}
+
+  /* table */
+  .life-table{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0 8px;
+    margin-top:6px;
+  }
+  .life-table th{
+    text-align:left;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    color:var(--dim);
+    padding:0 8px 4px 8px;
+  }
+  .life-table td{
+    background:rgba(255,255,255,0.03);
+    border:1px solid var(--border);
+    padding:8px;
+    vertical-align:top;
+  }
+  .life-table td:first-child{
+    border-radius:8px 0 0 8px;
+    font-weight:700;
+    color:var(--green);
+    font-size:13px;
+    white-space:nowrap;
+  }
+  .life-table td:last-child{border-radius:0 8px 8px 0;}
+  .life-table input{
+    width:100%;
+    background:transparent;
+    border:none;
+    color:var(--text);
+    font-family:'Nunito Sans',sans-serif;
+    font-size:13px;
+    padding:4px;
+    user-select:text;
+  }
+  .life-table input:focus{outline:none;}
+
+  .check-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:8px;
+  }
+  .btn.tiny{
+    font-size:11.5px;
+    padding:7px 14px;
+    border-radius:8px;
+    box-shadow:0 0 12px rgba(87,224,141,0.35);
+  }
+  .check-hint{
+    font-size:10.5px;
+    color:var(--dim);
+  }
+  .feedback-list{
+    margin:10px 0 4px 0;
+    padding:12px 14px;
+    background:rgba(255,255,255,0.03);
+    border:1px solid var(--border);
+    border-radius:10px;
+    display:none;
+  }
+  .feedback-list.show{display:block;}
+  .feedback-summary{
+    font-size:11.5px;
+    color:var(--dim);
+    margin-bottom:8px;
+    letter-spacing:0.2px;
+  }
+  .feedback-item{
+    display:flex;
+    align-items:flex-start;
+    gap:8px;
+    font-size:12.5px;
+    padding:3px 0;
+  }
+  .feedback-item .fb-icon{
+    flex-shrink:0;
+    width:16px; height:16px;
+    margin-top:1px;
+  }
+  .feedback-item.found{color:var(--text);}
+  .feedback-item.found .fb-icon{color:var(--green); filter:drop-shadow(0 0 5px var(--green-glow));}
+  .feedback-item.missing{color:var(--dim);}
+  .feedback-item.missing .fb-icon{color:var(--orange); filter:drop-shadow(0 0 5px var(--orange-glow));}
+
+  .toast{
+    position:fixed;
+    bottom:26px;
+    left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:#0d1512;
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:10px 18px;
+    border-radius:10px;
+    font-size:13px;
+    box-shadow:0 0 24px rgba(87,224,141,0.25);
+    opacity:0;
+    transition:opacity 0.25s ease, transform 0.25s ease;
+    z-index:20;
+    pointer-events:none;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  footer{
+    text-align:center;
+    color:var(--dim);
+    font-size:11px;
+    margin-top:20px;
+  }
+</style>
+</head>
+<body>
+
+<div class="blob b1"></div>
+<div class="blob b2"></div>
+<div class="blob b3"></div>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="2.2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+</svg>
+
+<div class="wrap">
+
+  <div class="kicker">AGPS-01 &middot; Applied Case Study</div>
+  <h1>Plant Growth Assignment</h1>
+  <div class="subtitle">Individual written assignment. Answer directly in the text boxes below, then export your finished assignment as a PDF to submit.</div>
+
+  <div class="id-row">
+    <div class="id-field">
+      <label for="studentName">Full name</label>
+      <input type="text" id="studentName" placeholder="Type your name">
+    </div>
+    <div class="id-field">
+      <label for="studentDate">Date</label>
+      <input type="text" id="studentDate" placeholder="MM/DD/YYYY">
+    </div>
+  </div>
+
+  <div class="tracker">
+    <div class="stage">
+      <div class="stage-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" filter="url(#glow)"><ellipse cx="12" cy="14" rx="6" ry="8"/><path d="M12 6 C12 10 12 10 12 14"/></svg></div>
+      <div class="stage-label">Germination</div>
+    </div>
+    <div class="stage">
+      <div class="stage-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" filter="url(#glow)"><path d="M12 20 V10"/><path d="M12 12 C8 12 6 9 6 6 C10 6 12 9 12 12Z"/><path d="M12 10 C16 10 18 7 18 4 C14 4 12 7 12 10Z"/></svg></div>
+      <div class="stage-label">Seedling</div>
+    </div>
+    <div class="stage">
+      <div class="stage-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" filter="url(#glow)"><path d="M12 21 V9"/><path d="M12 13 C6 13 4 8 5 4 C11 5 13 10 12 13Z"/><path d="M12 17 C18 17 20 12 19 8 C13 9 11 14 12 17Z"/></svg></div>
+      <div class="stage-label">Vegetative</div>
+    </div>
+    <div class="stage">
+      <div class="stage-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" filter="url(#glow)"><circle cx="12" cy="12" r="2.4"/><path d="M12 9.6 C11 7 11 5 12 4 C13 5 13 7 12 9.6Z"/><path d="M14.4 12 C17 11 19 11 20 12 C19 13 17 13 14.4 12Z"/><path d="M12 14.4 C13 17 13 19 12 20 C11 19 11 17 12 14.4Z"/><path d="M9.6 12 C7 13 5 13 4 12 C5 11 7 11 9.6 12Z"/></svg></div>
+      <div class="stage-label">Reproductive</div>
+    </div>
+    <div class="stage">
+      <div class="stage-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" filter="url(#glow)"><path d="M12 4 C16 6 17 10 15 13" /><path d="M15 13 L13 20 M15 13 L18 17"/></svg></div>
+      <div class="stage-label">Senescence</div>
+    </div>
+    <div class="stage">
+      <div class="stage-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" filter="url(#glow)"><path d="M18 13 A7 7 0 1 1 11 5 A5.5 5.5 0 0 0 18 13Z"/></svg></div>
+      <div class="stage-label">Dormancy</div>
+    </div>
+  </div>
+
+  <div class="notice">Scenario and question text on this page is locked from copying and selection. Please type your own responses in the boxes provided.</div>
+
+  <div class="export-bar">
+    <button class="btn secondary" onclick="clearForm()">Clear answers</button>
+    &nbsp;
+    <button class="btn" onclick="exportPDF()">Export to PDF for submission</button>
+  </div>
+
+  <!-- PART 1 -->
+  <div class="part">
+    <div class="part-head">
+      <svg class="part-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" filter="url(#glow)">
+        <circle cx="24" cy="12" r="5"/>
+        <path d="M24 17 C24 26 24 30 18 36"/>
+        <path d="M14 40 L18 36 L22 40"/>
+      </svg>
+      <div>
+        <div class="part-title">Part 1: Hormones and Tropisms</div>
+      </div>
+    </div>
+
+    <div class="scenario-label">Scenario</div>
+    <p class="scenario-text protected">A grower notices that a tomato seedling on a windowsill is bending noticeably toward the window. Meanwhile, a cutting placed horizontally in a propagation tray sends its root tip growing downward and its stem tip growing upward within a few days.</p>
+
+    <div class="qa-block">
+      <p class="q-text protected"><span class="qnum">1.</span>Name the two tropisms described in this scenario and explain what each one is a response to.</p>
+      <textarea data-q="p1q1" placeholder="Type your answer here"></textarea>
+      <div class="check-row">
+        <button class="btn tiny" onclick="checkAnswer('p1q1')">Check my answer</button>
+        <span class="check-hint">Self-check only, not a grade</span>
+      </div>
+      <div class="feedback-list" id="fb-p1q1"></div>
+    </div>
+    <div class="qa-block">
+      <p class="q-text protected"><span class="qnum">2.</span>Which hormone is primarily responsible for the bending and directional growth in this scenario? Explain how it produces opposite effects in shoots versus roots.</p>
+      <textarea data-q="p1q2" placeholder="Type your answer here"></textarea>
+      <div class="check-row">
+        <button class="btn tiny" onclick="checkAnswer('p1q2')">Check my answer</button>
+        <span class="check-hint">Self-check only, not a grade</span>
+      </div>
+      <div class="feedback-list" id="fb-p1q2"></div>
+    </div>
+    <div class="qa-block">
+      <p class="q-text protected"><span class="qnum">3.</span>The grower decides to prune (pinch) the top of a second seedling. Predict what will happen to the axillary buds below the cut and explain why, using the term apical dominance.</p>
+      <textarea data-q="p1q3" placeholder="Type your answer here"></textarea>
+      <div class="check-row">
+        <button class="btn tiny" onclick="checkAnswer('p1q3')">Check my answer</button>
+        <span class="check-hint">Self-check only, not a grade</span>
+      </div>
+      <div class="feedback-list" id="fb-p1q3"></div>
+    </div>
+  </div>
+
+  <!-- PART 2 -->
+  <div class="part">
+    <div class="part-head">
+      <svg class="part-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" filter="url(#glow)">
+        <path d="M24 40 V22"/>
+        <path d="M24 26 C16 26 13 19 14 12 C22 13 25 20 24 26Z"/>
+        <path d="M24 22 C32 22 35 15 34 10 C27 11 23 17 24 22Z"/>
+      </svg>
+      <div>
+        <div class="part-title">Part 2: Stages of Growth</div>
+      </div>
+    </div>
+
+    <div class="scenario-label">Scenario</div>
+    <p class="scenario-text protected">A student plants bean seeds in a germination chamber. Over the next two weeks, they record the following observations, but not in order: (a) two sets of true leaves appear, (b) the seed coat cracks, (c) the radicle emerges, (d) cotyledons emerge above the soil, (e) the hypocotyl breaks the soil surface, (f) the cotyledons wither and fall off.</p>
+
+    <div class="qa-block">
+      <p class="q-text protected"><span class="qnum">4.</span>Put observations (a) through (f) in the correct order and name which stage of growth (germination or seedling) each one belongs to.</p>
+      <textarea class="large" data-q="p2q4" placeholder="Type your answer here"></textarea>
+      <div class="check-row">
+        <button class="btn tiny" onclick="checkAnswer('p2q4')">Check my answer</button>
+        <span class="check-hint">Self-check only, not a grade</span>
+      </div>
+      <div class="feedback-list" id="fb-p2q4"></div>
+    </div>
+    <div class="qa-block">
+      <p class="q-text protected"><span class="qnum">5.</span>One seedling in the chamber grows unusually tall and thin compared to the others. What environmental factor most likely explains this, and what does that tell you about the plant's growth response?</p>
+      <textarea data-q="p2q5" placeholder="Type your answer here"></textarea>
+      <div class="check-row">
+        <button class="btn tiny" onclick="checkAnswer('p2q5')">Check my answer</button>
+        <span class="check-hint">Self-check only, not a grade</span>
+      </div>
+      <div class="feedback-list" id="fb-p2q5"></div>
+    </div>
+    <div class="qa-block">
+      <p class="q-text protected"><span class="qnum">6.</span>Define meristem, and explain the difference between what a shoot apical meristem produces and what a lateral meristem produces.</p>
+      <textarea data-q="p2q6" placeholder="Type your answer here"></textarea>
+      <div class="check-row">
+        <button class="btn tiny" onclick="checkAnswer('p2q6')">Check my answer</button>
+        <span class="check-hint">Self-check only, not a grade</span>
+      </div>
+      <div class="feedback-list" id="fb-p2q6"></div>
+    </div>
+    <div class="qa-block">
+      <p class="q-text protected"><span class="qnum">7.</span>The student's beans are dicots. Based on what you know about seed structure, would you expect their beans to be albuminous or exalbuminous? Explain your reasoning.</p>
+      <textarea data-q="p2q7" placeholder="Type your answer here"></textarea>
+      <div class="check-row">
+        <button class="btn tiny" onclick="checkAnswer('p2q7')">Check my answer</button>
+        <span class="check-hint">Self-check only, not a grade</span>
+      </div>
+      <div class="feedback-list" id="fb-p2q7"></div>
+    </div>
+  </div>
+
+  <!-- PART 3 -->
+  <div class="part">
+    <div class="part-head">
+      <svg class="part-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" filter="url(#glow)">
+        <path d="M35 24 A11 11 0 1 1 22 13.3"/>
+        <path d="M22 8 L22 13.3 L27 13.3"/>
+      </svg>
+      <div>
+        <div class="part-title">Part 3: Plant Life Spans</div>
+      </div>
+    </div>
+
+    <p class="scenario-text protected">Fill in the table below comparing the three plant life span categories covered in lecture. Use the example given in class or one of your own for each.</p>
+
+    <table class="life-table">
+      <tr><th>Category</th><th>Life cycle summary</th><th>Example plant</th></tr>
+      <tr>
+        <td>Annual</td>
+        <td><input type="text" data-q="annualSummary" placeholder="Type here"></td>
+        <td><input type="text" data-q="annualExample" placeholder="Type here"></td>
+      </tr>
+      <tr>
+        <td>Biennial</td>
+        <td><input type="text" data-q="biennialSummary" placeholder="Type here"></td>
+        <td><input type="text" data-q="biennialExample" placeholder="Type here"></td>
+      </tr>
+      <tr>
+        <td>Perennial</td>
+        <td><input type="text" data-q="perennialSummary" placeholder="Type here"></td>
+        <td><input type="text" data-q="perennialExample" placeholder="Type here"></td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- PART 4 -->
+  <div class="part">
+    <div class="part-head">
+      <svg class="part-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" filter="url(#glow)">
+        <circle cx="12" cy="14" r="2.6"/>
+        <circle cx="24" cy="8" r="2.6"/>
+        <circle cx="36" cy="14" r="2.6"/>
+        <circle cx="24" cy="38" r="2.6"/>
+        <path d="M12 14 L24 8 L36 14 L24 38 L12 14 M24 8 L24 38"/>
+      </svg>
+      <div>
+        <div class="part-title">Part 4: Synthesis</div>
+      </div>
+    </div>
+
+    <p class="q-text protected">Choose one flowering plant. In a short paragraph (5 to 7 sentences), describe what happens to that plant at each of the six stages of growth, in order: germination, seedling, vegetative growth, reproductive growth, senescence, and dormancy. For at least three of the six stages, name a specific hormone or plant structure involved and explain its role.</p>
+    <textarea class="large" data-q="p4synthesis" placeholder="Type your answer here"></textarea>
+    <div class="check-row">
+      <button class="btn tiny" onclick="checkAnswer('p4synthesis')">Check my answer</button>
+      <span class="check-hint">Self-check only, not a grade</span>
+    </div>
+    <div class="feedback-list" id="fb-p4synthesis"></div>
+  </div>
+
+  <div class="export-bar" style="justify-content:center;">
+    <button class="btn" onclick="exportPDF()">Export to PDF for submission</button>
+  </div>
+
+  <footer>AGPS-01 &middot; Plant Growth &middot; Applied Case Study</footer>
+</div>
+
+<div class="toast" id="toast">Copying is disabled for this assignment.</div>
+
+<script>
+  // Block copy/cut/context menu/selection on protected question and scenario text
+  function showToast(){
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    clearTimeout(window._toastTimer);
+    window._toastTimer = setTimeout(()=>t.classList.remove('show'), 2200);
+  }
+  document.querySelectorAll('.protected').forEach(el=>{
+    el.addEventListener('copy', e=>{ e.preventDefault(); showToast(); });
+    el.addEventListener('cut', e=>{ e.preventDefault(); showToast(); });
+    el.addEventListener('contextmenu', e=>{ e.preventDefault(); showToast(); });
+    el.addEventListener('selectstart', e=>{ e.preventDefault(); });
+    el.addEventListener('dragstart', e=>{ e.preventDefault(); });
+  });
+
+  function clearForm(){
+    document.querySelectorAll('textarea, .life-table input').forEach(el=>el.value = '');
+    document.querySelectorAll('.feedback-list').forEach(el=>{ el.classList.remove('show'); el.innerHTML = ''; });
+  }
+
+  // Offline keyword self-check. This looks for key vocabulary only.
+  // It cannot judge reasoning or correctness, so it is a self-check, not a grade.
+  const CHECKLISTS = {
+    p1q1: [
+      { label: 'Names phototropism', terms: ['phototropism'] },
+      { label: 'Names gravitropism', terms: ['gravitropism'] },
+      { label: 'Mentions light as the stimulus', terms: ['light'] },
+      { label: 'Mentions gravity as the stimulus', terms: ['gravity'] }
+    ],
+    p1q2: [
+      { label: 'Names auxin', terms: ['auxin'] },
+      { label: 'Mentions cell elongation', terms: ['elongat'] },
+      { label: 'Talks about the shoot response', terms: ['shoot'] },
+      { label: 'Talks about the root response', terms: ['root'] }
+    ],
+    p1q3: [
+      { label: 'Uses the term apical dominance', terms: ['apical dominance'] },
+      { label: 'Mentions axillary bud(s)', terms: ['axillary bud'] },
+      { label: 'Mentions auxin', terms: ['auxin'] },
+      { label: 'Describes buds as dormant/inactive', terms: ['dormant', 'dormancy', 'inactive'] }
+    ],
+    p2q4: [
+      { label: 'Mentions the seed coat cracking', terms: ['seed coat'] },
+      { label: 'Mentions the radicle', terms: ['radicle'] },
+      { label: 'Mentions the hypocotyl', terms: ['hypocotyl'] },
+      { label: 'Mentions cotyledon(s)', terms: ['cotyledon'] },
+      { label: 'Mentions true leaves', terms: ['true leaf', 'true leaves'] },
+      { label: 'Labels the germination stage', terms: ['germination'] },
+      { label: 'Labels the seedling stage', terms: ['seedling'] }
+    ],
+    p2q5: [
+      { label: 'Names light (or lack of light) as the factor', terms: ['light'] },
+      { label: 'Describes the stretching/elongation response', terms: ['stretch', 'elongat'] }
+    ],
+    p2q6: [
+      { label: 'Defines meristem as undifferentiated cells', terms: ['meristem'] },
+      { label: 'Mentions the shoot apical meristem (SAM)', terms: ['shoot apical meristem', 'sam'] },
+      { label: 'Mentions lateral meristem', terms: ['lateral meristem'] },
+      { label: 'Mentions primary growth', terms: ['primary growth'] },
+      { label: 'Mentions secondary growth', terms: ['secondary growth'] }
+    ],
+    p2q7: [
+      { label: 'States the bean seed is exalbuminous', terms: ['exalbuminous'] },
+      { label: 'Mentions the cotyledon storing food', terms: ['cotyledon'] },
+      { label: 'Mentions endosperm for contrast', terms: ['endosperm'] }
+    ],
+    p4synthesis: [
+      { label: 'Mentions germination', terms: ['germination'] },
+      { label: 'Mentions the seedling stage', terms: ['seedling'] },
+      { label: 'Mentions vegetative growth', terms: ['vegetative'] },
+      { label: 'Mentions reproductive growth', terms: ['reproductive'] },
+      { label: 'Mentions senescence', terms: ['senescence'] },
+      { label: 'Mentions dormancy', terms: ['dormancy'] },
+      { label: 'Names at least one hormone or structure', terms: ['auxin', 'cytokinin', 'ethylene', 'abscisic acid', 'meristem', 'chlorophyll'] }
+    ]
+  };
+
+  const CHECK_ICON = '<svg class="fb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 12.5 L9.5 18 L20 6"/></svg>';
+  const MISSING_ICON = '<svg class="fb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><path d="M12 8 v5 M12 16.2 v0.2"/></svg>';
+
+  function checkAnswer(key){
+    const ta = document.querySelector('[data-q="' + key + '"]');
+    const box = document.getElementById('fb-' + key);
+    const items = CHECKLISTS[key] || [];
+    if (!ta || !box) return;
+
+    const text = (ta.value || '').toLowerCase();
+
+    if (!text.trim()){
+      box.innerHTML = '<div class="feedback-summary">Write an answer first, then check it.</div>';
+      box.classList.add('show');
+      return;
+    }
+
+    const results = items.map(item => ({
+      label: item.label,
+      found: item.terms.some(t => text.includes(t.toLowerCase()))
+    }));
+    const foundCount = results.filter(r => r.found).length;
+
+    let html = '<div class="feedback-summary">' + foundCount + ' of ' + results.length + ' key ideas found. This checks vocabulary only, it is not a grade.</div>';
+    results.forEach(r => {
+      html += '<div class="feedback-item ' + (r.found ? 'found' : 'missing') + '">' +
+              (r.found ? CHECK_ICON : MISSING_ICON) +
+              '<span>' + r.label + '</span></div>';
+    });
+    box.innerHTML = html;
+    box.classList.add('show');
+  }
+
+  async function exportPDF(){
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+    const pageWidth = 612, pageHeight = 792;
+    const marginX = 46, maxWidth = pageWidth - marginX * 2;
+    const pageBottom = pageHeight - 50;
+    let y = 54;
+
+    const INK = [28,28,28];
+    const SUBINK = [105,105,105];
+    const ACCENT = [173,128,58];
+    const BORDER = [210,210,204];
+    const CARD_FILL = [248,248,245];
+    const EMPTY = [150,150,150];
+
+    function ensureSpace(h){
+      if (y + h > pageBottom){ doc.addPage(); y = 54; }
+    }
+
+    function wrap(text, size, width, style){
+      doc.setFont('helvetica', style || 'normal');
+      doc.setFontSize(size);
+      return doc.splitTextToSize(text, width);
+    }
+
+    function drawText(lines, x, startY, size, color, style, lineGap){
+      doc.setFont('helvetica', style || 'normal');
+      doc.setFontSize(size);
+      doc.setTextColor(color[0], color[1], color[2]);
+      let yy = startY;
+      lines.forEach(l=>{ doc.text(l, x, yy); yy += size + (lineGap===undefined?4:lineGap); });
+      return yy;
+    }
+
+    // ---- Header ----
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(9);
+    doc.setTextColor(ACCENT[0],ACCENT[1],ACCENT[2]);
+    doc.text('AGPS-01', marginX, y);
+    y += 20;
+
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(20);
+    doc.setTextColor(INK[0],INK[1],INK[2]);
+    doc.text('Plant Growth: Applied Case Study', marginX, y);
+    y += 10;
+    doc.setDrawColor(ACCENT[0],ACCENT[1],ACCENT[2]);
+    doc.setLineWidth(1.6);
+    doc.line(marginX, y, marginX + 90, y);
+    y += 26;
+
+    const name = document.getElementById('studentName').value.trim() || '(name not entered)';
+    const dateVal = document.getElementById('studentDate').value.trim() || '(date not entered)';
+
+    const idBoxH = 36;
+    doc.setLineWidth(0.75);
+    doc.setDrawColor(BORDER[0],BORDER[1],BORDER[2]);
+    doc.setFillColor(CARD_FILL[0],CARD_FILL[1],CARD_FILL[2]);
+    doc.roundedRect(marginX, y, maxWidth, idBoxH, 5, 5, 'FD');
+    doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(SUBINK[0],SUBINK[1],SUBINK[2]);
+    doc.text('NAME', marginX + 14, y + 14);
+    doc.text('DATE', marginX + maxWidth/2 + 14, y + 14);
+    doc.setFont('helvetica','normal'); doc.setFontSize(11); doc.setTextColor(INK[0],INK[1],INK[2]);
+    doc.text(name, marginX + 14, y + 28);
+    doc.text(dateVal, marginX + maxWidth/2 + 14, y + 28);
+    y += idBoxH + 28;
+
+    function drawQABox(qText, answerVal){
+      const padding = 12;
+      const qLines = wrap(qText, 11, maxWidth - padding*2, 'bold');
+      const hasAnswer = answerVal && answerVal.trim();
+      const ansText = hasAnswer ? answerVal.trim() : '(no answer provided)';
+      const ansStyle = hasAnswer ? 'normal' : 'italic';
+      const ansColor = hasAnswer ? INK : EMPTY;
+      const aLines = wrap(ansText, 10.5, maxWidth - padding*2, ansStyle);
+
+      const boxH = padding*2 + qLines.length*14.5 + 8 + aLines.length*13.5;
+      ensureSpace(boxH + 14);
+
+      doc.setLineWidth(0.75);
+      doc.setDrawColor(BORDER[0],BORDER[1],BORDER[2]);
+      doc.setFillColor(255,255,255);
+      doc.roundedRect(marginX, y, maxWidth, boxH, 5, 5, 'FD');
+
+      let innerY = y + padding + 9;
+      innerY = drawText(qLines, marginX + padding, innerY, 11, INK, 'bold', 3.5);
+      innerY += 4;
+      drawText(aLines, marginX + padding, innerY, 10.5, ansColor, ansStyle, 3);
+
+      y += boxH + 14;
+    }
+
+    // ---- Parts ----
+    document.querySelectorAll('.part').forEach(part=>{
+      const titleEl = part.querySelector('.part-title');
+      if (!titleEl) return;
+
+      ensureSpace(42);
+      doc.setFont('helvetica','bold'); doc.setFontSize(14); doc.setTextColor(INK[0],INK[1],INK[2]);
+      doc.text(titleEl.innerText, marginX, y);
+      y += 7;
+      doc.setDrawColor(ACCENT[0],ACCENT[1],ACCENT[2]);
+      doc.setLineWidth(1);
+      doc.line(marginX, y, marginX + maxWidth, y);
+      y += 18;
+
+      const scenario = part.querySelector('.scenario-text');
+      if (scenario){
+        const lines = wrap('Scenario: ' + scenario.innerText, 10.5, maxWidth - 4, 'italic');
+        ensureSpace(lines.length * 15 + 10);
+        y = drawText(lines, marginX, y, 10.5, SUBINK, 'italic', 4.5);
+        y += 12;
+      }
+
+      part.querySelectorAll('.qa-block').forEach(block=>{
+        const q = block.querySelector('.q-text');
+        const ans = block.querySelector('textarea');
+        if (q) drawQABox(q.innerText, ans ? ans.value : '');
+      });
+
+      // Part 4 special case: q-text + textarea not wrapped in qa-block
+      const soloQ = part.querySelector(':scope > .q-text');
+      const soloTextarea = part.querySelector(':scope > textarea');
+      if (soloQ && soloTextarea){
+        drawQABox(soloQ.innerText, soloTextarea.value);
+      }
+
+      // Life span table (Part 3)
+      const table = part.querySelector('.life-table');
+      if (table){
+        const rows = [
+          ['Annual', 'annualSummary', 'annualExample'],
+          ['Biennial', 'biennialSummary', 'biennialExample'],
+          ['Perennial', 'perennialSummary', 'perennialExample']
+        ];
+        const colWidths = [maxWidth*0.18, maxWidth*0.46, maxWidth*0.36];
+        const headerH = 22;
+        ensureSpace(headerH + 40);
+
+        doc.setLineWidth(0.75);
+        doc.setDrawColor(BORDER[0],BORDER[1],BORDER[2]);
+        doc.setFillColor(CARD_FILL[0],CARD_FILL[1],CARD_FILL[2]);
+        doc.rect(marginX, y, maxWidth, headerH, 'FD');
+        doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(SUBINK[0],SUBINK[1],SUBINK[2]);
+        let cx = marginX;
+        ['CATEGORY','LIFE CYCLE SUMMARY','EXAMPLE PLANT'].forEach((h,i)=>{
+          doc.text(h, cx + 8, y + 14);
+          cx += colWidths[i];
+        });
+        y += headerH;
+
+        rows.forEach(([label, sKey, eKey])=>{
+          const s = document.querySelector('[data-q="'+sKey+'"]').value.trim() || '(not answered)';
+          const ex = document.querySelector('[data-q="'+eKey+'"]').value.trim() || '(not answered)';
+          const sLines = wrap(s, 10, colWidths[1] - 16, 'normal');
+          const eLines = wrap(ex, 10, colWidths[2] - 16, 'normal');
+          const rowH = Math.max(sLines.length, eLines.length, 1) * 13 + 14;
+          ensureSpace(rowH);
+
+          doc.setLineWidth(0.75);
+          doc.setDrawColor(BORDER[0],BORDER[1],BORDER[2]);
+          doc.setFillColor(255,255,255);
+          doc.rect(marginX, y, maxWidth, rowH, 'FD');
+          doc.setFont('helvetica','bold'); doc.setFontSize(10.5); doc.setTextColor(INK[0],INK[1],INK[2]);
+          doc.text(label, marginX + 8, y + 16);
+          drawText(sLines, marginX + colWidths[0] + 8, y + 16, 10, INK, 'normal', 3);
+          drawText(eLines, marginX + colWidths[0] + colWidths[1] + 8, y + 16, 10, INK, 'normal', 3);
+          doc.line(marginX + colWidths[0], y, marginX + colWidths[0], y + rowH);
+          doc.line(marginX + colWidths[0] + colWidths[1], y, marginX + colWidths[0] + colWidths[1], y + rowH);
+          y += rowH;
+        });
+        y += 16;
+      }
+
+      y += 4;
+    });
+
+    const fileSafeName = name.replace(/[^a-z0-9]+/gi, '_').replace(/^_+|_+$/g, '') || 'student';
+    doc.save('AGPS-01_Plant_Growth_' + fileSafeName + '.pdf');
+  }
+</script>
+
+</body>
+</html>
