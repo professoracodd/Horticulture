@@ -111,6 +111,95 @@
     box-shadow:0 0 0 3px rgba(87,224,141,0.15);
   }
 
+  /* custom date picker */
+  .date-field{position:relative;}
+  .date-input-wrap{position:relative;}
+  .date-input-wrap input{cursor:pointer; padding-right:38px;}
+  .date-icon{
+    position:absolute;
+    right:12px; top:50%;
+    transform:translateY(-50%);
+    width:16px; height:16px;
+    color:var(--dim);
+    pointer-events:none;
+  }
+  .date-picker{
+    position:absolute;
+    top:calc(100% + 8px);
+    left:0;
+    z-index:10;
+    width:250px;
+    background:linear-gradient(180deg, var(--panel), var(--panel2));
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:14px;
+    box-shadow:0 16px 40px rgba(0,0,0,0.55), 0 0 20px rgba(87,224,141,0.12);
+    display:none;
+  }
+  .date-picker.show{display:block;}
+  .date-picker-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:10px;
+  }
+  .date-picker-header button{
+    background:transparent;
+    border:1px solid var(--border);
+    color:var(--green);
+    cursor:pointer;
+    font-size:14px;
+    width:26px; height:26px;
+    border-radius:6px;
+    display:flex; align-items:center; justify-content:center;
+    transition:background 0.15s ease, box-shadow 0.15s ease;
+  }
+  .date-picker-header button:hover{
+    background:rgba(87,224,141,0.15);
+    box-shadow:0 0 10px var(--green-glow);
+  }
+  .date-picker-month{
+    font-family:'Poppins',sans-serif;
+    font-weight:700;
+    font-size:12.5px;
+    color:#fff;
+  }
+  .date-picker-grid{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    gap:3px;
+  }
+  .date-picker-dow{
+    font-size:9.5px;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    color:var(--dim);
+    text-align:center;
+    padding-bottom:6px;
+  }
+  .date-picker-day{
+    font-size:12px;
+    text-align:center;
+    padding:6px 0;
+    border-radius:6px;
+    cursor:pointer;
+    color:var(--text);
+    transition:background 0.15s ease, box-shadow 0.15s ease;
+  }
+  .date-picker-day:hover{
+    background:rgba(87,224,141,0.18);
+    box-shadow:0 0 10px var(--green-glow);
+  }
+  .date-picker-day.muted{color:var(--dim); opacity:0.35; cursor:default;}
+  .date-picker-day.muted:hover{background:none; box-shadow:none;}
+  .date-picker-day.today{border:1px solid var(--green);}
+  .date-picker-day.selected{
+    background:var(--green);
+    color:#04140a;
+    font-weight:700;
+    box-shadow:0 0 14px var(--green-glow);
+  }
+
   /* stage tracker */
   .tracker{
     display:flex;
@@ -434,11 +523,22 @@
   <div class="id-row">
     <div class="id-field">
       <label for="studentName">Full name</label>
-      <input type="text" id="studentName" placeholder="Type your name">
+      <input type="text" id="studentName" name="student-full-name" autocomplete="off" autocorrect="off" placeholder="Type your name">
     </div>
-    <div class="id-field">
+    <div class="id-field date-field">
       <label for="studentDate">Date</label>
-      <input type="text" id="studentDate" placeholder="MM/DD/YYYY">
+      <div class="date-input-wrap">
+        <input type="text" id="studentDate" name="assignment-date" autocomplete="off" readonly placeholder="Select date">
+        <svg class="date-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10 H21 M8 3 V7 M16 3 V7"/></svg>
+      </div>
+      <div class="date-picker" id="datePicker">
+        <div class="date-picker-header">
+          <button type="button" id="dpPrev" aria-label="Previous month">&lsaquo;</button>
+          <span class="date-picker-month" id="dpMonthLabel"></span>
+          <button type="button" id="dpNext" aria-label="Next month">&rsaquo;</button>
+        </div>
+        <div class="date-picker-grid" id="dpGrid"></div>
+      </div>
     </div>
   </div>
 
@@ -663,6 +763,92 @@
     document.querySelectorAll('textarea, .life-table input').forEach(el=>el.value = '');
     document.querySelectorAll('.feedback-list').forEach(el=>{ el.classList.remove('show'); el.innerHTML = ''; });
   }
+
+  // Custom calendar dropdown for the date field (avoids inconsistent/absent native pickers)
+  (function(){
+    const dateInput = document.getElementById('studentDate');
+    const picker = document.getElementById('datePicker');
+    const grid = document.getElementById('dpGrid');
+    const monthLabel = document.getElementById('dpMonthLabel');
+    const prevBtn = document.getElementById('dpPrev');
+    const nextBtn = document.getElementById('dpNext');
+    if (!dateInput || !picker) return;
+
+    let viewDate = new Date();
+    let selectedDate = null;
+    const dow = ['S','M','T','W','T','F','S'];
+
+    function pad(n){ return String(n).padStart(2,'0'); }
+
+    function render(){
+      const year = viewDate.getFullYear();
+      const month = viewDate.getMonth();
+      monthLabel.textContent = viewDate.toLocaleDateString('en-US', { month:'long', year:'numeric' });
+      grid.innerHTML = '';
+
+      dow.forEach(d=>{
+        const el = document.createElement('div');
+        el.className = 'date-picker-dow';
+        el.textContent = d;
+        grid.appendChild(el);
+      });
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const daysInPrevMonth = new Date(year, month, 0).getDate();
+      const todayStr = new Date().toDateString();
+
+      for (let i = 0; i < firstDay; i++){
+        const el = document.createElement('div');
+        el.className = 'date-picker-day muted';
+        el.textContent = daysInPrevMonth - firstDay + 1 + i;
+        grid.appendChild(el);
+      }
+
+      for (let d = 1; d <= daysInMonth; d++){
+        const thisDate = new Date(year, month, d);
+        const el = document.createElement('div');
+        el.className = 'date-picker-day';
+        el.textContent = d;
+        if (thisDate.toDateString() === todayStr) el.classList.add('today');
+        if (selectedDate && thisDate.toDateString() === selectedDate.toDateString()) el.classList.add('selected');
+        el.addEventListener('click', (e)=>{
+          e.stopPropagation();
+          selectedDate = thisDate;
+          dateInput.value = pad(month + 1) + '/' + pad(d) + '/' + year;
+          closePicker();
+        });
+        grid.appendChild(el);
+      }
+
+      const totalCells = firstDay + daysInMonth;
+      const remainder = totalCells % 7;
+      if (remainder !== 0){
+        const trailing = 7 - remainder;
+        for (let i = 1; i <= trailing; i++){
+          const el = document.createElement('div');
+          el.className = 'date-picker-day muted';
+          el.textContent = i;
+          grid.appendChild(el);
+        }
+      }
+    }
+
+    function openPicker(){
+      picker.classList.add('show');
+      render();
+    }
+    function closePicker(){
+      picker.classList.remove('show');
+    }
+
+    dateInput.addEventListener('click', (e)=>{ e.stopPropagation(); openPicker(); });
+    document.querySelector('.date-icon').addEventListener('click', (e)=>{ e.stopPropagation(); openPicker(); });
+    prevBtn.addEventListener('click', (e)=>{ e.stopPropagation(); viewDate.setMonth(viewDate.getMonth() - 1); render(); });
+    nextBtn.addEventListener('click', (e)=>{ e.stopPropagation(); viewDate.setMonth(viewDate.getMonth() + 1); render(); });
+    picker.addEventListener('click', (e)=> e.stopPropagation());
+    document.addEventListener('click', ()=> closePicker());
+  })();
 
   // Offline keyword self-check. This looks for key vocabulary only.
   // It cannot judge reasoning or correctness, so it is a self-check, not a grade.
