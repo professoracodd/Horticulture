@@ -421,6 +421,34 @@
   }
   .life-table input:focus{outline:none;}
 
+  /* sequential guided glow */
+  @keyframes glowPulseBox{
+    0%,100%{box-shadow:0 0 6px var(--orange-glow); border-color:var(--border);}
+    50%{box-shadow:0 0 22px var(--orange-glow); border-color:var(--orange);}
+  }
+  @keyframes glowPulseText{
+    0%,100%{opacity:0.4;}
+    50%{opacity:1;}
+  }
+  .id-field input::placeholder,
+  textarea::placeholder,
+  .life-table input::placeholder{
+    color:var(--dim);
+    opacity:1;
+    transition:color 0.3s ease;
+  }
+  .glow-active{
+    animation:glowPulseBox 1.8s ease-in-out infinite;
+  }
+  .glow-active::placeholder{
+    color:var(--orange);
+    text-shadow:0 0 10px var(--orange-glow);
+    animation:glowPulseText 1.8s ease-in-out infinite;
+  }
+  .life-table td:has(input.glow-active){
+    animation:glowPulseBox 1.8s ease-in-out infinite;
+  }
+
   .check-row{
     display:flex;
     align-items:center;
@@ -848,6 +876,51 @@
     nextBtn.addEventListener('click', (e)=>{ e.stopPropagation(); viewDate.setMonth(viewDate.getMonth() + 1); render(); });
     picker.addEventListener('click', (e)=> e.stopPropagation());
     document.addEventListener('click', ()=> closePicker());
+  })();
+
+  // Sequential guided glow: pulses one field/button at a time to walk the student through the form
+  (function(){
+    const nameEl = document.getElementById('studentName');
+    const dateEl = document.getElementById('studentDate');
+    const questionEls = Array.from(document.querySelectorAll('[data-q]'));
+
+    const sequence = [nameEl, dateEl];
+    questionEls.forEach(el=>{
+      sequence.push(el);
+      const key = el.dataset.q;
+      const checkBtn = document.querySelector(`button[onclick*="checkAnswer('${key}')"]`);
+      if (checkBtn) sequence.push(checkBtn);
+    });
+
+    let currentIndex = 0;
+
+    function activate(index){
+      sequence.forEach(el => el.classList.remove('glow-active'));
+      if (index >= 0 && index < sequence.length){
+        sequence[index].classList.add('glow-active');
+      }
+    }
+
+    function advanceFrom(index){
+      if (index === currentIndex){
+        currentIndex = index + 1;
+        activate(currentIndex);
+      }
+    }
+
+    sequence.forEach((el, idx)=>{
+      if (el === dateEl){
+        el.addEventListener('click', ()=> advanceFrom(idx));
+      } else if (el.tagName === 'BUTTON'){
+        el.addEventListener('click', ()=> advanceFrom(idx));
+      } else {
+        el.addEventListener('input', ()=>{
+          if (el.value.trim().length > 0) advanceFrom(idx);
+        });
+      }
+    });
+
+    activate(currentIndex);
   })();
 
   // Offline keyword self-check. This looks for key vocabulary only.
