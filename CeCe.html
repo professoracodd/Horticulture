@@ -214,7 +214,36 @@ textarea.inp{font-size:12px;height:88px;resize:none;font-family:ui-monospace,Men
 
 <div class="screen" id="scrTitle"><div class="panel">
   <div class="logo">
-    <svg class="pupmark" viewBox="0 0 100 100"><circle cx="50" cy="54" r="34" fill="#fff" stroke="#ecdccb" stroke-width="3"/><ellipse cx="21" cy="58" rx="12" ry="20" fill="#f6eadb"/><ellipse cx="79" cy="58" rx="12" ry="20" fill="#f6eadb"/><circle cx="38" cy="50" r="6.5" fill="#1b120e"/><circle cx="62" cy="50" r="6.5" fill="#1b120e"/><circle cx="40" cy="48" r="2" fill="#fff"/><circle cx="64" cy="48" r="2" fill="#fff"/><ellipse cx="50" cy="66" rx="13" ry="10" fill="#fffaf3" stroke="#f0e2d2" stroke-width="2"/><ellipse cx="50" cy="61" rx="5" ry="3.8" fill="#1b120e"/><path d="M44 72q6 5 12 0" stroke="#4a2626" stroke-width="2.4" fill="none" stroke-linecap="round"/><circle cx="50" cy="22" r="10" fill="#fff" stroke="#ecdccb" stroke-width="2"/><path d="M30 84q20 9 40 0" stroke="#ff7fa6" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M50 99l-8-7.5a5 5 0 0 1 8-5.6 5 5 0 0 1 8 5.6z" fill="#ff6f91" stroke="#fff" stroke-width="1.5"/></svg>
+    <svg class="pupmark" viewBox="0 0 130 140" aria-hidden="true">
+      <g stroke="#3a2f2a" stroke-width="3.6" stroke-linejoin="round" stroke-linecap="round">
+        <!-- big floppy ears, behind the head -->
+        <path d="M34 34C17 26 3 39 4 60c1 20 12 34 25 34 9 0 13-8 12-17-2-15-4-30-7-43z" fill="#eedfc2"/>
+        <path d="M96 34c17-8 31 5 30 26-1 20-12 34-25 34-9 0-13-8-12-17 2-15 4-30 7-43z" fill="#eedfc2"/>
+        <!-- sitting body -->
+        <path d="M65.0 63.2A10.4 10.4 0 0 1 83.0 67.1A9.5 9.5 0 0 1 96.2 77.6A8.6 8.6 0 0 1 101.0 92.0A11.0 11.0 0 0 1 96.2 110.9A10.8 10.8 0 0 1 83.0 124.7A10.6 10.6 0 0 1 65.0 129.8A10.6 10.6 0 0 1 47.0 124.7A10.8 10.8 0 0 1 33.8 110.9A11.0 11.0 0 0 1 29.0 92.0A8.6 8.6 0 0 1 33.8 77.6A9.5 9.5 0 0 1 47.0 67.1A10.4 10.4 0 0 1 65.0 63.2Z" fill="#fdf6ea"/>
+        <!-- chest fluff -->
+        <g fill="none" stroke-width="2.3" opacity=".45">
+          <path d="M55 82c3 6 4 12 3 18M75 82c-3 6-4 12-3 18M65 79c0 7 0 14-1 21"/>
+        </g>
+        <!-- front legs and paw toes -->
+        <path d="M49 104c-6 0-10 5-10 12v4c0 5 4 9 10 9s10-4 10-9v-4c0-7-4-12-10-12z" fill="#fffaf2"/>
+        <path d="M81 104c6 0 10 5 10 12v4c0 5-4 9-10 9s-10-4-10-9v-4c0-7 4-12 10-12z" fill="#fffaf2"/>
+        <g fill="none" stroke-width="2.2"><path d="M45 122v5M53 122v5M77 122v5M85 122v5"/></g>
+        <!-- head -->
+        <path d="M65.0 10.0A12.0 12.0 0 0 1 85.0 15.4A11.5 11.5 0 0 1 98.7 29.9A11.1 11.1 0 0 1 101.6 48.8A11.3 11.3 0 0 1 93.0 66.3A11.8 11.8 0 0 1 75.4 76.6A12.1 12.1 0 0 1 54.6 76.6A11.8 11.8 0 0 1 37.0 66.3A11.3 11.3 0 0 1 28.4 48.8A11.1 11.1 0 0 1 31.3 29.9A11.5 11.5 0 0 1 45.0 15.4A12.0 12.0 0 0 1 65.0 10.0Z" fill="#fffaf2"/>
+        <!-- eyes -->
+        <circle cx="52" cy="44" r="6.6" fill="#3a2f2a" stroke="none"/>
+        <circle cx="78" cy="44" r="6.6" fill="#3a2f2a" stroke="none"/>
+        <circle cx="54.5" cy="41.3" r="2.3" fill="#fff" stroke="none"/>
+        <circle cx="80.5" cy="41.3" r="2.3" fill="#fff" stroke="none"/>
+        <!-- nose and smile -->
+        <path d="M58 54c0-3.3 14-3.3 14 0 0 4.4-4.8 7.7-7 7.7s-7-3.3-7-7.7z" fill="#3a2f2a" stroke="none"/>
+        <g fill="none" stroke-width="2.7">
+          <path d="M65 61.7v4.1"/>
+          <path d="M65 65.8c-3.3 4.4-8.8 3.9-10.4-.5M65 65.8c3.3 4.4 8.8 3.9 10.4-.5"/>
+        </g>
+      </g>
+    </svg>
     <h1><span>Rabie</span> <em>Ruff Ruff</em></h1>
     <p>One dog. Two rivals. One busy day.</p>
   </div>
@@ -450,11 +479,12 @@ const TRAITS = {
 // Key positions in the room (x, z). Back wall is z = -4, door leads to the yard behind it.
 const SPOTS = {
   bed: [-2.6, -2.55], food: [-1.0, -3.35], foodEat: [-1.0, -3.02], water: [0.2, -3.35], waterEat: [0.2, -3.02],
-  doorIn: [2.4, -3.25], doorOut: [2.4, -4.55], patio: [2.4, -5.25], mat: [2.5, 0.9], cuddle: [0.4, 1.45], toy: [1.3, -0.9], front: [0.4, 0.55]
+  doorIn: [2.4, -3.25], doorOut: [2.4, -4.55], patio: [2.4, -5.25],
+  crateIn: [3.05, -1.52], crateFront: [3.05, -0.42], mat: [2.5, 0.9], cuddle: [0.4, 1.45], toy: [1.3, -0.9], front: [0.4, 0.55]
 };
 // Loop CeCe follows when she runs around the house (zoomies / chase game)
 const ZOOM_PATH = [[-1.6, 1.4], [2.2, 1.7], [2.9, -1.6], [0.6, -2.3], [-2.0, -1.0], [-2.6, 0.9], [0.4, 0.6]];
-const ACTION_SEQS = new Set(['feed', 'water', 'potty', 'groom', 'mint', 'cuddle', 'play', 'rest', 'accident']);
+const ACTION_SEQS = new Set(['feed', 'water', 'potty', 'groom', 'mint', 'cuddle', 'play', 'rest', 'accident', 'crate']);
 
 /* =====================================================================
    SIMULATION (authoritative copy runs on the host / local device only)
@@ -1017,6 +1047,77 @@ add(new THREE.BoxGeometry(8.2, .08, .05), fenceM, 0, .7, -10.48); add(new THREE.
   add(new THREE.CylinderGeometry(.12, .18, 1.4, 10), std(0x7a5536, .9), 0, .7, 0, tr);
   [[0, 1.8, 0, .9], [-.45, 1.5, .2, .6], [.45, 1.55, -.1, .65]].forEach(([x, y, z, s]) => add(new THREE.IcosahedronGeometry(s, 1), std(0x5ea35a, .9, { flatShading: true }), x, y, z, tr)); }
 [[3.2, -8.2], [1, -9.6], [-3.4, -7]].forEach(([x, z]) => add(new THREE.IcosahedronGeometry(.4, 1), std(0x6db462, .9, { flatShading: true }), x, .25, z));
+// CeCe's crate: a plain metal mesh crate with the door propped open.
+// All the bars live in one InstancedMesh so the whole thing is a single draw call.
+{
+  const CW = 1.00, CD = 1.20, CH = 0.86, T = 0.016;
+  const cx = 3.05, cz = -1.40;
+  const bars = [];
+  const push = (x, y, z, sx, sy, sz, ry = 0) => bars.push({ x, y, z, sx, sy, sz, ry });
+  const stepN = (len, gap) => Math.max(2, Math.round(len / gap));
+  // vertical bars: two side walls and the back
+  for (const sx of [-1, 1]) {
+    const n = stepN(CD - .10, .098);
+    for (let i = 0; i <= n; i++) {
+      const z = -CD / 2 + .05 + (CD - .10) * i / n;
+      push(sx * CW / 2, CH / 2, z, T, CH, T);
+    }
+  }
+  {
+    const n = stepN(CW - .10, .098);
+    for (let i = 0; i <= n; i++) {
+      const x = -CW / 2 + .05 + (CW - .10) * i / n;
+      push(x, CH / 2, -CD / 2, T, CH, T);
+    }
+  }
+  // roof bars running across
+  {
+    const n = stepN(CD - .06, .105);
+    for (let i = 0; i <= n; i++) {
+      const z = -CD / 2 + .03 + (CD - .06) * i / n;
+      push(0, CH, z, CW, T, T);
+    }
+  }
+  // frame rails: top, bottom and a mid rail
+  for (const y of [.03, CH * .5, CH]) {
+    push(0, y, -CD / 2, CW + T, T, T);
+    push(-CW / 2, y, 0, T, T, CD);
+    push(CW / 2, y, 0, T, T, CD);
+  }
+  // the open front: posts and a lintel around the doorway
+  push(-CW / 2, CH / 2, CD / 2, T, CH, T);
+  push(CW / 2, CH / 2, CD / 2, T, CH, T);
+  push(0, CH, CD / 2, CW + T, T, T);
+  push(0, .03, CD / 2, CW + T, T, T);
+  // the door, swung wide open on its left hinge
+  {
+    const ang = -1.95, hx = -CW / 2, hz = CD / 2;
+    const n = 7;
+    for (let i = 0; i <= n; i++) {
+      const d = .05 + (CW - .10) * i / n;
+      push(hx + Math.cos(ang) * d, CH / 2, hz + Math.sin(ang) * d, T, CH - .06, T, ang);
+    }
+    for (const y of [.06, CH - .03]) {
+      const mid = CW / 2;
+      push(hx + Math.cos(ang) * mid, y, hz + Math.sin(ang) * mid, CW - .08, T, T, -ang);
+    }
+  }
+  const barGeo = new THREE.BoxGeometry(1, 1, 1);
+  const barMat = std(0xa8b0ba, .42, { metalness: .45 });
+  const inst = new THREE.InstancedMesh(barGeo, barMat, bars.length);
+  const mtx = new THREE.Matrix4(), q = new THREE.Quaternion(), sc = new THREE.Vector3(), po = new THREE.Vector3();
+  bars.forEach((b, i) => {
+    po.set(cx + b.x, b.y, cz + b.z);
+    q.setFromAxisAngle(new V3(0, 1, 0), b.ry);
+    sc.set(b.sx, b.sy, b.sz);
+    inst.setMatrixAt(i, mtx.compose(po, q, sc));
+  });
+  inst.instanceMatrix.needsUpdate = true;
+  room.add(inst);
+  // moulded plastic tray and a soft pad inside
+  add(new THREE.BoxGeometry(CW - .02, .055, CD - .02), std(0x4a4f56, .7), cx, .028, cz);
+  add(new THREE.BoxGeometry(CW - .12, .05, CD - .16), std(0xf2e7d6, 1), cx, .072, cz);
+}
 // covered patio just outside the door: a dry place to go when the grass is wet
 add(new THREE.BoxGeometry(1.7, .03, 1.35), std(0xc9c0b4, .9), 2.4, .015, -5.05);
 for (let i = 0; i < 3; i++) add(new THREE.BoxGeometry(1.7, .035, .02), std(0xa99f92, .9), 2.4, .017, -4.6 - i * .45);
@@ -1240,6 +1341,9 @@ function buildSeq(kind, P = {}) {
     case 'mope': return [{ mode: 'mope', dur: Infinity }];
     case 'toyhint': return [{ walk: P.to, speed: 1.3 }, { face: P.ball }, { mode: 'play', dur: 1.2 }, { react: 'bark' }, { face: CAM }, { mode: 'beg', dur: Infinity }];
     case 'nag': return [{ react: P.react || 'whine' }];
+    case 'crate': return [{ walk: S.crateFront, speed: 2.3, rush: 1 }, { face: S.crateIn },
+      { walk: S.crateIn, speed: 1.3, rush: 1 }, { face: S.crateFront }, { react: 'happy' },
+      { mode: 'lie', dur: Infinity }];
     case 'zoomies': return [{ react: 'stretch' }, ...ZOOM_PATH.map(w => ({ walk: w, speed: 2.8 })), { face: CAM }, { react: 'happy' }];
     case 'bedlounge': return [{ walk: S.bed, speed: 1 }, { face: CAM }, { mode: 'lie', dur: P.dur || 6 }];
     case 'wetpaws': return [{ face: CAM }, { react: 'pawshake' }, { mode: 'sit', dur: 1.5 }, { react: 'pawshake' }, { mode: 'sit', dur: Infinity }];
@@ -1372,7 +1476,7 @@ class Dog {
         const dx = s.walk[0] - this.pos.x, dz = s.walk[1] - this.pos.z, d = Math.hypot(dx, dz);
         if (d < .05 || s.t > 12) this.next();
         else {
-          const sp = (s.speed || 1) * this.speedMul, st = Math.min(d, sp * dt * smooth(0, .25, s.t + .05));
+          const sp = (s.speed || 1) * (s.rush ? 1 : this.speedMul), st = Math.min(d, sp * dt * smooth(0, .25, s.t + .05));
           this.pos.x += dx / d * st; this.pos.z += dz / d * st; this.targetYaw = Math.atan2(dx, dz); this.moving = true; this.speedNow = sp;
         }
       } else if (s.face) { this.targetYaw = Math.atan2(s.face[0] - this.pos.x, s.face[1] - this.pos.z); if (s.t > .45) this.next(); }
@@ -1867,7 +1971,23 @@ function handleEvent(ev) {
     case 'pause': break;
     case 'weather': toast(ev.rain ? `<b>It's raining.</b> The grass is getting wet<small>${nm} hates wet paws. Use the covered patio.</small>` : `<b>The rain stopped</b><small>The grass will stay wet for a while</small>`, '#3d86c6'); break;
     case 'dry': toast(`${nm}'s paws finally dried on their own`, '#c9b8a8'); break;
-    case 'end': V = ev.final; showResults(ev.final); break;
+    case 'end': {
+      V = ev.final;
+      dog.run('crate');                       // she loves her crate
+      showBanner('end', `That's the day — ${nm} is off to her crate`);
+      Snd.play('chime');
+      // hold the results until she's curled up inside (or 11s, whichever comes first)
+      clearInterval(handleEvent.endT);
+      const t0 = performance.now();
+      handleEvent.endT = setInterval(() => {
+        const settled = dog.mode === 'lie' && dog.seqKind === 'crate';
+        if (settled || performance.now() - t0 > 20000) {
+          clearInterval(handleEvent.endT);
+          setTimeout(() => { hideBanner('end'); showResults(ev.final); }, settled ? 1400 : 0);
+        }
+      }, 200);
+      break;
+    }
   }
 }
 function faceLick(stinky) {
