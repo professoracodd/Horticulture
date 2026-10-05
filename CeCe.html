@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#fbf3ea">
-<meta name="description" content="Rabie Ruff Ruff: a fast two-player game about taking care of CeCe, a fluffy white Maltipoo, for one busy day.">
+<meta name="description" content="Rabie Ruff Ruff: love me, feed me, pee pee. A fast two-player game about taking care of CeCe, a fluffy white Maltipoo.">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <title>Rabie Ruff Ruff</title>
@@ -109,6 +109,9 @@ textarea.inp{font-size:12px;height:88px;resize:none;font-family:ui-monospace,Men
 .act.cool svg{opacity:.4}.act.cool span{opacity:.55}
 .act .cdt{position:absolute;top:4px;right:6px;font-size:10px;font-weight:800;color:var(--muted)}
 .act.busy{opacity:.75}
+.act.alert{border-bottom:4px solid var(--bad)!important;animation:actpulse 1s ease-in-out infinite}
+.act.alert::before{content:"";position:absolute;top:5px;left:6px;width:9px;height:9px;border-radius:50%;background:var(--bad)}
+@keyframes actpulse{50%{background:#ffeae7}}
 @media (orientation:landscape) and (max-height:560px){
   .actions{grid-template-columns:repeat(9,1fr);max-width:960px}
   .act{padding:6px 2px 5px}.act svg{width:24px;height:24px}
@@ -116,13 +119,45 @@ textarea.inp{font-size:12px;height:88px;resize:none;font-family:ui-monospace,Men
 }
 
 .diffs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px}
-.dbtn{border:2px solid var(--line);background:#fff;border-radius:16px;padding:10px 4px 9px;cursor:pointer;font:800 15px Nunito,sans-serif;color:var(--ink);transition:transform .08s}
+.dbtn{border:2px solid var(--line);background:#fff;border-radius:16px;padding:7px 4px 9px;cursor:pointer;font:800 15px Nunito,sans-serif;color:var(--ink);transition:transform .08s}
+.dface{display:block;width:46px;height:44px;margin:0 auto 2px}
+.fits{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:6px}
+.fit{border:2px solid var(--line);background:#fff;border-radius:16px;padding:9px 4px;cursor:pointer;
+  font:800 13px Nunito,sans-serif;color:var(--ink);transition:transform .08s}
+.fit:active{transform:scale(.95)}
+.fit.sel{border-color:var(--p1);background:#fff4f1;color:var(--p1)}
+.fit i{display:block;width:34px;height:34px;margin:0 auto 4px;border-radius:50%;border:2px solid #0001}
 .dbtn small{display:block;font-weight:700;font-size:11.5px;color:var(--muted);margin-top:2px}
 .dbtn:active{transform:scale(.96)}
 .dbtn.sel{border-color:var(--p1);background:#fff4f1;color:var(--p1)}
 .dbtn.sel small{color:var(--p1)}
 .dblurb{margin-top:8px;font-size:13.5px;font-weight:600;color:#5d4c43;text-align:center;min-height:34px}
 .winner .verdict{font:800 18px 'Baloo 2',sans-serif;color:var(--ink);margin-top:6px}
+.tuff{display:flex;align-items:center;justify-content:center;gap:10px;margin:14px 0 2px}
+.tuff svg{width:56px;height:54px;flex:none}
+.tuff .say{position:relative;background:#fffaf4;border:3px solid var(--ink);border-radius:16px;
+  padding:8px 14px;font:800 17px 'Baloo 2',sans-serif;color:var(--ink)}
+.tuff .say::after{content:"";position:absolute;left:-10px;top:50%;margin-top:-8px;width:0;height:0;
+  border:8px solid transparent;border-right-color:var(--ink);border-left:0}
+.tuff .say::before{content:"";position:absolute;left:-5px;top:50%;margin-top:-5px;width:0;height:0;z-index:1;
+  border:5px solid transparent;border-right-color:#fffaf4;border-left:0}
+/* ---------- CeCe's speech bubble ---------- */
+/* Always in the DOM and driven by transitions: toggling display:none between
+   shows stops a CSS animation restarting, which left later bubbles invisible. */
+#bubble{position:absolute;left:0;top:0;pointer-events:none;
+  background:#fffaf4;border:3px solid var(--ink);border-radius:16px;padding:7px 12px 8px;
+  font:800 14.5px Nunito,sans-serif;color:var(--ink);max-width:212px;text-align:center;
+  line-height:1.25;box-shadow:0 5px 14px rgba(90,55,30,.2);z-index:12;width:max-content;
+  opacity:0;transform:translate(-50%,-84%) scale(.8);
+  transition:opacity .18s ease,transform .26s cubic-bezier(.2,1.6,.4,1)}
+#bubble.on{opacity:1;transform:translate(-50%,-100%) scale(1)}
+#bubble::after{content:"";position:absolute;left:50%;bottom:-11px;width:0;height:0;
+  margin-left:-9px;border:9px solid transparent;border-top-color:var(--ink);border-bottom:0}
+#bubble::before{content:"";position:absolute;left:50%;bottom:-6px;width:0;height:0;z-index:1;
+  margin-left:-6px;border:6px solid transparent;border-top-color:#fffaf4;border-bottom:0}
+#bubble.urgent{border-color:var(--bad);color:#a8322a}
+#bubble.urgent::after{border-top-color:var(--bad)}
+
 /* ---------- option picker ---------- */
 #scrPick{align-items:flex-end}
 #scrPick .panel{border-radius:26px;margin-bottom:6px}
@@ -198,6 +233,7 @@ textarea.inp{font-size:12px;height:88px;resize:none;font-family:ui-monospace,Men
     <button class="iconbtn" id="menuBtn" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 7h14M5 12h14M5 17h14"/></svg></button>
   </div>
   <div class="banner" id="banner"></div>
+  <div id="bubble"><span id="bubbleTxt"></span></div>
   <div class="toasts" id="toasts"></div>
   <div id="bottom">
     <div class="caption" id="caption"></div>
@@ -245,7 +281,7 @@ textarea.inp{font-size:12px;height:88px;resize:none;font-family:ui-monospace,Men
       </g>
     </svg>
     <h1><span>Rabie</span> <em>Ruff Ruff</em></h1>
-    <p>One dog. Two rivals. One busy day.</p>
+    <p>Love me. Feed me. Pee pee.</p>
   </div>
   <label class="f" for="nameIn">Your name</label>
   <input class="inp" id="nameIn" maxlength="14" placeholder="Your name" autocomplete="off">
@@ -361,6 +397,7 @@ textarea.inp{font-size:12px;height:88px;resize:none;font-family:ui-monospace,Men
   <h2 style="text-align:center">Menu</h2>
   <button class="btn pri" id="mResume">Back to game</button>
   <button class="btn" id="mPause">Pause game</button>
+  <button class="btn" id="mFit">Dress up CeCe</button>
   <button class="btn" id="mSound">Sound: On</button>
   <button class="btn" id="mCam">Reset camera</button>
   <button class="btn" id="mHelp">How to play</button>
@@ -378,6 +415,13 @@ textarea.inp{font-size:12px;height:88px;resize:none;font-family:ui-monospace,Men
   <div class="sect">Your cooldowns</div>
   <div class="note" id="ckCd" style="text-align:left"></div>
   <button class="btn pri" id="ckClose">Close</button>
+</div></div>
+
+<!-- =================== OUTFIT PICKER =================== -->
+<div class="screen overlay" id="scrFit"><div class="panel">
+  <h2 style="text-align:center">Dress up CeCe</h2>
+  <div class="fits" id="fitList"></div>
+  <button class="btn pri" id="fitClose">Done</button>
 </div></div>
 
 <!-- =================== OPTION PICKER =================== -->
@@ -439,6 +483,7 @@ const ACTIONS = {
   cuddle: { label: 'Cuddle', cd: 40, color: '#f0607e', past: 'cuddled {d}' },
   play: { label: 'Play', cd: 75, color: '#e8a427', past: 'played with {d}' },
   rest: { label: 'Rest', cd: 120, color: '#6c78c9', past: 'tucked {d} into bed' },
+  clean: { label: 'Clean', cd: 30, color: '#4f9ad6', past: 'cleaned up the mess' },
   check: { label: 'Check', cd: 0, color: '#8d7d72', past: 'checked on {d}' }
 };
 /* Choices shown when an action has more than one way to do it. CeCe's preferences decide which earns points. */
@@ -457,6 +502,7 @@ const ICONS = {
   groom: '<rect x="3.5" y="8.5" width="12" height="5" rx="2.2" fill="currentColor" fill-opacity=".18"/><rect x="3.5" y="8.5" width="12" height="5" rx="2.2"/><path d="M15.5 11h5.5M5.5 13.5v4M8.5 13.5v4M11.5 13.5v4M14 13.5v3"/>',
   cuddle: '<path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z" fill="currentColor" fill-opacity=".2"/><path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/>',
   play: '<path d="M7 15.5a3 3 0 0 1-.5-5.6 3.2 3.2 0 0 1 5-2.6 3.2 3.2 0 0 1 5 1.9 2.9 2.9 0 0 1 .6 5.6 3 3 0 0 1-4.4 1.7 3.2 3.2 0 0 1-5.7-1z" fill="currentColor" fill-opacity=".2"/><path d="M7 15.5a3 3 0 0 1-.5-5.6 3.2 3.2 0 0 1 5-2.6 3.2 3.2 0 0 1 5 1.9 2.9 2.9 0 0 1 .6 5.6 3 3 0 0 1-4.4 1.7 3.2 3.2 0 0 1-5.7-1z"/><ellipse cx="18.8" cy="10" rx="2.2" ry="1.8" fill="currentColor"/><path d="M9 16.5v3M14 16.5v3"/>',
+  clean: '<path d="M4 20.5h16"/><path d="M7 20.5v-5h10v5z" fill="currentColor" fill-opacity=".18"/><path d="M7 20.5v-5h10v5z"/><path d="M12 15.5V5.5M12 5.5l5.5-2.2v4.4z" fill="currentColor" fill-opacity=".18"/><path d="M12 5.5l5.5-2.2v4.4z"/><path d="M8.6 11.8L6.4 9.6M15.4 10.6l2.2-2.2"/>',
   mint: '<circle cx="12" cy="12" r="6.5" fill="currentColor" fill-opacity=".18"/><circle cx="12" cy="12" r="6.5"/><path d="M12 5.5c-3 3-3 10 0 13M5.5 12c3-3 10-3 13 0"/><path d="M5.5 12 2 9.5v5zM18.5 12l3.5-2.5v5z" fill="currentColor"/>',
   rest: '<path d="M19.5 14.6A8 8 0 1 1 9.4 4.5a6.4 6.4 0 0 0 10.1 10.1z" fill="currentColor" fill-opacity=".18"/><path d="M19.5 14.6A8 8 0 1 1 9.4 4.5a6.4 6.4 0 0 0 10.1 10.1z"/><path d="M15 4h3l-3 3h3"/>',
   check: '<rect x="5" y="4.5" width="14" height="16.5" rx="2" fill="currentColor" fill-opacity=".14"/><rect x="5" y="4.5" width="14" height="16.5" rx="2"/><path d="M9 3h6v3H9zM8.5 11.5l1.6 1.6 3-3M8.5 16.5h7"/>'
@@ -484,7 +530,7 @@ const SPOTS = {
 };
 // Loop CeCe follows when she runs around the house (zoomies / chase game)
 const ZOOM_PATH = [[-1.6, 1.4], [2.2, 1.7], [2.9, -1.6], [0.6, -2.3], [-2.0, -1.0], [-2.6, 0.9], [0.4, 0.6]];
-const ACTION_SEQS = new Set(['feed', 'water', 'potty', 'groom', 'mint', 'cuddle', 'play', 'rest', 'accident', 'crate']);
+const ACTION_SEQS = new Set(['feed', 'water', 'potty', 'groom', 'mint', 'cuddle', 'play', 'rest', 'accident', 'crate', 'clean']);
 
 /* =====================================================================
    SIMULATION (authoritative copy runs on the host / local device only)
@@ -502,7 +548,7 @@ function newGame({ dogName, diff, names }) {
     wetPaws: false, wetPawsAt: 0, rain: false, wxNext: START_T + rnd(90, 260), wetUntil: -1, halfway: false,
     evidence: { affectionate: 0, playful: 0, foodMotivated: 0, energetic: 0, patience: 0, groomTolerance: 0 },
     discovered: {}, sleeping: false, lastMeal: -999, lastDrink: -999, neglectAcc: 0,
-    alertSince: {}, lastNag: -999, accidents: 0, players: [mk(names[0]), mk(names[1])],
+    alertSince: {}, lastNag: -999, accidents: 0, mess: 0, outfit: 'none', players: [mk(names[0]), mk(names[1])],
     hist: [], nextSample: START_T
   };
 }
@@ -570,7 +616,7 @@ function tickSim(dtReal) {
 
   // ---- accident ----
   if (N.bladder >= 100) {
-    N.bladder = 8; N.cleanliness = clamp(N.cleanliness - 15); N.happiness = clamp(N.happiness - 10); G.accidents++;
+    N.bladder = 8; N.cleanliness = clamp(N.cleanliness - 15); N.happiness = clamp(N.happiness - 10); G.accidents++; G.mess++;
     G.sleeping = false;
     addPts(0, -15, 'penalty'); addPts(1, -15, 'penalty');
     emit({ e: 'accident', pos: [dog.pos.x, dog.pos.z] });
@@ -783,6 +829,15 @@ function doAction(p, a, opt) {
       }
       break;
     }
+    case 'clean': {
+      if (!G.mess) return deny(p, 'There is no mess to clean up');
+      G.mess--;
+      pts += 8; N.cleanliness = clamp(N.cleanliness + 6); N.happiness += 5;
+      react = 'happy'; msg = `Mopped it up. ${nm} looks relieved`;
+      bonus = 4; bonusWhy = 'Won back some of the accident';   // 12 of the 15 lost, not all of it
+      emit({ e: 'cleaned' });
+      break;
+    }
     case 'rest': {
       const hr = hourOf(G.t);
       if (N.energy <= 55 || hr >= 20 || hr < 5) {
@@ -812,7 +867,7 @@ function snapshot() {
   const N = {}; for (const k in G.needs) N[k] = Math.round(G.needs[k] * 10) / 10;
   return {
     t: G.t, mins: G.mins, diff: G.diff, dogName: G.dogName, needs: N, sleeping: G.sleeping, paused: G.paused, pauseWhy: G.pauseWhy, over: G.over,
-    players: G.players, discovered: G.discovered, hist: G.hist, accidents: G.accidents, dog: { x: dog.pos.x, z: dog.pos.z, kind: dog.seqKind },
+    players: G.players, discovered: G.discovered, hist: G.hist, accidents: G.accidents, mess: G.mess, outfit: G.outfit, dog: { x: dog.pos.x, z: dog.pos.z, kind: dog.seqKind },
     wetPaws: G.wetPaws, rain: G.rain, grassWet: grassWet(G)
   };
 }
@@ -1223,6 +1278,10 @@ const Snd = {
         case 'door': this.noise(.35, .05, 500, 0, 'lowpass'); break;
         case 'chime': this.tone(784, 784, .25, 'sine', .06); this.tone(1175, 1175, .35, 'sine', .05, .15); break;
         case 'tap': this.tone(600, 900, .06, 'sine', .04); break;
+        case 'boof': this.tone(430, 260, .13, 'sawtooth', .09, 0, ['lowpass', 700]); this.noise(.08, .04, 700, 0, 'lowpass'); break;
+        case 'snore': this.tone(96, 78, .9, 'sawtooth', .045, 0, ['lowpass', 260]); this.tone(150, 120, .5, 'sine', .02, .95); break;
+        case 'pant': for (let i = 0; i < 4; i++) { this.noise(.07, .035, 1500, i * .22, 'bandpass'); this.noise(.06, .03, 900, i * .22 + .1, 'bandpass'); } break;
+        case 'slosh': this.noise(.25, .05, 700, 0, 'lowpass'); this.tone(300, 500, .2, 'sine', .035); break;
         case 'micro': this.tone(118, 118, 1.15, 'sawtooth', .025, 0, ['lowpass', 300]); [1.2, 1.38, 1.56].forEach(d => this.tone(1900, 1900, .1, 'square', .03, d, ['lowpass', 3000])); break;
         case 'slurp': this.noise(.25, .07, 1400); this.tone(500, 1100, .22, 'sine', .05); break;
       }
@@ -1234,6 +1293,86 @@ const Snd = {
    THE MALTIPOO (procedural 3D model)
    ===================================================================== */
 const GLB_URL = 'cece.glb';
+/* Dress-up for CeCe. Each piece rides on her head or body each frame rather
+   than being parented to a bone, which keeps hats upright and avoids having to
+   reason about glTF bone axes. */
+const OUTFITS = ['none', 'bandana', 'bow', 'hat', 'sweater', 'scarf'];
+const OUTFIT_LABEL = { none: 'Just CeCe', bandana: 'Bandana', bow: 'Big bow', hat: 'Party hat', sweater: 'Sweater', scarf: 'Winter scarf' };
+const outfitParts = {};
+function buildOutfits() {
+  const mk = () => { const g = new THREE.Group(); g.visible = false; scene.add(g); return g; };
+
+  const bandana = mk();
+  { const m = std(0xe0564a, .85);
+    const tri = new THREE.ConeGeometry(.19, .26, 3);
+    const t = add(tri, m, 0, -.10, .15, bandana); t.rotation.set(Math.PI, 0, 0);
+    const band = add(new THREE.TorusGeometry(.245, .034, 8, 24), m, 0, .02, 0, bandana);
+    band.rotation.x = Math.PI / 2;
+    add(new THREE.SphereGeometry(.042, 10, 8), std(0xc6453b, .85), 0, .02, .235, bandana); }
+  outfitParts.bandana = bandana;
+
+  const bow = mk();
+  { const m = std(0xff6fa5, .6);
+    for (const sx of [-1, 1]) {
+      const loop = add(new THREE.SphereGeometry(.072, 14, 10), m, sx * .075, 0, 0, bow);
+      loop.scale.set(1, .72, .5); }
+    add(new THREE.SphereGeometry(.036, 12, 10), std(0xe2528c, .6), 0, 0, 0, bow); }
+  outfitParts.bow = bow;
+
+  const hat = mk();
+  { const cone = add(new THREE.ConeGeometry(.095, .24, 18), std(0x4ec3c9, .6), 0, .12, 0, hat);
+    for (let i = 0; i < 3; i++)
+      add(new THREE.TorusGeometry(.065 - i * .018, .011, 6, 18), std(0xffd166, .55), 0, .055 + i * .07, 0, hat).rotation.x = Math.PI / 2;
+    add(new THREE.SphereGeometry(.042, 12, 10), std(0xfff3c4, .5), 0, .25, 0, hat); }
+  outfitParts.hat = hat;
+
+  const sweater = mk();
+  { const m = std(0x6c78c9, .92);
+    const body = add(new THREE.CylinderGeometry(.212, .222, .44, 20, 1, true), m, 0, 0, 0, sweater);
+    body.rotation.x = Math.PI / 2;
+    for (const z of [-.21, .21]) add(new THREE.TorusGeometry(.216, .028, 8, 22), std(0x4d57a0, .9), 0, 0, z, sweater).rotation.x = Math.PI / 2;
+    for (let i = 0; i < 5; i++) add(new THREE.TorusGeometry(.219, .012, 6, 22), std(0x8691e0, .9), 0, 0, -.14 + i * .07, sweater).rotation.x = Math.PI / 2; }
+  outfitParts.sweater = sweater;
+
+  const scarf = mk();
+  { const m = std(0xf4b445, .9), m2 = std(0xd8912c, .9);
+    const band = add(new THREE.TorusGeometry(.248, .05, 10, 26), m, 0, 0, 0, scarf);
+    band.rotation.x = Math.PI / 2;
+    for (let i = 0; i < 4; i++)
+      add(new THREE.BoxGeometry(.12, .08, .05), i % 2 ? m2 : m, .04, -.09 - i * .075, .20, scarf).rotation.z = .12 * (i % 2 ? 1 : -1); }
+  outfitParts.scarf = scarf;
+}
+
+/* Keep whatever she's wearing glued to the right part of her. */
+function updateOutfit(name) {
+  for (const k in outfitParts) outfitParts[k].visible = (k === name);
+  const g = outfitParts[name];
+  if (!g) return;
+  const fwd = new V3(Math.sin(dog.yaw), 0, Math.cos(dog.yaw));
+  const hp = dog.headPos();
+  if (name === 'bow') {
+    g.position.copy(hp).addScaledVector(fwd, .02); g.position.y += .10;
+    g.rotation.set(0, dog.yaw, .25);
+  } else if (name === 'hat') {
+    g.position.copy(hp).addScaledVector(fwd, .03); g.position.y += .07;
+    g.rotation.set(.12, dog.yaw, 0);
+  } else if (name === 'bandana' || name === 'scarf') {
+    g.position.copy(hp).addScaledVector(fwd, -.08); g.position.y -= .26;
+    g.rotation.set(.22, dog.yaw, 0);
+  } else if (name === 'sweater') {
+    // sit it on the real ribcage rather than guessing an offset
+    const m = dog.m;
+    if (m.chestBone && m.spineBone) {
+      const a = new V3(), b2 = new V3();
+      m.chestBone.getWorldPosition(a); m.spineBone.getWorldPosition(b2);
+      g.position.copy(a).add(b2).multiplyScalar(.5);
+      g.position.y -= .01;
+    } else {
+      g.position.set(dog.pos.x, .47 + dog.lift, dog.pos.z).addScaledVector(fwd, -.17);
+    }
+    g.rotation.set(0, dog.yaw, 0);
+  }
+}
 const AX_X = new THREE.Vector3(1, 0, 0);
 let NECK_BOW = 0.60, HEAD_BOW = 0.70;    // additive feeding bow (radians)
 const DOG_SCALE = 0.92;          // the GLB is 1.12 units tall; this matches the room
@@ -1243,10 +1382,12 @@ function setupDogModel(gltf) {
   const root = gltf.scene;
   root.scale.setScalar(DOG_SCALE);
   scene.add(root);
-  let skinned = null, coat = null, tongue = null, headBone = null, neckBone = null;
+  let skinned = null, coat = null, tongue = null, headBone = null, neckBone = null, chestBone = null, spineBone = null;
   root.traverse(o => {
     if (o.isBone && o.name === 'head') headBone = o;
     if (o.isBone && o.name === 'neck') neckBone = o;
+    if (o.isBone && o.name === 'chest') chestBone = o;
+    if (o.isBone && o.name === 'spine') spineBone = o;
     if (!o.isMesh) return;
     o.frustumCulled = false;                       // skinned bounds are unreliable
     if (o.morphTargetDictionary) skinned = o;
@@ -1267,8 +1408,63 @@ function setupDogModel(gltf) {
     new THREE.MeshBasicMaterial({ map: TEX.blob, transparent: true, depthWrite: false }));
   shadow.rotation.x = -Math.PI / 2; shadow.position.y = .014; shadow.scale.set(1, 1.25, 1);
   scene.add(shadow);
-  return { root, skinned, coat, tongue, headBone, neckBone, shadow,
+  return { root, skinned, coat, tongue, headBone, neckBone, chestBone, spineBone, shadow,
            coatBase: coat ? coat.color.clone() : new THREE.Color(0xffffff) };
+}
+
+/* What CeCe has to say about her needs. Kept short so they fit the bubble. */
+const SAYS = {
+  bladder:     ["DOOR. DOOR. DOOOOOR.", "I'm doing the dance. You know the dance.", "This is an emergency and I am being very brave.", "Outside. OUTSIDE. Please."],
+  hunger:      ["My belly is making dinosaur noises.", "I have not eaten in FOREVER. (20 minutes.)", "Feed me or I start on the couch.", "Snack. Then dinner. Then snack."],
+  thirst:      ["My tongue is a raisin.", "Water. Cold. Now. Please. Thanks.", "I am 90% thirsty and 10% dog."],
+  wetPaws:     ["MY PAWS ARE WET. THIS IS A CRISIS.", "Wet paws. Worst day of my life.", "I have been betrayed by the grass."],
+  breath:      ["My breath could melt a candle.", "I burped and scared myself.", "Do not smell me. I'm serious."],
+  cleanliness: ["I smell like a gym sock.", "There are crumbs in places I cannot reach.", "I rolled in something. No regrets."],
+  affection:   ["Nobody has pet me in four whole minutes.", "Love me. I am RIGHT HERE.", "I accept all pets. Any pets."],
+  playfulness: ["My sheep is lonely.", "SHEEP. SHEEP? SHEEP!!", "I have so much zoom and nowhere to put it."],
+  energy:      ["My batteries are at two percent.", "Just gonna close my eyes for one sec\u2014", "I'm going to lie down very dramatically."],
+  health:      ["I do not feel so good.", "My everything hurts."],
+  happy:       ["Best day. Ten out of ten.", "I love you. Also is that food?", "tuff tuff!", "I am a very good girl and I know it."]
+};
+/* What she says back when you do something. */
+const SAYS_ACT = {
+  feed_warm: "WARM FOOD. You're my favourite.", feed_cold: "It's cold. I'll allow it.",
+  feed_kibble: "That's not food. That's gravel.",
+  water_cold: "Ice cubes! I'm fancy.", water_tap: "This water is... fine. I guess.",
+  potty_patio: "Dry feet. Excellent choice.", potty_grass: "Made it! Barely.",
+  groom_brush: "I am FLUFFY.", groom_towel: "Dry paws. You saved me.",
+  mint: "Minty! A whole new dog.", cuddle: "*tuff tuff*",
+  play_sheep: "MY SHEEP.", play_chase: "ZOOOOOM", rest: "Night night.",
+  clean: "Sorry about that. Love you."
+};
+
+/* Mini CeCe faces for the difficulty buttons: angel, normal and devil. */
+const DIFF_FACE = { easy: 'angel', medium: 'normal', hard: 'devil' };
+const CECE_FACE_PATH = 'M32.0 16.0A6.1 6.1 0 0 1 42.0 19.1A5.9 5.9 0 0 1 48.2 27.1A5.7 5.7 0 0 1 48.2 36.9A5.9 5.9 0 0 1 42.0 44.9A6.1 6.1 0 0 1 32.0 48.0A6.1 6.1 0 0 1 22.0 44.9A5.9 5.9 0 0 1 15.8 36.9A5.7 5.7 0 0 1 15.8 27.1A5.9 5.9 0 0 1 22.0 19.1A6.1 6.1 0 0 1 32.0 16.0Z';
+function ceceFace(kind) {
+  const halo = kind === 'angel'
+    ? '<ellipse cx="32" cy="7" rx="11" ry="3.6" fill="none" stroke="#f0b63c" stroke-width="2.8"/>' : '';
+  const horns = kind === 'devil'
+    ? '<path d="M20 15c-2-5-5-7-7-7 1 4 1 7 3 10zM44 15c2-5 5-7 7-7-1 4-1 7-3 10z" fill="#e0564a" stroke="#9e3a31" stroke-width="2"/>' : '';
+  const wings = kind === 'angel'
+    ? '<path d="M9 36c-5-4-7-10-5-14 4 1 8 5 10 10zM55 36c5-4 7-10 5-14-4 1-8 5-10 10z" fill="#fff" stroke="#d9cdbb" stroke-width="2"/>' : '';
+  const mouth = kind === 'devil'
+    ? '<path d="M32 42.5c-3 3.6-7.6 3-8.8-.6M32 42.5c3 3.6 7.6 3 8.8-.6" />'
+    : '<path d="M32 42.5c-2.8 3.4-7.2 2.9-8.4-.6M32 42.5c2.8 3.4 7.2 2.9 8.4-.6" />';
+  return `<svg class="dface" viewBox="-2 0 68 62" aria-hidden="true">
+    <g stroke="#3a2f2a" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+      ${wings}${horns}
+      <path d="M15 24c-7-3-12 2-11 10 1 8 6 13 11 11z" fill="#eedfc2"/>
+      <path d="M49 24c7-3 12 2 11 10-1 8-6 13-11 11z" fill="#eedfc2"/>
+      <path d="${CECE_FACE_PATH}" fill="#fffaf2"/>
+      <circle cx="25" cy="30" r="3.6" fill="#3a2f2a" stroke="none"/>
+      <circle cx="39" cy="30" r="3.6" fill="#3a2f2a" stroke="none"/>
+      <circle cx="26.4" cy="28.6" r="1.3" fill="#fff" stroke="none"/>
+      <circle cx="40.4" cy="28.6" r="1.3" fill="#fff" stroke="none"/>
+      <path d="M28 37c0-2 8-2 8 0 0 2.6-2.8 4.6-4 4.6s-4-2-4-4.6z" fill="#3a2f2a" stroke="none"/>
+      <g fill="none" stroke-width="2.1">${mouth}</g>
+      ${halo}
+    </g></svg>`;
 }
 
 /* Which baked clip plays for each sustained mode. */
@@ -1344,6 +1540,8 @@ function buildSeq(kind, P = {}) {
     case 'crate': return [{ walk: S.crateFront, speed: 2.3, rush: 1 }, { face: S.crateIn },
       { walk: S.crateIn, speed: 1.3, rush: 1 }, { face: S.crateFront }, { react: 'happy' },
       { mode: 'lie', dur: Infinity }];
+    case 'clean': return [{ walk: [S.front[0] - .55, S.front[1] + .35], speed: 1.4 }, { face: CAM },
+      { mode: 'sit', dur: 1.5 }, { react: P.react || 'happy' }];
     case 'zoomies': return [{ react: 'stretch' }, ...ZOOM_PATH.map(w => ({ walk: w, speed: 2.8 })), { face: CAM }, { react: 'happy' }];
     case 'bedlounge': return [{ walk: S.bed, speed: 1 }, { face: CAM }, { mode: 'lie', dur: P.dur || 6 }];
     case 'wetpaws': return [{ face: CAM }, { react: 'pawshake' }, { mode: 'sit', dur: 1.5 }, { react: 'pawshake' }, { mode: 'sit', dur: Infinity }];
@@ -1502,6 +1700,15 @@ class Dog {
       else if (this.mode === 'cuddle') { emitP(TEX.heart, this.headPos(), 1, { size: .15 }); this.fxT = .6; }
       else if (this.mode === 'groom') { emitP(TEX.spark, this.pos.clone().add(new V3(0, .75, 0)), 2, { size: .08, spread: .3, vy: .4 }); this.fxT = .4; }
     }
+    // ambient vocalising — the kids wanted her noisier
+    this.vocT = (this.vocT || rnd(3, 7)) - dt;
+    if (this.vocT <= 0 && !this.react) {
+      if (this.mode === 'sleep') { Snd.play('snore'); this.vocT = rnd(5, 9); }
+      else if (this.mode === 'play' || this.speedNow > 1.9) { Snd.play('pant'); this.vocT = rnd(5, 9); }
+      else if (N.happiness > 70 && N.energy > 40) { Snd.play(pick(['yip', 'boof'])); this.vocT = rnd(9, 16); }
+      else if (N.happiness < 35) { Snd.play('whine'); this.vocT = rnd(7, 12); }
+      else this.vocT = rnd(6, 11);
+    }
     this.stinkT = (this.stinkT || 0) - dt;
     if (N.breath < 30 && this.mode !== 'sleep' && this.stinkT <= 0) { this.stinkT = rnd(2.5, 4.5); const mp = this.muzzlePos(); emitP(TEX.stink, mp, 1, { size: .14, vy: .3, spread: .03, life: 1.6 }); }
     if (V && V.wetPaws && this.moving && this.pos.z > -4) { this.printT = (this.printT || 0) - dt; if (this.printT <= 0) { this.printT = .2; this.side = -(this.side || 1); addPrint(this.pos.x + Math.cos(this.yaw) * .1 * this.side, this.pos.z - Math.sin(this.yaw) * .1 * this.side); } }
@@ -1593,6 +1800,7 @@ class Dog {
 }
 /* CeCe is a real glTF character, so the game waits for her before starting.
    The .glb sits next to index.html — keep the two files together. */
+buildOutfits();
 const dog = await (async () => {
   const txt = document.getElementById('loadTxt'), sub = document.getElementById('loadSub');
   try {
@@ -1806,6 +2014,7 @@ function hostOnMsg(m) {
       break;
     case 'act': if (G && ACTIONS[m.a] && m.a !== 'check') doAction(1, m.a, m.opt); break;
     case 'pause': if (G) setPause(!!m.on, 'manual'); break;
+    case 'outfit': if (G && OUTFITS.includes(m.o)) { G.outfit = m.o; Net.send({ t: 's', s: snapshot() }); } break;
   }
 }
 function lobbyUpdate() {
@@ -1951,6 +2160,10 @@ function handleEvent(ev) {
     case 'act': {
       if (ev.a === 'cuddle') { dog.lickFor = ev.p; dog.lickStinky = !!ev.seq.params.stinky; }
       dog.run(ev.seq.kind, ev.seq.params);
+      // she answers back
+      const line = SAYS_ACT[ev.a + '_' + (ev.seq.params.opt || '')] || SAYS_ACT[ev.a];
+      if (line && ev.tone !== 'bad') setTimeout(() => Bubble.show(line, { ms: 2600 }), 900);
+      else if (ev.tone === 'bad') setTimeout(() => Bubble.show(pick(["Nope.", "Absolutely not.", "I refuse."]), { ms: 2200 }), 700);
       const verb = ACTIONS[ev.a].past.replace('{d}', nm);
       toast(`<span class="pts ${ev.pts >= 0 ? 'pos' : 'neg'}">${ev.pts >= 0 ? '+' : ''}${ev.pts}</span><b style="color:var(--p${ev.p + 1})">${seatName(ev.p)}</b> ${verb}<small>${esc(ev.msg)}</small>`, `var(--p${ev.p + 1})`);
       bumpScore(ev.p);
@@ -1960,16 +2173,19 @@ function handleEvent(ev) {
     case 'deny': if (ev.p === App.seat || App.role === 'local') toast(esc(ev.msg), '#c9b8a8'); break;
     case 'auto': dog.run(ev.seq.kind, ev.seq.params); break;
     case 'nag': dog.run(ev.seq.kind, ev.seq.params);
+      if (SAYS[ev.need]) Bubble.show(pick(SAYS[ev.need]), { ms: 3400, urgent: true });
       toast(`${nm} is ${ev.seq.params.react === 'bark' ? 'barking' : 'whining'}. ${{ hunger: 'Their tummy is rumbling.', thirst: 'They seem thirsty.', bladder: 'They really need to go out.', affection: 'They want attention.', playfulness: 'They are bored.' }[ev.need] || ''}`, 'var(--accent)'); break;
     case 'sleep': dog.run('sleep'); break;
     case 'wake': dog.run('wakeup'); break;
     case 'accident': dog.run('accident', { pos: ev.pos });
+      Bubble.show(pick(["Uh oh.", "That was not the plan.", "I couldn't hold it!"]), { ms: 3200, urgent: true });
       toast(`<span class="pts neg">−15</span><b>Accident!</b> ${nm} couldn't wait<small>Both players lose 15 points</small>`, 'var(--bad)'); bumpScore(0); bumpScore(1); vib([60, 40, 60]); break;
     case 'neglect': toast(`<span class="pts neg">${ev.pts}</span><b>Neglect</b> ${nm} is ${esc(ev.why)}<small>Both players are losing points every game hour</small>`, 'var(--bad)'); bumpScore(0); bumpScore(1); break;
     case 'discover': toast(`<span class="pts pos">${ev.p != null ? '+5' : ''}</span><b>Personality discovered:</b> ${esc(ev.text)}<small>${ev.p != null ? seatName(ev.p) + ' figured it out' : 'Revealed by ' + nm + "'s behavior"}</small>`, '#b07cc6'); Snd.play('bonus'); if (ev.p != null) bumpScore(ev.p); break;
     case 'half': toast(`<b>Halfway through the day</b><small>${ev.lead < 0 ? 'Dead even so far' : seatName(ev.lead) + ' is ahead'}</small>`, 'var(--accent)'); Snd.play('chime'); break;
     case 'pause': break;
     case 'weather': toast(ev.rain ? `<b>It's raining.</b> The grass is getting wet<small>${nm} hates wet paws. Use the covered patio.</small>` : `<b>The rain stopped</b><small>The grass will stay wet for a while</small>`, '#3d86c6'); break;
+    case 'cleaned': if (puddles.length) { scene.remove(puddles[0].m); puddles.shift(); } Snd.play('slosh'); break;
     case 'dry': toast(`${nm}'s paws finally dried on their own`, '#c9b8a8'); break;
     case 'end': {
       V = ev.final;
@@ -1995,6 +2211,53 @@ function faceLick(stinky) {
   el.classList.toggle('stinky', !!stinky); $('lickTxt').textContent = stinky ? 'Phew! Bad breath!' : 'Slurp!';
   el.classList.add('on'); vib(30); clearTimeout(faceLick.t); faceLick.t = setTimeout(() => el.classList.remove('on'), 1600);
 }
+const Bubble = {
+  el: null, txt: null, until: 0, cool: 0, lastKey: '',
+  show(text, { ms = 3000, urgent = false, quiet = false } = {}) {
+    this.el = this.el || $('bubble'); this.txt = this.txt || $('bubbleTxt');
+    this.txt.textContent = text;
+    this.el.classList.toggle('urgent', urgent);
+    this.el.classList.add('on');
+    this.until = performance.now() + ms;
+    if (!quiet) Snd.play(urgent ? 'whine' : pick(['yip', 'boof', 'yip']));
+  },
+  hide() { if (this.el) this.el.classList.remove('on'); this.until = 0; },
+  /* Follow her head in screen space. */
+  place() {
+    if (!this.el || !this.until) return;
+    const p = dog.headPos(); p.y += .20;
+    p.project(camera);
+    if (p.z > 1) { this.el.style.visibility = 'hidden'; return; }   // behind the camera
+    this.el.style.visibility = '';
+    const x = (p.x * .5 + .5) * innerWidth, y = (-p.y * .5 + .5) * innerHeight;
+    this.el.style.left = clamp(x, 110, innerWidth - 110) + 'px';
+    this.el.style.top = Math.max(96, y) + 'px';
+  },
+  update(dt, N) {
+    if (App.screen !== 'game' || !V) { this.hide(); return; }
+    if (this.until && performance.now() > this.until) this.hide();
+    this.place();
+    this.cool -= dt;
+    if (this.cool > 0 || this.until || V.paused || V.over) return;
+    // most pressing need first, so the funny line matches what she actually wants
+    const urgent = [
+      ['wetPaws', V.wetPaws, 1], ['bladder', N.bladder > 76, 1], ['hunger', N.hunger > 72, 1],
+      ['thirst', N.thirst > 72, 1], ['energy', N.energy < 22 && !V.sleeping, 0],
+      ['health', N.health < 35, 1], ['breath', N.breath < 28, 0],
+      ['cleanliness', N.cleanliness < 38, 0], ['affection', N.affection < 24, 0],
+      ['playfulness', N.playfulness < 22, 0]
+    ].find(r => r[1]);
+    if (urgent) {
+      if (V.sleeping && urgent[0] !== 'bladder') return;
+      this.show(pick(SAYS[urgent[0]]), { ms: 3400, urgent: !!urgent[2] });
+      this.cool = rnd(7, 12);
+    } else if (N.happiness > 78 && !V.sleeping && Math.random() < .5) {
+      this.show(pick(SAYS.happy), { ms: 2800 });
+      this.cool = rnd(14, 22);
+    } else this.cool = rnd(4, 7);
+  }
+};
+
 function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) { } }
 
 /* =====================================================================
@@ -2109,6 +2372,7 @@ function updateHUD(dt) {
     b.style.setProperty('--cd', cd ? rem / cd : 0); b.classList.toggle('cool', rem > 0);
     b.querySelector('.cdt').textContent = rem > 0 ? fmtDur(rem) : '';
     b.classList.toggle('busy', dog.isAction && a !== 'check');
+    if (a === 'clean') b.classList.toggle('alert', (V.mess || 0) > 0 && rem <= 0);
   });
   $('caption').textContent = describe();
   if (V.paused) showBanner('pause', V.pauseWhy === 'p2left' ? `Paused: waiting for ${V.players[1].name} to reconnect` : V.pauseWhy === 'hidden' ? 'Paused: the host left the app' : 'Game paused');
@@ -2170,7 +2434,11 @@ function showResults(F) {
   })();
   const pers = F.pers ? Object.entries(TRAITS).map(([k, T]) => { const v = F.pers[k]; const txt = v > .62 ? T.hi : v < .38 ? T.lo : T.mid; return `<div class="trait found"><span>${T.name}</span><b>${txt}</b></div>`; }).join('') : '';
   const canRestart = App.role !== 'guest';
+  const tuff = w < 0
+    ? `${esc(F.dogName)} says: <b>tuff tuff</b> to both of you!`
+    : `<b>tuff tuff</b>, ${esc(F.players[w].name)}!`;
   $('resPanel').innerHTML = `<div class="winner"><h2>${title}</h2><p class="verdict">${verdict}</p><p>${esc(F.dogName)} ${grade}.</p></div>
+    <div class="tuff">${ceceFace('normal')}<span class="say">${tuff}</span></div>
     <div class="finals">${card(a, 0)}${card(b, 1)}</div>
     <div class="note">${DIFFS[F.diff] ? DIFFS[F.diff].name : 'Medium'} · Accidents: ${F.accidents} · Final health ${Math.round(N.health)} · Happiness ${Math.round(N.happiness)}</div>
     ${chart}
@@ -2178,6 +2446,7 @@ function showResults(F) {
     ${canRestart ? '<button class="btn pri" id="resAgain">Play another day with CeCe</button>' : '<div class="status">The host can start a new game. Stay here to join it.</div>'}
     <button class="btn ghost" id="resQuit">Back to title</button>`;
   show('scrResults');
+  setTimeout(() => { Snd.play('bark'); }, 420);
   if (canRestart) $('resAgain').onclick = restartGame;
   $('resQuit').onclick = quitToTitle;
   Snd.play('bonus'); store.del('rrr_save');
@@ -2242,7 +2511,7 @@ function buildDiff(which, boxId) {
   for (const k of ['easy', 'medium', 'hard']) {
     const D = DIFFS[k], b = document.createElement('button');
     b.type = 'button'; b.className = 'dbtn'; b.dataset.k = k;
-    b.innerHTML = `${D.name}<small>${D.mins} min</small>`;
+    b.innerHTML = `${ceceFace(DIFF_FACE[k])}${D.name}<small>${D.mins} min</small>`;
     b.addEventListener('click', () => { diffChoice[which] = k; store.set('rrr_diff', k); paint(); Snd.play('tap'); });
     box.appendChild(b);
   }
@@ -2318,6 +2587,25 @@ $('menuBtn').onclick = () => {
   $('mInfo').textContent = App.role === 'local' ? 'Pass-and-play on this device' : App.role === 'host' ? `Hosting room ${Net.code || ''} · ${Net.link && Net.link.open ? 'connected' : 'not connected'}` : `Joined room ${Net.code || '(direct)'} · ${Net.link && Net.link.open ? 'connected' : 'reconnecting'}`;
   show('scrMenu');
 };
+$('mFit').onclick = () => { buildFitList(); show('scrFit'); };
+$('fitClose').onclick = () => { if (App.screen === 'game') hideScreens(); else show('scrMenu'); };
+const FIT_SWATCH = { none: 'transparent', bandana: '#e0564a', bow: '#ff6fa5', hat: '#4ec3c9', sweater: '#6c78c9', scarf: '#f4b445' };
+function buildFitList() {
+  const box = $('fitList'); box.innerHTML = '';
+  const cur = (V && V.outfit) || 'none';
+  for (const k of OUTFITS) {
+    const b = document.createElement('button');
+    b.className = 'fit' + (k === cur ? ' sel' : '');
+    b.innerHTML = `<i style="background:${FIT_SWATCH[k]}"></i>${OUTFIT_LABEL[k]}`;
+    b.onclick = () => { setOutfit(k); buildFitList(); Snd.play('tap'); };
+    box.appendChild(b);
+  }
+}
+function setOutfit(k) {
+  if (App.role === 'guest') Net.send({ t: 'outfit', o: k });
+  else if (G) { G.outfit = k; if (App.role === 'host') Net.send({ t: 's', s: snapshot() }); }
+  if (V) V.outfit = k;
+}
 $('mResume').onclick = hideScreens;
 $('mPause').onclick = () => {
   const on = !(V.paused && V.pauseWhy === 'manual');
@@ -2355,12 +2643,14 @@ function frame(now) {
   dog.update(dt, N);
   updateWorld(dt, V && inGame ? V.t : 11 * 60);
   updateParticles(dt);
+  updateOutfit(V && V.outfit ? V.outfit : 'none');
   updateCamera(dt);
   if (App.screen === 'game') updateHUD(dt);
+  if (inGame) Bubble.update(dt, N);
   renderer.render(scene, camera);
 }
 requestAnimationFrame(frame);
-window.__mm = { get G() { return G; }, dog, App, doAction, tickSim }; // handy for debugging in the console
+window.__mm = { get G() { return G; }, dog, App, doAction, tickSim, Bubble }; // handy for debugging in the console
 </script>
 </body>
 </html>
