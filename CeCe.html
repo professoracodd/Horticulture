@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#fbf3ea">
-<meta name="description" content="Rabie Ruff Ruff: a two-player game about taking care of CeCe, a fluffy white Maltipoo.">
+<meta name="description" content="Rabie Ruff Ruff: a fast two-player game about taking care of CeCe, a fluffy white Maltipoo, for one busy day.">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <title>Rabie Ruff Ruff</title>
@@ -115,6 +115,14 @@ textarea.inp{font-size:12px;height:88px;resize:none;font-family:ui-monospace,Men
   .toasts{align-items:flex-end}.toast{max-width:340px}
 }
 
+.diffs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px}
+.dbtn{border:2px solid var(--line);background:#fff;border-radius:16px;padding:10px 4px 9px;cursor:pointer;font:800 15px Nunito,sans-serif;color:var(--ink);transition:transform .08s}
+.dbtn small{display:block;font-weight:700;font-size:11.5px;color:var(--muted);margin-top:2px}
+.dbtn:active{transform:scale(.96)}
+.dbtn.sel{border-color:var(--p1);background:#fff4f1;color:var(--p1)}
+.dbtn.sel small{color:var(--p1)}
+.dblurb{margin-top:8px;font-size:13.5px;font-weight:600;color:#5d4c43;text-align:center;min-height:34px}
+.winner .verdict{font:800 18px 'Baloo 2',sans-serif;color:var(--ink);margin-top:6px}
 /* ---------- option picker ---------- */
 #scrPick{align-items:flex-end}
 #scrPick .panel{border-radius:26px;margin-bottom:6px}
@@ -179,7 +187,7 @@ textarea.inp{font-size:12px;height:88px;resize:none;font-family:ui-monospace,Men
 <div id="hud">
   <div class="topbar">
     <div class="chip clockbox">
-      <div class="day" id="dayLbl">Day 1 / 30</div>
+      <div class="day" id="dayLbl">5:00</div>
       <div class="time"><span id="sunIcon"></span><span id="timeLbl">8:00 AM</span><span class="wx" id="wxLbl"></span></div>
       <div class="dayprog"><i id="dayBar"></i></div>
     </div>
@@ -199,11 +207,16 @@ textarea.inp{font-size:12px;height:88px;resize:none;font-family:ui-monospace,Men
 </div>
 
 <!-- =================== TITLE =================== -->
-<div class="screen on" id="scrTitle"><div class="panel">
+<div class="screen on" id="scrLoad"><div class="panel" style="text-align:center">
+  <h2 id="loadTxt">Waking CeCe up…</h2>
+  <div class="note" id="loadSub">Loading her model</div>
+</div></div>
+
+<div class="screen" id="scrTitle"><div class="panel">
   <div class="logo">
     <svg class="pupmark" viewBox="0 0 100 100"><circle cx="50" cy="54" r="34" fill="#fff" stroke="#ecdccb" stroke-width="3"/><ellipse cx="21" cy="58" rx="12" ry="20" fill="#f6eadb"/><ellipse cx="79" cy="58" rx="12" ry="20" fill="#f6eadb"/><circle cx="38" cy="50" r="6.5" fill="#1b120e"/><circle cx="62" cy="50" r="6.5" fill="#1b120e"/><circle cx="40" cy="48" r="2" fill="#fff"/><circle cx="64" cy="48" r="2" fill="#fff"/><ellipse cx="50" cy="66" rx="13" ry="10" fill="#fffaf3" stroke="#f0e2d2" stroke-width="2"/><ellipse cx="50" cy="61" rx="5" ry="3.8" fill="#1b120e"/><path d="M44 72q6 5 12 0" stroke="#4a2626" stroke-width="2.4" fill="none" stroke-linecap="round"/><circle cx="50" cy="22" r="10" fill="#fff" stroke="#ecdccb" stroke-width="2"/><path d="M30 84q20 9 40 0" stroke="#ff7fa6" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M50 99l-8-7.5a5 5 0 0 1 8-5.6 5 5 0 0 1 8 5.6z" fill="#ff6f91" stroke="#fff" stroke-width="1.5"/></svg>
     <h1><span>Rabie</span> <em>Ruff Ruff</em></h1>
-    <p>Take care of CeCe. Beat your rival. Thirty days.</p>
+    <p>One dog. Two rivals. One busy day.</p>
   </div>
   <label class="f" for="nameIn">Your name</label>
   <input class="inp" id="nameIn" maxlength="14" placeholder="Your name" autocomplete="off">
@@ -212,7 +225,7 @@ textarea.inp{font-size:12px;height:88px;resize:none;font-family:ui-monospace,Men
   <button class="btn" id="btnLocal">Pass-and-play on one device</button>
   <button class="btn" id="btnResume" style="display:none">Resume saved game</button>
   <button class="btn ghost" id="btnHelp">How to play</button>
-  <div class="note">Best with two devices: each player uses their own phone or tablet.</div>
+  <div class="note">One day with CeCe, 3 to 5 minutes. Best with two devices: each player uses their own phone or tablet.</div>
 </div></div>
 
 <!-- =================== HOST LOBBY =================== -->
@@ -222,8 +235,8 @@ textarea.inp{font-size:12px;height:88px;resize:none;font-family:ui-monospace,Men
   <div class="code" id="hostCode">· · · · ·</div>
   <div class="row"><button class="btn" id="hostCopy">Copy invite link</button><button class="btn" id="hostShare">Share</button></div>
   <div class="status" id="hostStatus"><span class="spinner"></span>Opening room…</div>
-  <label class="f" for="hostLen">Length of one game day</label>
-  <select class="inp" id="hostLen"><option value="2">2 minutes (1 hour total)</option><option value="3">3 minutes (1.5 hours total)</option><option value="4" selected>4 minutes (2 hours total)</option><option value="5">5 minutes (2.5 hours total)</option></select>
+  <label class="f">Difficulty</label>
+  <div class="diffs" id="hostDiff"></div>
   <button class="btn pri" id="hostStart" disabled>Waiting for Player 2…</button>
   <button class="btn ghost" id="hostManual">Trouble connecting? Use direct codes</button>
   <button class="btn ghost" id="hostBack">Back</button>
@@ -269,8 +282,8 @@ textarea.inp{font-size:12px;height:88px;resize:none;font-family:ui-monospace,Men
   <h2 style="text-align:center">Pass-and-play</h2>
   <p class="hint" style="text-align:center">Both players share this device. Use the <b>Acting</b> switch above the buttons to choose who takes each action.</p>
   <div class="row"><div><label class="f" for="lp1">Player 1</label><input class="inp" id="lp1" maxlength="14" autocomplete="off"></div><div><label class="f" for="lp2">Player 2</label><input class="inp" id="lp2" maxlength="14" autocomplete="off" value="Player 2"></div></div>
-  <label class="f" for="localLen">Length of one game day</label>
-  <select class="inp" id="localLen"><option value="2">2 minutes (1 hour total)</option><option value="3">3 minutes (1.5 hours total)</option><option value="4" selected>4 minutes (2 hours total)</option><option value="5">5 minutes (2.5 hours total)</option></select>
+  <label class="f">Difficulty</label>
+  <div class="diffs" id="localDiff"></div>
   <button class="btn pri" id="localStart">Start</button>
   <button class="btn ghost" id="localBack">Back</button>
 </div></div>
@@ -278,7 +291,13 @@ textarea.inp{font-size:12px;height:88px;resize:none;font-family:ui-monospace,Men
 <!-- =================== HELP =================== -->
 <div class="screen overlay" id="scrHelp"><div class="panel help">
   <h2>How to play</h2>
-  <p>You and your rival share CeCe, a white fluffy Maltipoo, for a 30-day month (each day lasts a few real minutes). Every good decision earns <b>you</b> points. Highest score after Day 30 wins.</p>
+  <p>You and your rival share CeCe, a white fluffy Maltipoo, for <b>one day</b>: 7am to 10pm, squeezed into a few real minutes. Every good decision earns <b>you</b> points. When the clock runs out, the highest score wins.</p>
+  <h3>Pick your difficulty</h3>
+  <ul>
+    <li><b>Easy</b> &mdash; 5 minutes. CeCe is patient and her needs arrive one at a time.</li>
+    <li><b>Medium</b> &mdash; 4 minutes. Needs overlap and there is a real race for points.</li>
+    <li><b>Hard</b> &mdash; 3 minutes. Everything at once, and she loses patience fast.</li>
+  </ul>
   <h3>Get to know CeCe</h3>
   <ul>
     <li>She loves <b>soft fresh food</b>, warmed in the microwave for <b>30 seconds</b>. She won't eat kibble.</li>
@@ -294,7 +313,7 @@ textarea.inp{font-size:12px;height:88px;resize:none;font-family:ui-monospace,Men
   <ul>
     <li>Meeting a real need the way CeCe likes it earns full points. Doing it wrong or when it isn't needed earns little or costs points.</li>
     <li>Responding to a critical need earns a <b>rescue bonus</b>.</li>
-    <li>Each action has a personal cooldown, and CeCe can only do one thing at a time. Beat your rival to the right action.</li>
+    <li>Each action has a personal cooldown (shown in game time), and CeCe can only do one thing at a time. Beat your rival to the right action.</li>
     <li>Accidents and long neglect cost <b>both</b> players points.</li>
   </ul>
   <h3>Points at a glance</h3>
@@ -347,7 +366,7 @@ textarea.inp{font-size:12px;height:88px;resize:none;font-family:ui-monospace,Men
 
 <script type="module">
 import * as THREE from 'three';
-import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 /* =====================================================================
    UTILITIES
@@ -373,18 +392,24 @@ function fmtDur(min) { min = Math.max(0, Math.ceil(min)); const h = Math.floor(m
 /* =====================================================================
    GAME CONSTANTS
    ===================================================================== */
-const DAYS = 30, DAY_MIN = 1440, START_T = 8 * 60, END_T = DAYS * DAY_MIN;
+const DAY_MIN = 1440, START_T = 7 * 60, END_T = 22 * 60, SPAN = END_T - START_T;   // one day: 7am to 10pm
+/* Difficulty sets how long the real-time day lasts and how fast CeCe's needs run down. */
+const DIFFS = {
+  easy:   { name: 'Easy',   mins: 5, rate: .85, patience: 1.45, blurb: 'A gentle day. CeCe waits patiently and her needs come one at a time.' },
+  medium: { name: 'Medium', mins: 4, rate: 1.0, patience: 1,    blurb: 'A normal busy day. Needs overlap and there is a real race for points.' },
+  hard:   { name: 'Hard',   mins: 3, rate: 1.3, patience: .6,   blurb: 'A hectic day. CeCe needs everything at once and loses patience fast.' }
+};
 // cd = personal cooldown in GAME minutes
 const DOG = 'CeCe';
 const ACTIONS = {
-  feed: { label: 'Feed', cd: 150, color: '#e9825f', past: 'fed {d}' },
-  water: { label: 'Water', cd: 75, color: '#3d9fd6', past: 'gave {d} water' },
-  potty: { label: 'Potty', cd: 75, color: '#6aa84f', past: 'took {d} out' },
-  groom: { label: 'Groom', cd: 120, color: '#b07cc6', past: 'groomed {d}' },
-  mint: { label: 'Mint', cd: 120, color: '#22a88f', past: 'gave {d} a breath mint' },
-  cuddle: { label: 'Cuddle', cd: 50, color: '#f0607e', past: 'cuddled {d}' },
-  play: { label: 'Play', cd: 100, color: '#e8a427', past: 'played with {d}' },
-  rest: { label: 'Rest', cd: 150, color: '#6c78c9', past: 'tucked {d} into bed' },
+  feed: { label: 'Feed', cd: 110, color: '#e9825f', past: 'fed {d}' },
+  water: { label: 'Water', cd: 55, color: '#3d9fd6', past: 'gave {d} water' },
+  potty: { label: 'Potty', cd: 55, color: '#6aa84f', past: 'took {d} out' },
+  groom: { label: 'Groom', cd: 90, color: '#b07cc6', past: 'groomed {d}' },
+  mint: { label: 'Mint', cd: 90, color: '#22a88f', past: 'gave {d} a breath mint' },
+  cuddle: { label: 'Cuddle', cd: 40, color: '#f0607e', past: 'cuddled {d}' },
+  play: { label: 'Play', cd: 75, color: '#e8a427', past: 'played with {d}' },
+  rest: { label: 'Rest', cd: 120, color: '#6c78c9', past: 'tucked {d} into bed' },
   check: { label: 'Check', cd: 0, color: '#8d7d72', past: 'checked on {d}' }
 };
 /* Choices shown when an action has more than one way to do it. CeCe's preferences decide which earns points. */
@@ -434,19 +459,21 @@ const ACTION_SEQS = new Set(['feed', 'water', 'potty', 'groom', 'mint', 'cuddle'
 /* =====================================================================
    SIMULATION (authoritative copy runs on the host / local device only)
    ===================================================================== */
-function newGame({ dogName, dayLen, names }) {
+function newGame({ dogName, diff, names }) {
+  const D = DIFFS[diff] || DIFFS.medium;
   const r = (a = .08, b = .95) => Math.round(rnd(a, b) * 100) / 100;
   const mk = name => ({ name, score: 0, pts: { care: 0, bonus: 0, penalty: 0 }, counts: {}, cd: {} });
   return {
-    v: 1, dogName, dayLen, t: START_T, paused: false, pauseWhy: '', over: false,
+    v: 2, dogName, diff: DIFFS[diff] ? diff : 'medium', mins: D.mins, rate: D.rate, patMul: D.patience,
+    t: START_T, paused: false, pauseWhy: '', over: false,
     needs: { hunger: 30, thirst: 25, bladder: 30, happiness: 72, cleanliness: 88, energy: 82, health: 95, affection: 55, playfulness: 55, breath: 85 },
     // CeCe's known nature biases her hidden traits: loves face licks (affectionate), runs around the house (energetic), hates being dirty (grooming)
     pers: { affectionate: r(.5, .95), playful: r(.35, .95), foodMotivated: r(), energetic: r(.45, .95), patience: r(), groomTolerance: r(.45, .95) },
-    wetPaws: false, wetPawsAt: 0, rain: false, wxNext: START_T + rnd(180, 600), wetUntil: -1,
+    wetPaws: false, wetPawsAt: 0, rain: false, wxNext: START_T + rnd(90, 260), wetUntil: -1, halfway: false,
     evidence: { affectionate: 0, playful: 0, foodMotivated: 0, energetic: 0, patience: 0, groomTolerance: 0 },
     discovered: {}, sleeping: false, lastMeal: -999, lastDrink: -999, neglectAcc: 0,
     alertSince: {}, lastNag: -999, accidents: 0, players: [mk(names[0]), mk(names[1])],
-    hist: [], dayAcc: { n: 0, health: 0, happiness: 0 }
+    hist: [], nextSample: START_T
   };
 }
 let G = null;      // authoritative state (host/local)
@@ -475,35 +502,35 @@ function criticalList(N, sleeping) {
 
 function tickSim(dtReal) {
   if (!G || G.paused || G.over) return;
-  const simMin = dtReal * DAY_MIN / (G.dayLen * 60);
-  const prevDay = Math.floor(G.t / DAY_MIN);
+  const simMin = dtReal * SPAN / (G.mins * 60);
   G.t += simMin;
   const h = simMin / 60, N = G.needs, P = G.pers;
   const night = isNight(G.t), hr = hourOf(G.t);
   const sl = G.sleeping ? 0.45 : 1;
 
-  N.hunger += h * 4.3 * (0.9 + 0.25 * P.foodMotivated) * sl;
-  N.thirst += h * 5.6 * sl;
-  N.bladder += h * 6.2 * (G.sleeping ? 0.45 : 1);
-  N.cleanliness -= h * 1.7;
-  N.affection -= h * (2.5 + 3 * P.affectionate) * sl;
-  N.playfulness -= h * (2 + 3.5 * P.playful) * (G.sleeping ? 0.2 : 1);
-  N.breath -= h * 2.6 * (G.sleeping ? .5 : 1);
-  if (G.wetPaws) { N.happiness -= h * 7; N.cleanliness -= h * 2; if (G.t - G.wetPawsAt > 300) { G.wetPaws = false; emit({ e: 'dry' }); } }
+  const rt = G.rate;
+  N.hunger += h * rt * 16 * (0.9 + 0.25 * P.foodMotivated) * sl;
+  N.thirst += h * rt * 22 * sl;
+  N.bladder += h * rt * 24 * (G.sleeping ? 0.45 : 1);
+  N.cleanliness -= h * rt * 6;
+  N.affection -= h * rt * (9 + 11 * P.affectionate) * sl;
+  N.playfulness -= h * rt * (7 + 12 * P.playful) * (G.sleeping ? 0.2 : 1);
+  N.breath -= h * rt * 11 * (G.sleeping ? .5 : 1);
+  if (G.wetPaws) { N.happiness -= h * 14; N.cleanliness -= h * 5; if (G.t - G.wetPawsAt > 150) { G.wetPaws = false; emit({ e: 'dry' }); } }
   // ---- weather: rain showers soak the yard; morning dew makes the grass wet too ----
   if (G.t >= G.wxNext) {
-    if (!G.rain && Math.random() < .3) { G.rain = true; G.wxNext = G.t + rnd(150, 420); emit({ e: 'weather', rain: true }); }
-    else if (G.rain) { G.rain = false; G.wetUntil = G.t + 180; G.wxNext = G.t + rnd(240, 600); emit({ e: 'weather', rain: false }); }
-    else G.wxNext = G.t + rnd(240, 600);
+    if (!G.rain && Math.random() < .35) { G.rain = true; G.wxNext = G.t + rnd(70, 170); emit({ e: 'weather', rain: true }); }
+    else if (G.rain) { G.rain = false; G.wetUntil = G.t + 80; G.wxNext = G.t + rnd(110, 260); emit({ e: 'weather', rain: false }); }
+    else G.wxNext = G.t + rnd(110, 260);
   }
-  if (G.sleeping) N.energy += h * 15; else N.energy -= h * (6 - 2.4 * P.energetic) * (night ? 1.4 : 1);
+  if (G.sleeping) N.energy += h * 30; else N.energy -= h * rt * (5.5 - 2 * P.energetic) * (night ? 1.4 : 1);
 
   const deficit = Math.max(0, N.hunger - 50) * .55 + Math.max(0, N.thirst - 50) * .6 + Math.max(0, N.bladder - 60) * .5 +
     Math.max(0, 60 - N.cleanliness) * .65 + Math.max(0, 40 - N.energy) * .45 + Math.max(0, 30 - N.breath) * .15 + Math.max(0, 50 - N.affection) * .5 * (.5 + P.affectionate) +
     Math.max(0, 50 - N.playfulness) * .4 * (.5 + P.playful) + Math.max(0, 60 - N.health) * .6;
   const target = clamp(94 - deficit);
-  const impatience = 1.6 - P.patience;
-  N.happiness += (target - N.happiness) * (1 - Math.exp(-h * 0.35 * (target < N.happiness ? impatience : 1)));
+  const impatience = (1.6 - P.patience) / G.patMul;
+  N.happiness += (target - N.happiness) * (1 - Math.exp(-h * 0.8 * (target < N.happiness ? impatience : 1)));
 
   let sev = 0;
   if (N.hunger > 90) sev++; if (N.thirst > 90) sev++; if (N.cleanliness < 12) sev++;
@@ -538,7 +565,7 @@ function tickSim(dtReal) {
     else G.alertSince[k] = null;
   }
   if (!G.sleeping && !dog.isAction && G.t - G.lastNag > 120) {
-    const waitLimit = (1.5 + 3 * P.patience) * 60;
+    const waitLimit = (0.5 + 1.1 * P.patience) * 60 * G.patMul;
     for (const k in alerts) {
       if (G.alertSince[k] != null && G.t - G.alertSince[k] > waitLimit) {
         G.lastNag = G.t; N.happiness = clamp(N.happiness - 4 * (1.6 - P.patience));
@@ -556,15 +583,20 @@ function tickSim(dtReal) {
     G.sleeping = false; emit({ e: 'wake' });
   }
 
-  // ---- day tracking ----
-  G.dayAcc.n++; G.dayAcc.health += N.health; G.dayAcc.happiness += N.happiness;
-  const newDay = Math.floor(G.t / DAY_MIN);
-  if (newDay > prevDay) {
-    const a = G.dayAcc, rec = { day: newDay, health: Math.round(a.health / a.n), happiness: Math.round(a.happiness / a.n) };
-    G.hist.push(rec); G.dayAcc = { n: 0, health: 0, happiness: 0 };
-    if (G.t >= END_T) { G.t = END_T; G.over = true; emit({ e: 'end', final: finalPack() }); }
-    else emit({ e: 'day', day: newDay, health: rec.health, happiness: rec.happiness });
-    saveGame();
+  // ---- chart samples, the halfway call, and the end of the day ----
+  while (G.t >= G.nextSample && G.hist.length < 90) {
+    G.hist.push({ t: Math.round(G.nextSample), health: Math.round(N.health), happiness: Math.round(N.happiness) });
+    G.nextSample += SPAN / 60;
+  }
+  if (!G.halfway && G.t >= START_T + SPAN / 2) {
+    G.halfway = true;
+    emit({ e: 'half', lead: G.players[0].score === G.players[1].score ? -1 : (G.players[0].score > G.players[1].score ? 0 : 1) });
+  }
+  if (G.t >= END_T) {
+    G.t = END_T; G.over = true;
+    G.hist.push({ t: END_T, health: Math.round(N.health), happiness: Math.round(N.happiness) });
+    emit({ e: 'end', final: finalPack() });
+    store.del('rrr_save');
   }
 }
 
@@ -607,7 +639,7 @@ function doAction(p, a, opt) {
       } else if (hg < 22) {
         pts -= 5; tone = 'bad'; react = 'refuse'; N.health -= 3; N.happiness -= 3; N.hunger = clamp(hg - 10); params.refuse = true;
         msg = `${nm} wasn't hungry. Overfed!`;
-      } else if (G.t - G.lastMeal < 180) {
+      } else if (G.t - G.lastMeal < 100) {
         pts += 1; tone = 'ok'; react = 'lick'; N.hunger = clamp(hg - 25); N.health -= 1; G.lastMeal = G.t; N.breath -= 8;
         msg = 'Too soon after the last meal';
       } else if (hg < 40) {
@@ -749,7 +781,7 @@ function deny(p, msg) {
 function snapshot() {
   const N = {}; for (const k in G.needs) N[k] = Math.round(G.needs[k] * 10) / 10;
   return {
-    t: G.t, dayLen: G.dayLen, dogName: G.dogName, needs: N, sleeping: G.sleeping, paused: G.paused, pauseWhy: G.pauseWhy, over: G.over,
+    t: G.t, mins: G.mins, diff: G.diff, dogName: G.dogName, needs: N, sleeping: G.sleeping, paused: G.paused, pauseWhy: G.pauseWhy, over: G.over,
     players: G.players, discovered: G.discovered, hist: G.hist, accidents: G.accidents, dog: { x: dog.pos.x, z: dog.pos.z, kind: dog.seqKind },
     wetPaws: G.wetPaws, rain: G.rain, grassWet: grassWet(G)
   };
@@ -905,11 +937,11 @@ add(new THREE.CylinderGeometry(.55, .55, .1, 40), std(0xf6eee2, 1), 0, .12, 0, b
 const rim = add(new THREE.TorusGeometry(.6, .14, 16, 44), std(0x86aecb, .95), 0, .17, 0, bedG); rim.rotation.x = Math.PI / 2;
 // bowls
 const bowlGeo = new THREE.LatheGeometry([new THREE.Vector2(0, 0), new THREE.Vector2(.19, 0), new THREE.Vector2(.25, .13), new THREE.Vector2(.22, .14), new THREE.Vector2(.17, .035), new THREE.Vector2(0, .035)], 32);
-const FEED_H = .3;
+const FEED_H = .24;
 { const fm = std(0xc89b6d, .6), fl = std(0xb3835a, .6);
   add(new THREE.BoxGeometry(1.5, .07, .62), fm, -.4, FEED_H - .035, SPOTS.food[1]);
   for (const [x, z] of [[-1.05, -.22], [.25, -.22], [-1.05, .22], [.25, .22]]) add(new THREE.BoxGeometry(.09, FEED_H - .07, .09), fl, x, (FEED_H - .07) / 2, SPOTS.food[1] + z);
-  add(new THREE.BoxGeometry(1.44, .025, .05), fl, -.4, .1, SPOTS.food[1] - .26); }
+  add(new THREE.BoxGeometry(1.44, .025, .05), fl, -.4, .085, SPOTS.food[1] - .26); }
 const foodBowl = new THREE.Group(); foodBowl.position.set(SPOTS.food[0], FEED_H, SPOTS.food[1]); room.add(foodBowl);
 add(bowlGeo, std(0xf08a74, .5), 0, 0, 0, foodBowl);
 const kibble = new THREE.Group(); foodBowl.add(kibble);
@@ -1100,134 +1132,68 @@ const Snd = {
 /* =====================================================================
    THE MALTIPOO (procedural 3D model)
    ===================================================================== */
-function buildDogModel() {
-  const R0 = mulberry32(20240607), R = (a, b) => a + R0() * (b - a);  // seeded: CeCe looks identical on both devices
-  const coat = std(0xfffaf3, .95, { emissive: new THREE.Color(0x2a2520) }), coatShade = std(0xeedcc2, .95, { emissive: new THREE.Color(0x241e18) });
-  const dark = std(0x17100d, .22), eyeMat = new THREE.MeshStandardMaterial({ color: 0x1b120e, roughness: .06, metalness: .1 });
-  const shine = new THREE.MeshBasicMaterial({ color: 0xffffff });
-  const pink = std(0xff7f96, .45), mouthMat = std(0x45201f, .6);
-  const dirtMat = std(0x8a6a48, 1, { transparent: true, opacity: 0, depthWrite: false });
-  const big = new THREE.IcosahedronGeometry(1, 2); big.userData.merge = true;     // underlying body masses
-  const curl = new THREE.IcosahedronGeometry(1, 1); curl.userData.merge = true;   // small tight coat curls
-  const sph = new THREE.SphereGeometry(1, 24, 16);
-  const blob = (par, x, y, z, sx, sy, sz, m = coat, geo = big) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.scale.set(sx, sy, sz); par.add(o); return o; };
-  // A dense shell of small, randomly rotated lumps: reads as a tight curly Maltipoo coat rather than big puffs.
-  const curls = (par, cx, cy, cz, rx, ry, rz, n, r0, r1, filter, m = coat) => {
-    for (let i = 0; i < n; i++) {
-      const u = R(-1, 1), th = R(0, Math.PI * 2), s = Math.sqrt(1 - u * u), d = new V3(s * Math.cos(th), u, s * Math.sin(th));
-      if (filter && !filter(d)) continue;
-      const r = R(r0, r1);
-      const b = blob(par, cx + d.x * rx, cy + d.y * ry, cz + d.z * rz, r, r * R(.78, 1), r * R(.85, 1.05), m, curl);
-      b.rotation.set(R(0, 3.1), R(0, 3.1), R(0, 3.1));
+const GLB_URL = 'cece.glb';
+const AX_X = new THREE.Vector3(1, 0, 0);
+let NECK_BOW = 0.60, HEAD_BOW = 0.70;    // additive feeding bow (radians)
+const DOG_SCALE = 0.92;          // the GLB is 1.12 units tall; this matches the room
+
+/* Takes the loaded glTF and pulls out everything the game needs to drive her. */
+function setupDogModel(gltf) {
+  const root = gltf.scene;
+  root.scale.setScalar(DOG_SCALE);
+  scene.add(root);
+  let skinned = null, coat = null, tongue = null, headBone = null, neckBone = null;
+  root.traverse(o => {
+    if (o.isBone && o.name === 'head') headBone = o;
+    if (o.isBone && o.name === 'neck') neckBone = o;
+    if (!o.isMesh) return;
+    o.frustumCulled = false;                       // skinned bounds are unreliable
+    if (o.morphTargetDictionary) skinned = o;
+    for (const m of (Array.isArray(o.material) ? o.material : [o.material])) {
+      if (!m) continue;
+      if (m.name === 'CeCeCoat') {
+        coat = m;
+        // glTF has no sheen channel, so put the soft-fur response back by hand
+        m.roughness = 0.86; m.metalness = 0;
+        if ('sheen' in m) { m.sheen = 0.75; m.sheenRoughness = 0.5; m.sheenColor = new THREE.Color(0xfff3e6); }
+      }
+      if (m.name === 'CeCeTongue') tongue = m;
+      if (m.name === 'CeCeEye') { m.roughness = 0.08; }
     }
-  };
-  const root = new THREE.Group();
-
-  // ---- body: slimmer and deeper-chested, sitting tall on longer legs ----
-  const body = new THREE.Group(); body.position.y = .66; root.add(body);
-  blob(body, 0, 0, 0, .26, .25, .38);
-  blob(body, 0, -.015, .24, .195, .18, .13);            // chest
-  blob(body, 0, .035, -.24, .225, .22, .145);           // haunches
-  blob(body, 0, .17, .26, .125, .13, .105);             // neck
-  curls(body, 0, 0, 0, .25, .24, .365, 145, .05, .08);
-  curls(body, 0, -.02, .26, .185, .17, .105, 30, .048, .07, d => d.z > -.3);
-  curls(body, 0, .045, -.26, .21, .205, .115, 28, .05, .075, d => d.z < .3);
-  curls(body, 0, .17, .27, .115, .12, .09, 14, .04, .06, d => d.y > -.4);
-
-  // ---- head: rounder skull, long fringe, real protruding muzzle ----
-  const head = new THREE.Group(); head.position.set(0, .345, .30); head.rotation.order = 'YXZ'; body.add(head);
-  blob(head, 0, 0, 0, .215, .205, .19);
-  curls(head, 0, .02, -.02, .205, .195, .175, 92, .048, .075, d => !(d.z > .45 && d.y < .45 && Math.abs(d.x) < .6));
-  for (let i = 0; i < 16; i++) blob(head, R(-.13, .13), R(.16, .265), R(-.1, .12), R(.055, .085), R(.05, .075), R(.055, .085), coat, curl);  // topknot
-  for (const sx of [-1, 1]) for (let i = 0; i < 5; i++) blob(head, sx * R(.04, .16), R(.15, .225), R(.04, .135), R(.045, .07), R(.04, .06), R(.045, .07), coat, curl);  // brow fringe, swept up and back
-  const muzzle = blob(head, 0, -.085, .215, .115, .092, .145);
-  curls(head, 0, -.1, .2, .105, .07, .115, 22, .038, .058, d => d.z > -.35 && d.y < .4);
-  blob(head, 0, -.043, .345, .05, .04, .038, dark, sph);                                   // nose
-  blob(head, .017, -.027, .375, .013, .009, .008, shine, sph);
-  const eyes = [];
-  for (const sx of [-1, 1]) {
-    const g = new THREE.Group(); g.position.set(sx * .107, .052, .168); head.add(g);
-    blob(g, 0, 0, 0, .058, .062, .042, eyeMat, sph);
-    blob(g, .019, .024, .034, .017, .017, .01, shine, sph);
-    blob(g, -.015, -.018, .036, .0075, .0075, .006, shine, sph);
-    eyes.push(g);
-  }
-  // open happy mouth with her tongue out
-  const mouth = new THREE.Group(); mouth.position.set(0, -.152, .27); head.add(mouth);
-  const mo = blob(mouth, 0, 0, 0, .062, .03, .032, mouthMat, sph);
-  const tongue = blob(mouth, 0, -.02, .032, .038, .013, .055, pink, sph);
-
-  // ---- ears: long, wavy, hanging well below the chin and flaring outward ----
-  const ears = [];
-  for (const sx of [-1, 1]) {
-    const p = new THREE.Group(); p.position.set(sx * .175, .035, .005); head.add(p);
-    const seg = [[.075, -.1, .03, .072, .11, .075], [.095, -.23, .04, .078, .12, .082], [.105, -.36, .03, .072, .11, .074], [.108, -.465, .005, .058, .078, .06]];
-    for (const [x, y, z, a, b, c] of seg) blob(p, sx * x, y, z, a, b, c, coatShade);
-    for (const [x, y, z, a, b, c] of seg) curls(p, sx * x, y, z, a * .8, b * .8, c * .75, 15, .036, .056, null, coatShade);
-    ears.push({ p, sx });
-  }
-
-  // ---- legs: longer and straighter, with fluffy upper and neat paws ----
-  const legs = [];
-  for (const [sx, sz, front] of [[-1, 1, 1], [1, 1, 1], [-1, -1, 0], [1, -1, 0]]) {
-    const lp = new THREE.Group(); lp.position.set(sx * .135, -.17, sz * .18); body.add(lp);
-    blob(lp, 0, -.175, 0, .07, .215, .072);
-    curls(lp, 0, -.15, 0, .058, .175, .058, 20, .038, .06);
-    blob(lp, 0, -.43, .025, .068, .05, .085);
-    curls(lp, 0, -.43, .02, .055, .035, .07, 8, .031, .047);
-    legs.push({ p: lp, front, ph: (sx * sz > 0) ? 0 : Math.PI });
-  }
-
-  // ---- tail: plumed, curving up and over her back ----
-  const tail = new THREE.Group(); tail.position.set(0, .12, -.31); body.add(tail);
-  const tseg = [[0, .05, -.04, .07], [0, .14, -.03, .082], [0, .22, .03, .086], [0, .27, .12, .078], [0, .27, .21, .064], [0, .23, .28, .05]];
-  for (const [x, y, z, r] of tseg) { blob(tail, x, y, z, r, r, r); curls(tail, x, y, z, r * .85, r * .85, r * .85, 9, r * .42, r * .62); }
-
-  // ---- pink collar with CeCe's heart name tag ----
-  const collar = new THREE.Mesh(new THREE.TorusGeometry(.155, .028, 10, 40), std(0xff7fa6, .45)); collar.position.set(0, .165, .255); collar.rotation.x = -1.3; body.add(collar);
-  const tagPivot = new THREE.Group(); tagPivot.position.set(0, .075, .43); body.add(tagPivot);
-  const tagMat = new THREE.MeshStandardMaterial({ map: TEX.tag, transparent: true, alphaTest: .4, roughness: .35, metalness: .15, side: THREE.DoubleSide });
-  const tag = new THREE.Mesh(new THREE.PlaneGeometry(.2, .2), tagMat); tag.position.set(0, -.105, .12); tag.renderOrder = 3; tagPivot.add(tag);
-  add(new THREE.TorusGeometry(.016, .005, 6, 12), std(0xe9c46a, .3, { metalness: .7 }), 0, .005, .11, tagPivot);
-
-  const dirt = [blob(body, .24, -.1, .2, .07, .05, .045, dirtMat), blob(body, -.27, .04, -.12, .06, .06, .05, dirtMat), blob(body, .13, .2, -.24, .05, .04, .05, dirtMat), blob(head, -.13, -.13, .11, .045, .035, .04, dirtMat)];
-  legs.forEach((l, i) => i % 2 || dirt.push(blob(l.p, 0, -.4, .05, .058, .042, .058, dirtMat)));
-  dirt.forEach(d => d.renderOrder = 2);
-  const shadow = new THREE.Mesh(new THREE.CircleGeometry(.58, 32), new THREE.MeshBasicMaterial({ map: TEX.blob, transparent: true, depthWrite: false }));
-  shadow.rotation.x = -Math.PI / 2; shadow.position.y = .013; shadow.scale.set(1, 1.35, 1); root.add(shadow);
-  // merge the static curls per part so the whole coat costs one draw call per material
-  const mergeIn = grp => {
-    const by = new Map();
-    for (const m of [...grp.children]) if (m.isMesh && m.geometry.userData.merge && m.material !== dirtMat) { if (!by.has(m.material)) by.set(m.material, []); by.get(m.material).push(m); }
-    for (const [mtl, list] of by) {
-      if (list.length < 2) continue;
-      const geos = list.map(m => { m.updateMatrix(); const g = m.geometry.clone(); g.applyMatrix4(m.matrix); return g; });
-      const merged = mergeGeometries(geos); if (!merged) continue;
-      grp.add(new THREE.Mesh(merged, mtl)); list.forEach(m => grp.remove(m));
-    }
-  };
-  [body, head, tail, ...ears.map(e => e.p), ...legs.map(l => l.p)].forEach(mergeIn);
-  return { root, body, head, eyes, mouth, mo, tongue, ears, legs, tail, coat, coatShade, dirtMat, shadow, tagPivot };
+  });
+  // soft contact shadow, same trick the rest of the scene uses
+  const shadow = new THREE.Mesh(new THREE.CircleGeometry(.5, 28),
+    new THREE.MeshBasicMaterial({ map: TEX.blob, transparent: true, depthWrite: false }));
+  shadow.rotation.x = -Math.PI / 2; shadow.position.y = .014; shadow.scale.set(1, 1.25, 1);
+  scene.add(shadow);
+  return { root, skinned, coat, tongue, headBone, neckBone, shadow,
+           coatBase: coat ? coat.color.clone() : new THREE.Color(0xffffff) };
 }
 
-/* Reactions: one-shot animation overlays. f(p,o) writes offsets into o for progress p (0..1). */
+/* Which baked clip plays for each sustained mode. */
+const MODE_CLIP = {
+  idle: 'idle', walk: 'walk', sit: 'sitIdle', lie: 'sleep', sleep: 'sleep',
+  eat: 'eat', drink: 'drink', beg: 'sitIdle', play: 'play', groom: 'groom',
+  cuddle: 'cuddle', potty: 'sitIdle', mope: 'sad', restless: 'walk',
+  sniff: 'lookAround', look: 'lookAround', sleepy: 'sleep'
+};
+/* One-shot reactions: [clip, seconds, speed, extras]. `shake` and `mouth` are
+   small procedural overlays for beats the baked clips don't cover. */
 const REACT = {
-  happy: { dur: 1.3, f: (p, o) => { o.hop = Math.sin(Math.min(1, p * 2) * Math.PI) * .2; o.wag = 1; o.mouth = .7; o.ear = .2; } },
-  excited: { dur: 2.0, f: (p, o) => { o.hop = Math.abs(Math.sin(p * Math.PI * 3)) * .22; o.spin = smooth(0, .65, p) * Math.PI * 2; o.wag = 1; o.mouth = .8; o.ear = .3; } },
-  love: { dur: 1.6, f: (p, o) => { const e = Math.sin(p * Math.PI); o.roll = .3 * e; o.eye = .72; o.wag = 1; o.mouth = .5 * e; } },
-  lick: { dur: 1.2, f: (p, o) => { o.mouth = .65; o.tongue = 1; o.pitch = Math.sin(p * Math.PI * 4) * .12; o.wag = .6; } },
-  sad: { dur: 2.2, f: (p, o) => { const e = Math.sin(p * Math.PI); o.pitch = .45 * e; o.ear = -.5 * e; o.tail = -1 * e; o.wag = -1; o.eye = .65; } },
-  whine: { dur: 1.8, f: (p, o) => { const e = Math.sin(p * Math.PI); o.pitch = .2 * e; o.ear = -.35 * e; o.tremble = .018 * e; o.mouth = .15; o.yaw = Math.sin(p * 6) * .15; } },
-  bark: { dur: 1.1, f: (p, o) => { const k = Math.max(Math.exp(-((p - .12) ** 2) / .004), Math.exp(-((p - .3) ** 2) / .004)); o.mouth = k; o.pitch = -.3 * k; o.hop = .04 * k; o.ear = .3; } },
-  grumpy: { dur: 1.4, f: (p, o) => { const e = Math.sin(p * Math.PI); o.yaw = .8 * e; o.ear = -.25 * e; o.eye = .5; o.wag = -1; } },
-  shake: { dur: 1.1, f: (p, o) => { const e = 1 - p; o.roll = Math.sin(p * 44) * .32 * e; o.headRoll = Math.sin(p * 44 + 1) * .35 * e; o.ear = Math.sin(p * 44) * .4 * e; } },
-  yawn: { dur: 1.5, f: (p, o) => { const e = Math.sin(p * Math.PI); o.mouth = e * 1.1; o.pitch = -.35 * e; o.eye = .15; } },
-  refuse: { dur: 1.2, f: (p, o) => { o.yaw = Math.sin(p * Math.PI * 4) * .5 * (1 - p); o.ear = -.1; } },
-  stretch: { dur: 1.5, f: (p, o) => { const e = Math.sin(p * Math.PI); o.bow = .6 * e; o.tail = .4 * e; o.mouth = .3 * e; } },
-  // CeCe lifts and shakes a wet paw
-  pawshake: { dur: 1.6, f: (p, o) => { const e = Math.sin(p * Math.PI); o.paw = e; o.pawShake = Math.sin(p * 55) * .3 * e; o.ear = -.25 * e; o.pitch = .25 * e; o.wag = -1; } },
-  // CeCe hops up and licks your face
-  facelick: { dur: 1.4, f: (p, o) => { const e = Math.sin(p * Math.PI); o.hop = .3 * e; o.fwd = .4 * e; o.pitch = -.5 * e; o.mouth = .95 * e; o.tongue = 1; o.wag = 1; o.ear = .25; } },
+  happy:    { clip: 'happy',     dur: 1.3 },
+  excited:  { clip: 'jump',      dur: 1.7 },
+  love:     { clip: 'cuddle',    dur: 1.6 },
+  lick:     { clip: 'happy',     dur: 1.2, speed: 1.2 },
+  sad:      { clip: 'sad',       dur: 2.2 },
+  whine:    { clip: 'whine',     dur: 1.8 },
+  bark:     { clip: 'bark',      dur: 1.6, mouth: 1 },
+  grumpy:   { clip: 'whine',     dur: 1.4, speed: 1.3 },
+  shake:    { clip: 'surprised', dur: 1.1, shake: 1 },
+  yawn:     { clip: 'lookAround',dur: 1.5, speed: .7, mouth: .9 },
+  refuse:   { clip: 'surprised', dur: 1.2 },
+  stretch:  { clip: 'lookAround',dur: 1.4, speed: 1.3 },
+  pawshake: { clip: 'whine',     dur: 1.6, shake: .5 },
+  facelick: { clip: 'happy',     dur: 1.4, speed: 1.1, mouth: .8 }
 };
 
 /* Builds the deterministic step list for a dog sequence (both devices run the same steps). */
@@ -1284,14 +1250,40 @@ function buildSeq(kind, P = {}) {
 }
 
 class Dog {
-  constructor() {
-    this.m = buildDogModel(); scene.add(this.m.root);
+  constructor(gltf) {
+    this.m = setupDogModel(gltf);
+    this.mixer = new THREE.AnimationMixer(this.m.root);
+    this.clips = {};
+    for (const c of gltf.animations) this.clips[c.name] = c;
+    this.action = null; this.actionName = null;
     this.pos = new V3(SPOTS.front[0], 0, SPOTS.front[1]); this.yaw = 0; this.targetYaw = 0;
     this.mode = 'idle'; this.queue = []; this.cur = null; this.seqKind = null; this.isAction = false;
-    this.moving = false; this.speedNow = 0; this.walkAmt = 0; this.phase = 0; this.time = 0;
-    this.react = null; this.blinkT = 2; this.blink = 1; this.lift = 0; this.paceT = 0; this.paceTo = null; this.fxT = 0;
-    this.pose = { sit: 0, lie: 0, bow: 0, headPitch: 0, headYaw: 0, headRoll: 0, ear: .15, tailUp: -.6, wag: 8, wagAmp: .4, mouth: 0, eye: 1 };
-    this.wagPhase = 0; this.carry = false; this.speedMul = 1; this.lickFor = null; this.lickStinky = false;
+    this.moving = false; this.speedNow = 0; this.time = 0;
+    this.react = null; this.lift = 0; this.paceT = 0; this.paceTo = null; this.fxT = 0;
+    this.carry = false; this.speedMul = 1; this.lickFor = null; this.lickStinky = false;
+    // blink and mouth are morph targets, driven from code so they never look canned
+    this.morph = this.m.skinned ? this.m.skinned.morphTargetDictionary : null;
+    this.blinkWait = rnd(1.5, 4); this.blinkT = -1;
+    this.mouthHold = 0; this.shakeHold = 0;
+    this.play('idle');
+  }
+
+  /* Cross-fade to a baked clip. `once` clamps on the final frame. */
+  play(name, { fade = .22, once = false, speed = 1 } = {}) {
+    const clip = this.clips[name];
+    if (!clip || this.actionName === name) {
+      if (this.action) this.action.timeScale = speed;
+      return;
+    }
+    const next = this.mixer.clipAction(clip);
+    next.reset();
+    next.timeScale = speed;
+    next.setLoop(once ? THREE.LoopOnce : THREE.LoopRepeat, once ? 1 : Infinity);
+    next.clampWhenFinished = once;
+    next.enabled = true; next.setEffectiveWeight(1);
+    if (this.action && this.action !== next) this.action.crossFadeTo(next.play(), fade, false);
+    else next.play();
+    this.action = next; this.actionName = name;
   }
   run(kind, params) {
     this.queue = buildSeq(kind, params || {}); this.seqKind = kind; this.isAction = ACTION_SEQS.has(kind);
@@ -1331,10 +1323,24 @@ class Dog {
     if (mode === 'eat') Snd.play('eat');
     if (mode === 'drink') Snd.play('drink');
   }
-  headPos() { const v = new V3(); this.m.head.getWorldPosition(v); v.y += .28; return v; }
+  headPos() {
+    const v = new V3();
+    if (this.m.headBone) this.m.headBone.getWorldPosition(v);
+    else v.set(this.pos.x, .8, this.pos.z);
+    v.y += .22; return v;
+  }
+  /* A point just in front of her muzzle, for stink puffs and carried toys. */
+  muzzlePos(fwd = .17, down = .06) {
+    const v = this.headPos(); v.y -= .22 + down;
+    v.x += Math.sin(this.yaw) * fwd; v.z += Math.cos(this.yaw) * fwd;
+    return v;
+  }
   startReact(type) {
     const R = REACT[type]; if (!R) return;
     this.react = { type, t: 0, dur: R.dur };
+    this.play(R.clip, { fade: .14, once: true, speed: R.speed || 1 });
+    if (R.mouth) this.mouthHold = Math.max(this.mouthHold, R.dur * .55);
+    if (R.shake) this.shakeHold = R.dur * .6 * R.shake;
     const hp = this.headPos();
     switch (type) {
       case 'happy': emitP(TEX.heart, hp, 2, { stagger: .15 }); Snd.play('yip'); break;
@@ -1393,87 +1399,113 @@ class Dog {
       else if (this.mode === 'groom') { emitP(TEX.spark, this.pos.clone().add(new V3(0, .75, 0)), 2, { size: .08, spread: .3, vy: .4 }); this.fxT = .4; }
     }
     this.stinkT = (this.stinkT || 0) - dt;
-    if (N.breath < 30 && this.mode !== 'sleep' && this.stinkT <= 0) { this.stinkT = rnd(2.5, 4.5); const mp = new V3(0, -.12, .32); this.m.head.localToWorld(mp); emitP(TEX.stink, mp, 1, { size: .14, vy: .3, spread: .03, life: 1.6 }); }
+    if (N.breath < 30 && this.mode !== 'sleep' && this.stinkT <= 0) { this.stinkT = rnd(2.5, 4.5); const mp = this.muzzlePos(); emitP(TEX.stink, mp, 1, { size: .14, vy: .3, spread: .03, life: 1.6 }); }
     if (V && V.wetPaws && this.moving && this.pos.z > -4) { this.printT = (this.printT || 0) - dt; if (this.printT <= 0) { this.printT = .2; this.side = -(this.side || 1); addPrint(this.pos.x + Math.cos(this.yaw) * .1 * this.side, this.pos.z - Math.sin(this.yaw) * .1 * this.side); } }
     if (this.mode === 'eat') foodLevel = Math.max(0, foodLevel - dt / 3.2);
     if (this.mode === 'drink') waterLevel = Math.max(.15, waterLevel - dt / 3.5);
     this.yaw = angDamp(this.yaw, this.targetYaw, 8, dt);
-    this.applyPose(dt, N);
+    this.applyAnim(dt, N);
   }
-  applyPose(dt, N) {
-    const m = this.m, p = this.pose, mood = N.happiness / 100, en = N.energy / 100, hl = N.health / 100;
-    const t = { sit: 0, lie: 0, bow: 0, headPitch: 0, headYaw: 0, headRoll: 0, ear: lerp(-.25, .42, mood) - (hl < .4 ? .2 : 0), tailUp: lerp(-1.25, .12, mood), wag: 4 + 14 * mood, wagAmp: .08 + .5 * mood, mouth: mood > .5 && en > .3 ? .5 : mood > .3 ? .2 : 0, eye: en < .25 ? .7 : 1 };
-    switch (this.mode) {
-      case 'sit': t.sit = 1; break;
-      case 'lie': t.lie = 1; t.headPitch = .15; break;
-      case 'sleep': t.lie = 1; t.headPitch = .4; t.headYaw = .3; t.eye = 0; t.wagAmp = 0; t.ear = -.25; t.mouth = 0; t.tailUp = -1.4; break;
-      case 'eat': case 'drink': t.bow = .6; t.headPitch = 1.25; t.mouth = .2 + .3 * Math.max(0, Math.sin(this.time * 14)); break;
-      case 'beg': t.sit = 1; t.headPitch = -.32; t.ear += .15; t.wagAmp += .15; t.mouth = .25; break;
-      case 'restless': t.ear += .1; t.headPitch = -.1; t.mouth = .2; break;
-      case 'potty': t.sit = .55; t.tailUp = -.15; t.wagAmp = 0; t.headPitch = -.05; break;
-      case 'groom': t.eye = .65; t.headPitch = -.18; t.wagAmp = .35; t.mouth = .3; break;
-      case 'cuddle': t.sit = 1; t.headRoll = .28; t.headPitch = -.05; t.eye = .72; t.wagAmp = .6; t.wag = 12; t.ear = 0; break;
-      case 'play': t.bow = .5; t.tailUp = -.2; t.wagAmp = .7; t.wag = 18; t.mouth = .6; t.ear = .45; break;
-      case 'sniff': t.headPitch = .6; t.bow = .15; break;
-      case 'mope': t.lie = 1; t.headPitch = .32; t.eye = .68; t.ear = -.35; t.wagAmp = .03; t.tailUp = -1.5; break;
-      case 'sleepy': t.lie = 1; t.eye = .5; t.headPitch = .25; break;
-      case 'look': t.headPitch = -.22; t.headYaw = Math.sin(this.time * .7) * .5; break;
+  /* Decide which baked clip should be playing, then advance the mixer and
+     layer on the few things clips can't express: coat condition, blinking,
+     mouth opening and a wet-dog shake. */
+  applyAnim(dt, N) {
+    const m = this.m;
+    // --- clip selection ---
+    if (!this.react) {
+      let want, speed = 1, once = false;
+      if (this.moving) {
+        const fast = this.speedNow > 1.9;
+        want = fast ? 'run' : 'walk';
+        speed = clamp(this.speedNow / (fast ? 2.6 : 1.25), .55, 1.9);
+      } else {
+        want = MODE_CLIP[this.mode] || 'idle';
+        if (this.mode === 'sleep' || this.mode === 'lie') speed = .85;
+        if (this.mode === 'mope') speed = .8;
+      }
+      // energy and mood take the edge off her movement
+      speed *= .78 + .22 * clamp(N.energy / 100, 0, 1) + .12 * clamp(N.happiness / 100, 0, 1);
+      this.play(want, { speed });
     }
-    if (this.moving) { t.sit = 0; t.lie = 0; t.bow = 0; }
-    for (const k in t) p[k] = damp(p[k], t[k], k === 'mouth' ? 14 : 5.5, dt);
-    // reaction overlay
-    const o = { hop: 0, spin: 0, pitch: 0, yaw: 0, roll: 0, headRoll: 0, ear: 0, tail: 0, wag: 0, mouth: null, tongue: 0, eye: null, tremble: 0, bow: 0, paw: 0, pawShake: 0, fwd: 0 };
-    if (this.react) REACT[this.react.type].f(clamp(this.react.t / this.react.dur, 0, 1), o);
-    // blink
-    this.blinkT -= dt; if (this.blinkT <= 0) { this.blink = 0; if (this.blinkT < -.12) { this.blink = 1; this.blinkT = rnd(1.8, 5); } }
-    // walk cycle
-    this.walkAmt = damp(this.walkAmt, this.moving ? 1 : 0, 10, dt);
-    this.phase += dt * (this.moving ? this.speedNow : 0) * 11;
-    const bob = Math.abs(Math.sin(this.phase)) * .028 * this.walkAmt;
-    const sit = p.sit, lie = p.lie, bow = clamp(p.bow + o.bow, 0, 1);
-    const tilt = -.5 * sit + .4 * bow;
-    const breath = Math.sin(this.time * (this.mode === 'sleep' ? 1.3 : 2.4)) * (this.mode === 'sleep' ? .022 : .012);
-    m.body.rotation.x = tilt;
-    m.body.rotation.z = o.roll + Math.sin(this.time * 47) * o.tremble * 4;
-    m.body.position.y = .66 - .21 * sit - .44 * lie - .10 * bow + bob;
-    m.body.scale.set(1 + breath * .6, 1 + breath, 1);
-    const sw = (1 - sit) * (1 - lie);
-    for (const l of m.legs) {
-      const swing = Math.sin(this.phase + l.ph) * .6 * this.walkAmt * sw;
-      l.p.rotation.x = l.front ? (-tilt - 1.5 * lie - .18 * bow + swing) : (-tilt - 1.4 * sit + 1.45 * lie + swing);
+    this.mixer.update(dt);
+
+    // The baked eat/drink clips only dip so far. Layer an additive bow onto the
+    // neck and head so her muzzle genuinely reaches into the bowl.
+    const feeding = (this.mode === 'eat' || this.mode === 'drink') ? 1 :
+                    (this.mode === 'sniff' ? .55 : 0);
+    this.lean = damp(this.lean || 0, feeding, 7, dt);
+    if (this.lean > .005) {
+      const q = new THREE.Quaternion();
+      if (m.neckBone) m.neckBone.quaternion.multiply(q.setFromAxisAngle(AX_X, this.lean * NECK_BOW));
+      if (m.headBone) m.headBone.quaternion.multiply(q.setFromAxisAngle(AX_X, this.lean * HEAD_BOW));
     }
-    m.legs[0].p.rotation.x -= o.paw * 1.25 + o.pawShake;
-    m.tagPivot.rotation.x = -tilt + Math.sin(this.time * 3.1) * .08 + this.walkAmt * Math.sin(this.phase * 2) * .25;
-    m.head.rotation.x = p.headPitch - tilt * .85 + o.pitch + Math.sin(this.phase * 2) * .04 * this.walkAmt;
-    m.head.rotation.y = p.headYaw + o.yaw;
-    m.head.rotation.z = p.headRoll + o.headRoll;
-    const ear = p.ear + o.ear;
-    for (const e of m.ears) { e.p.rotation.z = e.sx * (ear * .85 + Math.sin(this.phase * 2) * .16 * this.walkAmt); e.p.rotation.x = -.2 * ear + Math.sin(this.phase * 2 + 1) * .1 * this.walkAmt; }
-    const wagSpeed = p.wag + o.wag * 8;
-    this.wagPhase += dt * wagSpeed;
-    const wagAmp = clamp(p.wagAmp + (o.wag > 0 ? .35 : o.wag < 0 ? -.5 : 0), 0, .9);
-    m.tail.rotation.x = p.tailUp + o.tail;
-    m.tail.rotation.y = Math.sin(this.wagPhase) * wagAmp;
-    const mouth = o.mouth != null ? Math.max(o.mouth, p.mouth) : p.mouth;
-    m.mo.scale.set(.062, .014 + .05 * mouth, .032);
-    m.tongue.visible = mouth > .18 || o.tongue > 0;
-    m.tongue.position.set(0, -.022 - .028 * mouth, .032 + .032 * mouth + .045 * o.tongue);
-    const eye = Math.max(.07, (o.eye != null ? Math.min(o.eye, p.eye) : p.eye) * this.blink);
-    m.eyes.forEach(e => e.scale.y = eye);
-    // coat condition
-    const dirty = 1 - N.cleanliness / 100, sick = clamp((50 - N.health) / 50, 0, 1);
-    m.coat.color.setRGB(lerp(1, .82, dirty ** 1.4) - sick * .08, lerp(.98, .74, dirty ** 1.4) - sick * .06, lerp(.95, .62, dirty ** 1.4) - sick * .04);
-    m.coatShade.color.copy(m.coat.color).multiplyScalar(.97);
-    m.dirtMat.opacity = clamp((42 - N.cleanliness) / 30, 0, 1) * .85;
-    // root transform
+
+    // --- morphs: blinking on a random timer, mouth on demand ---
+    if (this.morph && m.skinned) {
+      const infl = m.skinned.morphTargetInfluences;
+      if ('blink' in this.morph) {
+        if (this.blinkT >= 0) {
+          this.blinkT += dt;
+          const k = Math.min(1, this.blinkT / .15);
+          infl[this.morph.blink] = Math.sin(k * Math.PI);
+          if (k >= 1) { this.blinkT = -1; this.blinkWait = rnd(1.8, 5.5); }
+        } else if (this.mode === 'sleep') {
+          infl[this.morph.blink] = damp(infl[this.morph.blink], 1, 6, dt);   // eyes shut
+        } else {
+          infl[this.morph.blink] = damp(infl[this.morph.blink], 0, 10, dt);
+          if ((this.blinkWait -= dt) <= 0) this.blinkT = 0;
+        }
+      }
+      if ('mouthOpen' in this.morph) {
+        this.mouthHold = Math.max(0, this.mouthHold - dt);
+        const pant = (this.mode === 'play' || this.moving && this.speedNow > 1.9 ||
+                      N.energy < 30 && this.mode !== 'sleep') ? .35 + .25 * Math.sin(this.time * 9) : 0;
+        const want = this.mouthHold > 0 ? .85 : (this.mode === 'eat' ? .5 + .5 * Math.sin(this.time * 11) : pant);
+        infl[this.morph.mouthOpen] = damp(infl[this.morph.mouthOpen], want, 12, dt);
+      }
+    }
+
+    // --- coat condition: she dulls and yellows as she gets dirty ---
+    if (m.coat) {
+      const dirty = clamp(1 - N.cleanliness / 100, 0, 1), sick = clamp((50 - N.health) / 50, 0, 1);
+      m.coat.color.setRGB(
+        m.coatBase.r * (1 - .20 * dirty ** 1.3) - sick * .05,
+        m.coatBase.g * (1 - .26 * dirty ** 1.3) - sick * .04,
+        m.coatBase.b * (1 - .34 * dirty ** 1.3) - sick * .03);
+      m.coat.roughness = .86 + .1 * dirty;
+    }
+
+    // --- root transform ---
     const bd = Math.hypot(this.pos.x - SPOTS.bed[0], this.pos.z - SPOTS.bed[1]);
-    this.lift = damp(this.lift, bd < .55 ? .1 : 0, 8, dt);
-    m.root.position.set(this.pos.x + Math.sin(this.yaw) * o.fwd, this.lift + o.hop, this.pos.z + Math.cos(this.yaw) * o.fwd);
-    m.root.rotation.y = this.yaw + o.spin;
-    m.shadow.material.opacity = 1 - o.hop * 2;
+    this.lift = damp(this.lift, bd < .55 ? .09 : 0, 8, dt);
+    m.root.position.set(this.pos.x, this.lift, this.pos.z);
+    m.root.rotation.set(0, this.yaw, 0);
+    // wet-dog shake, layered over whatever clip is running
+    this.shakeHold = Math.max(0, this.shakeHold - dt);
+    if (this.shakeHold > 0) m.root.rotation.z = Math.sin(this.time * 42) * .13 * Math.min(1, this.shakeHold * 3);
+    m.shadow.position.set(this.pos.x, .014, this.pos.z);
+    m.shadow.material.opacity = .85 - this.lift * 3;
   }
 }
-const dog = new Dog();
+/* CeCe is a real glTF character, so the game waits for her before starting.
+   The .glb sits next to index.html — keep the two files together. */
+const dog = await (async () => {
+  const txt = document.getElementById('loadTxt'), sub = document.getElementById('loadSub');
+  try {
+    const loader = new GLTFLoader();
+    const gltf = await loader.loadAsync(GLB_URL, e => {
+      if (e.total) sub.textContent = `Loading her model… ${Math.round(e.loaded / e.total * 100)}%`;
+    });
+    const d = new Dog(gltf);
+    document.getElementById('scrLoad').classList.remove('on');
+    document.getElementById('scrTitle').classList.add('on');
+    return d;
+  } catch (err) {
+    txt.textContent = "Couldn't load CeCe";
+    sub.innerHTML = `Make sure <b>${GLB_URL}</b> sits next to index.html.<br><small>${esc(String(err && err.message || err))}</small>`;
+    throw err;
+  }
+})();
 
 /* =====================================================================
    CAMERA + INPUT
@@ -1568,18 +1600,22 @@ function updateWorld(dt, t) {
     ball.pos.lerpVectors(ball.from, ball.to, k); ball.pos.y = lerp(ball.from.y, .1, k) + Math.sin(k * Math.PI) * 1.1;
     if (k >= 1) ball.state = 'floor';
   } else if (ball.state === 'mouth') {
-    const v = new V3(0, -.17, .3); dog.m.head.localToWorld(v); ball.pos.copy(v);
+    ball.pos.copy(dog.muzzlePos(.22, .02));
   }
   ball.mesh.position.copy(ball.pos);
   if (ball.state === 'fly') ball.mesh.rotation.z += dt * 10;
   else { ball.mesh.rotation.z = damp(ball.mesh.rotation.z % (Math.PI * 2), 0, 8, dt); if (ball.state === 'mouth') ball.mesh.rotation.y = dog.yaw; }
   // brush
   if (brushOn && brushKind === 'brush') {
-    const v = new V3(Math.sin(dog.time * 2) * .12, .92, Math.sin(dog.time * 3.2) * .28); dog.m.root.localToWorld(v);
+    const v = dog.headPos(); v.y -= .12;
+    v.x += Math.sin(dog.yaw + 1.6) * Math.sin(dog.time * 2) * .13 - Math.sin(dog.yaw) * .1;
+    v.z += Math.cos(dog.yaw + 1.6) * Math.sin(dog.time * 2) * .13 - Math.cos(dog.yaw) * .1;
     brush.position.lerp(v, 1 - Math.exp(-12 * dt)); brush.rotation.set(.2, dog.yaw, Math.sin(dog.time * 3.2) * .3);
   } else { brush.position.lerp(brushHome, 1 - Math.exp(-6 * dt)); brush.rotation.set(0, .6, 0); }
   if (brushOn && brushKind === 'towel') {   // towel rubs her front paws dry
-    const v = new V3(Math.sin(dog.time * 9) * .12, .12, .32); dog.m.root.localToWorld(v);
+    const v = new V3(dog.pos.x + Math.sin(dog.yaw) * .30, .14, dog.pos.z + Math.cos(dog.yaw) * .30);
+    v.x += Math.sin(dog.yaw + 1.6) * Math.sin(dog.time * 9) * .10;
+    v.z += Math.cos(dog.yaw + 1.6) * Math.sin(dog.time * 9) * .10;
     towel.position.lerp(v, 1 - Math.exp(-12 * dt)); towel.rotation.set(0, dog.yaw, Math.sin(dog.time * 9) * .2);
   } else { towel.position.lerp(towelHome, 1 - Math.exp(-6 * dt)); towel.rotation.set(0, .4, 0); }
   for (let i = puddles.length - 1; i >= 0; i--) { const p = puddles[i]; p.life += dt; p.m.material.opacity = .75 * (1 - smooth(30, 45, p.life)); if (p.life > 45) { scene.remove(p.m); puddles.splice(i, 1); } }
@@ -1827,7 +1863,7 @@ function handleEvent(ev) {
       toast(`<span class="pts neg">−15</span><b>Accident!</b> ${nm} couldn't wait<small>Both players lose 15 points</small>`, 'var(--bad)'); bumpScore(0); bumpScore(1); vib([60, 40, 60]); break;
     case 'neglect': toast(`<span class="pts neg">${ev.pts}</span><b>Neglect</b> ${nm} is ${esc(ev.why)}<small>Both players are losing points every game hour</small>`, 'var(--bad)'); bumpScore(0); bumpScore(1); break;
     case 'discover': toast(`<span class="pts pos">${ev.p != null ? '+5' : ''}</span><b>Personality discovered:</b> ${esc(ev.text)}<small>${ev.p != null ? seatName(ev.p) + ' figured it out' : 'Revealed by ' + nm + "'s behavior"}</small>`, '#b07cc6'); Snd.play('bonus'); if (ev.p != null) bumpScore(ev.p); break;
-    case 'day': toast(`<b>Day ${ev.day} complete</b><small>Average health ${ev.health} · happiness ${ev.happiness}</small>`, 'var(--accent)'); Snd.play('chime'); break;
+    case 'half': toast(`<b>Halfway through the day</b><small>${ev.lead < 0 ? 'Dead even so far' : seatName(ev.lead) + ' is ahead'}</small>`, 'var(--accent)'); Snd.play('chime'); break;
     case 'pause': break;
     case 'weather': toast(ev.rain ? `<b>It's raining.</b> The grass is getting wet<small>${nm} hates wet paws. Use the covered patio.</small>` : `<b>The rain stopped</b><small>The grass will stay wet for a while</small>`, '#3d86c6'); break;
     case 'dry': toast(`${nm}'s paws finally dried on their own`, '#c9b8a8'); break;
@@ -1934,11 +1970,14 @@ function fmtClock(t) { const m = Math.floor(t % DAY_MIN), h = Math.floor(m / 60)
 let hudT = 0, lastIcon = '';
 function updateHUD(dt) {
   hudT -= dt; if (hudT > 0 || !V) return; hudT = .12;
-  const day = Math.min(DAYS, Math.floor(V.t / DAY_MIN) + 1);
-  $('dayLbl').textContent = `Day ${day} / ${DAYS}`;
+  const leftReal = Math.max(0, (END_T - V.t) / SPAN * (V.mins * 60));
+  const mm = Math.floor(leftReal / 60), ss = Math.floor(leftReal % 60);
+  $('dayLbl').textContent = `${mm}:${String(ss).padStart(2, '0')}`;
+  $('dayLbl').style.color = leftReal <= 30 ? 'var(--bad)' : '';
+  if (leftReal <= 30 && !V.over) showBanner('last', 'Last 30 seconds!'); else hideBanner('last');
   $('timeLbl').textContent = fmtClock(V.t);
   $('wxLbl').textContent = V.rain ? '· Rain' : viewWet() ? '· Wet grass' : '';
-  $('dayBar').style.width = ((V.t % DAY_MIN) / DAY_MIN * 100) + '%';
+  $('dayBar').style.width = clamp((V.t - START_T) / SPAN * 100) + '%';
   const ic = isNight(V.t) ? 'm' : 's'; if (ic !== lastIcon) { $('sunIcon').innerHTML = ic === 'm' ? MOON : SUN; lastIcon = ic; }
   for (const p of [0, 1]) {
     $('nm' + p).innerHTML = esc(V.players[p].name) + (App.role !== 'local' && p === App.seat ? ' <i>(you)</i>' : '');
@@ -1994,24 +2033,29 @@ function showResults(F) {
   const myWin = w === App.seat && App.role !== 'local';
   const title = w < 0 ? "It's a tie!" : App.role === 'local' ? `${esc(F.players[w].name)} wins!` : myWin ? 'You win!' : `${esc(F.players[w].name)} wins`;
   const N = F.needs, avgH = F.hist.length ? Math.round(F.hist.reduce((s, h) => s + h.health, 0) / F.hist.length) : Math.round(N.health);
-  const grade = avgH >= 85 ? 'thrived' : avgH >= 65 ? 'did well' : avgH >= 45 ? 'got by' : 'had a rough month';
+  const dayScore = (avgH + Math.round(N.health)) / 2;
+  const grade = dayScore >= 85 ? 'had a wonderful day' : dayScore >= 65 ? 'had a good day' : dayScore >= 45 ? 'got through the day' : 'had a rough day';
+  const margin = Math.abs(a.score - b.score);
+  const pts = `${margin} point${margin === 1 ? '' : 's'}`;
+  const verdict = w < 0 ? 'Both players tied on points.'
+    : myWin ? `You win by ${pts}.` : `${esc(F.players[w].name)} wins by ${pts}.`;
   const card = (pl, i) => `<div class="fcard" style="--pc:var(--p${i + 1})">${w === i ? '<div class="crown">Winner</div>' : '<div class="crown">&nbsp;</div>'}<div class="who">${esc(pl.name)}</div><div class="big">${pl.score}</div>
     <table><tr><td>Care</td><td>+${pl.pts.care || 0}</td></tr><tr><td>Bonuses</td><td>+${pl.pts.bonus || 0}</td></tr><tr><td>Penalties</td><td>${pl.pts.penalty || 0}</td></tr>
     ${ORDER.filter(x => x !== 'check').map(x => `<tr><td>${ACTIONS[x].label}</td><td>${pl.counts[x] || 0}×</td></tr>`).join('')}</table></div>`;
   const chart = (() => {
     const H = F.hist; if (H.length < 2) return '';
-    const W = 300, Ht = 110, x = i => 8 + i / (H.length - 1) * (W - 16), y = v => Ht - 8 - v / 100 * (Ht - 16);
+    const W = 300, Ht = 110, x = i => 8 + (H[i].t - START_T) / SPAN * (W - 16), y = v => Ht - 8 - v / 100 * (Ht - 16);
     const line = (k, c) => `<polyline fill="none" stroke="${c}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" points="${H.map((h, i) => x(i) + ',' + y(h[k])).join(' ')}"/>`;
-    return `<div class="sect">The month at a glance</div><div class="chartbox"><svg viewBox="0 0 ${W} ${Ht}" preserveAspectRatio="none"><line x1="8" x2="${W - 8}" y1="${y(50)}" y2="${y(50)}" stroke="#ecdccb" stroke-dasharray="4 4"/>${line('health', '#55b77e')}${line('happiness', '#f0607e')}</svg></div><div class="legend"><span><i style="background:#55b77e"></i>Health</span><span><i style="background:#f0607e"></i>Happiness</span></div>`;
+    return `<div class="sect">The day at a glance</div><div class="chartbox"><svg viewBox="0 0 ${W} ${Ht}" preserveAspectRatio="none"><line x1="8" x2="${W - 8}" y1="${y(50)}" y2="${y(50)}" stroke="#ecdccb" stroke-dasharray="4 4"/>${line('health', '#55b77e')}${line('happiness', '#f0607e')}</svg></div><div class="legend"><span><i style="background:#55b77e"></i>Health</span><span><i style="background:#f0607e"></i>Happiness</span></div>`;
   })();
   const pers = F.pers ? Object.entries(TRAITS).map(([k, T]) => { const v = F.pers[k]; const txt = v > .62 ? T.hi : v < .38 ? T.lo : T.mid; return `<div class="trait found"><span>${T.name}</span><b>${txt}</b></div>`; }).join('') : '';
   const canRestart = App.role !== 'guest';
-  $('resPanel').innerHTML = `<div class="winner"><h2>${title}</h2><p>After 30 days, ${esc(F.dogName)} ${grade}.</p></div>
+  $('resPanel').innerHTML = `<div class="winner"><h2>${title}</h2><p class="verdict">${verdict}</p><p>${esc(F.dogName)} ${grade}.</p></div>
     <div class="finals">${card(a, 0)}${card(b, 1)}</div>
-    <div class="note">Accidents: ${F.accidents} · Final health ${Math.round(N.health)} · Happiness ${Math.round(N.happiness)}</div>
+    <div class="note">${DIFFS[F.diff] ? DIFFS[F.diff].name : 'Medium'} · Accidents: ${F.accidents} · Final health ${Math.round(N.health)} · Happiness ${Math.round(N.happiness)}</div>
     ${chart}
     <div class="sect">${esc(F.dogName)}'s true personality</div><div class="traits">${pers}</div>
-    ${canRestart ? '<button class="btn pri" id="resAgain">Play another month with CeCe</button>' : '<div class="status">The host can start a new game. Stay here to join it.</div>'}
+    ${canRestart ? '<button class="btn pri" id="resAgain">Play another day with CeCe</button>' : '<div class="status">The host can start a new game. Stay here to join it.</div>'}
     <button class="btn ghost" id="resQuit">Back to title</button>`;
   show('scrResults');
   if (canRestart) $('resAgain').onclick = restartGame;
@@ -2020,11 +2064,11 @@ function showResults(F) {
 }
 function restartGame() {
   const names = G.players.map(p => p.name);
-  G = newGame({ dogName: DOG, dayLen: G.dayLen, names }); V = G;
+  G = newGame({ dogName: DOG, diff: G.diff, names }); V = G;
   resetWorld(); dog.run('wander', { to: SPOTS.front, then: 'sit', dur: 3 });
   if (App.role === 'host') Net.send({ t: 'start', s: snapshot() });
   hideScreens(); App.screen = 'game';
-  toast(`A new month with <b>${DOG}</b>! Her hidden quirks have changed.`, 'var(--accent)');
+  toast(`A new day with <b>${DOG}</b>! Her hidden quirks have changed.`, 'var(--accent)');
 }
 function resetWorld() { foodLevel = 0; waterLevel = .6; doorTarget = 0; puddles.forEach(p => scene.remove(p.m)); puddles.length = 0; ball.state = 'floor'; ball.pos.set(SPOTS.toy[0], .1, SPOTS.toy[1]); prints.forEach(q => scene.remove(q.m)); prints.length = 0; dog.pos.set(SPOTS.front[0], 0, SPOTS.front[1]); }
 function quitToTitle() {
@@ -2040,7 +2084,7 @@ function enterGame() {
   if (App.role === 'local') { $('seatB0').textContent = V.players[0].name; $('seatB1').textContent = V.players[1].name; }
   updateSeat(); Snd.init(); requestWake();
   if (V.sleeping) dog.run('sleep'); else if (!dog.seqKind) dog.run('wander', { to: SPOTS.front, then: 'sit', dur: 3 });
-  toast(`Meet <b>${esc(V.dogName)}</b>! Keep them happy and healthy for 30 days.`, 'var(--accent)');
+  toast(`A day with <b>${esc(V.dogName)}</b> begins<small>${DIFFS[V.diff] ? DIFFS[V.diff].name : ''} · ${V.mins} minutes · highest score at 10pm wins</small>`, 'var(--accent)');
 }
 
 /* ---------- persistence (host / local only) ---------- */
@@ -2052,7 +2096,7 @@ function resumeSaved() {
   else {
     App.role = 'host'; App.seat = 0; G.players[0].name = myName();
     G.paused = true; G.pauseWhy = 'p2left';
-    App.screen = 'host'; show('scrHost'); $('hostLen').value = String(G.dayLen); $('hostLen').disabled = true;
+    App.screen = 'host'; show('scrHost'); diffChoice.host = G.diff; buildDiff('host', 'hostDiff'); $('hostDiff').style.pointerEvents = 'none';
     hostOpenRoom();
   }
 }
@@ -2070,9 +2114,34 @@ document.addEventListener('visibilitychange', () => {
 });
 
 /* ---------- screen wiring ---------- */
+// difficulty pickers (host screen and pass-and-play screen)
+const diffChoice = { host: store.get('rrr_diff', 'medium'), local: store.get('rrr_diff', 'medium') };
+function buildDiff(which, boxId) {
+  const box = $(boxId); box.innerHTML = '';
+  const blurb = document.createElement('div'); blurb.className = 'dblurb';
+  for (const k of ['easy', 'medium', 'hard']) {
+    const D = DIFFS[k], b = document.createElement('button');
+    b.type = 'button'; b.className = 'dbtn'; b.dataset.k = k;
+    b.innerHTML = `${D.name}<small>${D.mins} min</small>`;
+    b.addEventListener('click', () => { diffChoice[which] = k; store.set('rrr_diff', k); paint(); Snd.play('tap'); });
+    box.appendChild(b);
+  }
+  box.appendChild(blurb);
+  const paint = () => {
+    box.querySelectorAll('.dbtn').forEach(b => b.classList.toggle('sel', b.dataset.k === diffChoice[which]));
+    blurb.textContent = DIFFS[diffChoice[which]].blurb;
+  };
+  paint();
+}
+buildDiff('host', 'hostDiff'); buildDiff('local', 'localDiff');
+
 $('nameIn').value = store.get('rrr_name', '');
 const saved = store.get('rrr_save', null);
-if (saved && saved.G && !saved.G.over) { $('btnResume').style.display = 'flex'; $('btnResume').textContent = `Resume: ${saved.G.dogName}, Day ${Math.min(DAYS, Math.floor(saved.G.t / DAY_MIN) + 1)} (${saved.role === 'local' ? 'pass-and-play' : 'as host'})`; }
+if (saved && saved.G && saved.G.v === 2 && !saved.G.over) {
+  const left = Math.ceil((END_T - saved.G.t) / SPAN * saved.G.mins);
+  $('btnResume').style.display = 'flex';
+  $('btnResume').textContent = `Resume: ~${left} min left (${saved.role === 'local' ? 'pass-and-play' : 'as host'})`;
+} else store.del('rrr_save');
 const remember = () => store.set('rrr_name', $('nameIn').value.trim());
 $('btnHost').onclick = () => {
   remember(); Snd.init(); App.role = 'host'; App.seat = 0; App.screen = 'host'; Net.mode = 'peer';
@@ -2087,13 +2156,13 @@ $('hostCopy').onclick = async () => { if (!Net.code) return; try { await navigat
 $('hostShare').onclick = async () => { if (!Net.code) return; const url = inviteLink(Net.code); if (navigator.share) { try { await navigator.share({ title: 'Rabie Ruff Ruff', text: `Come take care of CeCe with me in Rabie Ruff Ruff! Room code ${Net.code}`, url }); } catch (e) { } } else $('hostCopy').onclick(); };
 $('hostStart').onclick = () => {
   if (!(App.guestReady && Net.link && Net.link.open)) return;
-  if (!G) G = newGame({ dogName: DOG, dayLen: +$('hostLen').value, names: [myName(), App.guestName] });
+  if (!G) G = newGame({ dogName: DOG, diff: diffChoice.host, names: [myName(), App.guestName] });
   else G.players[1].name = App.guestName;
   G.paused = false; G.pauseWhy = ''; V = G;
   Net.send({ t: 'start', s: snapshot() }); enterGame(); saveGame();
 };
 $('hostManual').onclick = () => { App.manualRole = 'host'; App.screen = 'manual'; setupManual(); };
-$('hostBack').onclick = () => { try { Net.peer && Net.peer.destroy(); Net.link && Net.link.close(); } catch (e) { } Net.peer = null; Net.link = null; Net.code = null; App.guestReady = false; G = null; $('hostLen').disabled = false; $('hostCode').textContent = '· · · · ·'; App.screen = 'title'; show('scrTitle'); };
+$('hostBack').onclick = () => { try { Net.peer && Net.peer.destroy(); Net.link && Net.link.close(); } catch (e) { } Net.peer = null; Net.link = null; Net.code = null; App.guestReady = false; G = null; $('hostDiff').style.pointerEvents = ''; $('hostCode').textContent = '· · · · ·'; App.screen = 'title'; show('scrTitle'); };
 $('joinGo').onclick = () => guestJoin($('joinCode').value);
 $('joinCode').addEventListener('keydown', e => { if (e.key === 'Enter') guestJoin($('joinCode').value); });
 $('joinManual').onclick = () => { App.manualRole = 'guest'; App.screen = 'manual'; setupManual(); };
@@ -2117,7 +2186,7 @@ $('manBack').onclick = () => { if (App.manualRole === 'host') { App.screen = 'ho
 $('localStart').onclick = () => {
   const n1 = ($('lp1').value || '').trim().slice(0, 14) || 'Player 1', n2 = ($('lp2').value || '').trim().slice(0, 14) || 'Player 2';
   App.role = 'local'; App.seat = 0; Snd.init();
-  G = newGame({ dogName: DOG, dayLen: +$('localLen').value, names: [n1, n2] }); V = G;
+  G = newGame({ dogName: DOG, diff: diffChoice.local, names: [n1, n2] }); V = G;
   enterGame(); saveGame();
 };
 $('localBack').onclick = () => show('scrTitle');
