@@ -424,7 +424,7 @@ const TRAITS = {
 };
 // Key positions in the room (x, z). Back wall is z = -4, door leads to the yard behind it.
 const SPOTS = {
-  bed: [-2.6, -2.55], food: [-1.0, -3.35], foodEat: [-1.0, -2.78], water: [0.2, -3.35], waterEat: [0.2, -2.78],
+  bed: [-2.6, -2.55], food: [-1.0, -3.35], foodEat: [-1.0, -3.02], water: [0.2, -3.35], waterEat: [0.2, -3.02],
   doorIn: [2.4, -3.25], doorOut: [2.4, -4.55], patio: [2.4, -5.25], mat: [2.5, 0.9], cuddle: [0.4, 1.45], toy: [1.3, -0.9], front: [0.4, 0.55]
 };
 // Loop CeCe follows when she runs around the house (zoomies / chase game)
@@ -905,7 +905,12 @@ add(new THREE.CylinderGeometry(.55, .55, .1, 40), std(0xf6eee2, 1), 0, .12, 0, b
 const rim = add(new THREE.TorusGeometry(.6, .14, 16, 44), std(0x86aecb, .95), 0, .17, 0, bedG); rim.rotation.x = Math.PI / 2;
 // bowls
 const bowlGeo = new THREE.LatheGeometry([new THREE.Vector2(0, 0), new THREE.Vector2(.19, 0), new THREE.Vector2(.25, .13), new THREE.Vector2(.22, .14), new THREE.Vector2(.17, .035), new THREE.Vector2(0, .035)], 32);
-const foodBowl = new THREE.Group(); foodBowl.position.set(SPOTS.food[0], 0, SPOTS.food[1]); room.add(foodBowl);
+const FEED_H = .3;
+{ const fm = std(0xc89b6d, .6), fl = std(0xb3835a, .6);
+  add(new THREE.BoxGeometry(1.5, .07, .62), fm, -.4, FEED_H - .035, SPOTS.food[1]);
+  for (const [x, z] of [[-1.05, -.22], [.25, -.22], [-1.05, .22], [.25, .22]]) add(new THREE.BoxGeometry(.09, FEED_H - .07, .09), fl, x, (FEED_H - .07) / 2, SPOTS.food[1] + z);
+  add(new THREE.BoxGeometry(1.44, .025, .05), fl, -.4, .1, SPOTS.food[1] - .26); }
+const foodBowl = new THREE.Group(); foodBowl.position.set(SPOTS.food[0], FEED_H, SPOTS.food[1]); room.add(foodBowl);
 add(bowlGeo, std(0xf08a74, .5), 0, 0, 0, foodBowl);
 const kibble = new THREE.Group(); foodBowl.add(kibble);
 { const r = mulberry32(5), km = std(0x9a6438, .8), kg = new THREE.SphereGeometry(.035, 8, 6); for (let i = 0; i < 22; i++) { const a = r() * 7, d = r() * .15; add(kg, km, Math.cos(a) * d, .05 + r() * .05, Math.sin(a) * d, kibble); } }
@@ -914,7 +919,7 @@ add(new THREE.SphereGeometry(1, 20, 12), std(0xb5735a, .55), 0, .055, 0, freshFo
 [[.05, .1, .03], [-.06, .095, -.02], [0, .1, -.07]].forEach(([x, y, z]) => add(new THREE.IcosahedronGeometry(.03, 1), std(0xd19a7a, .6), x, y, z, freshFood));
 add(new THREE.SphereGeometry(.018, 8, 6), std(0x6aa84f, .6), .02, .1, .06, freshFood);
 let foodLevel = 0, foodType = 'fresh', steamT = 0, steamFx = 0;
-const waterBowl = new THREE.Group(); waterBowl.position.set(SPOTS.water[0], 0, SPOTS.water[1]); room.add(waterBowl);
+const waterBowl = new THREE.Group(); waterBowl.position.set(SPOTS.water[0], FEED_H, SPOTS.water[1]); room.add(waterBowl);
 add(bowlGeo, std(0x5ea8d6, .5), 0, 0, 0, waterBowl);
 const waterSurf = add(new THREE.CircleGeometry(.2, 28), std(0x9ad6ff, .1, { transparent: true, opacity: .85 }), 0, .1, 0, waterBowl); waterSurf.rotation.x = -Math.PI / 2;
 let waterLevel = .6, waterCold = false;
@@ -1096,74 +1101,101 @@ const Snd = {
    THE MALTIPOO (procedural 3D model)
    ===================================================================== */
 function buildDogModel() {
-  const R0 = mulberry32(20240607), R = (a, b) => a + R0() * (b - a);  // seeded: dog looks identical on both devices
-  const coat = std(0xfffaf3, .95, { emissive: new THREE.Color(0x2a2520) }), coatShade = std(0xf4e2cc, .95, { emissive: new THREE.Color(0x221c16) });
+  const R0 = mulberry32(20240607), R = (a, b) => a + R0() * (b - a);  // seeded: CeCe looks identical on both devices
+  const coat = std(0xfffaf3, .95, { emissive: new THREE.Color(0x2a2520) }), coatShade = std(0xeedcc2, .95, { emissive: new THREE.Color(0x241e18) });
   const dark = std(0x17100d, .22), eyeMat = new THREE.MeshStandardMaterial({ color: 0x1b120e, roughness: .06, metalness: .1 });
   const shine = new THREE.MeshBasicMaterial({ color: 0xffffff });
-  const pink = std(0xff8ea0, .5), mouthMat = std(0x4a2626, .6);
+  const pink = std(0xff7f96, .45), mouthMat = std(0x45201f, .6);
   const dirtMat = std(0x8a6a48, 1, { transparent: true, opacity: 0, depthWrite: false });
-  const ico = new THREE.IcosahedronGeometry(1, 2); ico.userData.merge = true;
+  const big = new THREE.IcosahedronGeometry(1, 2); big.userData.merge = true;     // underlying body masses
+  const curl = new THREE.IcosahedronGeometry(1, 1); curl.userData.merge = true;   // small tight coat curls
   const sph = new THREE.SphereGeometry(1, 24, 16);
-  const blob = (par, x, y, z, sx, sy, sz, m = coat, geo = ico) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.scale.set(sx, sy, sz); par.add(o); return o; };
-  const fluff = (par, cx, cy, cz, rx, ry, rz, n, r0, r1, filter, m = coat) => {
+  const blob = (par, x, y, z, sx, sy, sz, m = coat, geo = big) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.scale.set(sx, sy, sz); par.add(o); return o; };
+  // A dense shell of small, randomly rotated lumps: reads as a tight curly Maltipoo coat rather than big puffs.
+  const curls = (par, cx, cy, cz, rx, ry, rz, n, r0, r1, filter, m = coat) => {
     for (let i = 0; i < n; i++) {
-      const u = R(-1, 1), th = R(0, Math.PI * 2), s = Math.sqrt(1 - u * u), d = new V3(s * Math.cos(th), u, s * Math.sin(th)), r = R(r0, r1);
+      const u = R(-1, 1), th = R(0, Math.PI * 2), s = Math.sqrt(1 - u * u), d = new V3(s * Math.cos(th), u, s * Math.sin(th));
       if (filter && !filter(d)) continue;
-      blob(par, cx + d.x * rx, cy + d.y * ry, cz + d.z * rz, r, r * R(.85, 1.05), r, m);
+      const r = R(r0, r1);
+      const b = blob(par, cx + d.x * rx, cy + d.y * ry, cz + d.z * rz, r, r * R(.78, 1), r * R(.85, 1.05), m, curl);
+      b.rotation.set(R(0, 3.1), R(0, 3.1), R(0, 3.1));
     }
   };
   const root = new THREE.Group();
-  const body = new THREE.Group(); body.position.y = .48; root.add(body);
-  blob(body, 0, 0, 0, .33, .29, .42);
-  fluff(body, 0, .01, 0, .31, .27, .4, 48, .09, .14);
-  fluff(body, 0, -.05, .3, .17, .15, .11, 12, .08, .11, d => d.z > -.2);
-  const head = new THREE.Group(); head.position.set(0, .27, .36); head.rotation.order = 'YXZ'; body.add(head);
-  blob(head, 0, 0, 0, .26, .245, .24);
-  fluff(head, 0, .03, -.03, .25, .23, .21, 36, .07, .11, d => !(d.z > .5 && d.y < .5 && Math.abs(d.x) < .62));
-  for (let i = 0; i < 8; i++) blob(head, R(-.1, .1), R(.2, .29), R(-.09, .07), R(.08, .11), R(.07, .1), R(.08, .11));
-  blob(head, 0, -.075, .2, .13, .1, .12);
-  fluff(head, 0, -.095, .2, .12, .075, .1, 16, .045, .07, d => d.z > -.3 && d.y < .45);
-  blob(head, 0, -.035, .325, .05, .039, .037, dark, sph);                                // nose
-  blob(head, .015, -.02, .356, .013, .008, .008, shine, sph);
+
+  // ---- body: slimmer and deeper-chested, sitting tall on longer legs ----
+  const body = new THREE.Group(); body.position.y = .66; root.add(body);
+  blob(body, 0, 0, 0, .26, .25, .38);
+  blob(body, 0, -.015, .24, .195, .18, .13);            // chest
+  blob(body, 0, .035, -.24, .225, .22, .145);           // haunches
+  blob(body, 0, .17, .26, .125, .13, .105);             // neck
+  curls(body, 0, 0, 0, .25, .24, .365, 145, .05, .08);
+  curls(body, 0, -.02, .26, .185, .17, .105, 30, .048, .07, d => d.z > -.3);
+  curls(body, 0, .045, -.26, .21, .205, .115, 28, .05, .075, d => d.z < .3);
+  curls(body, 0, .17, .27, .115, .12, .09, 14, .04, .06, d => d.y > -.4);
+
+  // ---- head: rounder skull, long fringe, real protruding muzzle ----
+  const head = new THREE.Group(); head.position.set(0, .345, .30); head.rotation.order = 'YXZ'; body.add(head);
+  blob(head, 0, 0, 0, .215, .205, .19);
+  curls(head, 0, .02, -.02, .205, .195, .175, 92, .048, .075, d => !(d.z > .45 && d.y < .45 && Math.abs(d.x) < .6));
+  for (let i = 0; i < 16; i++) blob(head, R(-.13, .13), R(.16, .265), R(-.1, .12), R(.055, .085), R(.05, .075), R(.055, .085), coat, curl);  // topknot
+  for (const sx of [-1, 1]) for (let i = 0; i < 5; i++) blob(head, sx * R(.04, .16), R(.15, .225), R(.04, .135), R(.045, .07), R(.04, .06), R(.045, .07), coat, curl);  // brow fringe, swept up and back
+  const muzzle = blob(head, 0, -.085, .215, .115, .092, .145);
+  curls(head, 0, -.1, .2, .105, .07, .115, 22, .038, .058, d => d.z > -.35 && d.y < .4);
+  blob(head, 0, -.043, .345, .05, .04, .038, dark, sph);                                   // nose
+  blob(head, .017, -.027, .375, .013, .009, .008, shine, sph);
   const eyes = [];
   for (const sx of [-1, 1]) {
-    const g = new THREE.Group(); g.position.set(sx * .1, .032, .2); head.add(g);
-    blob(g, 0, 0, 0, .064, .068, .046, eyeMat, sph);
-    blob(g, .02, .026, .037, .018, .018, .01, shine, sph);
-    blob(g, -.016, -.02, .04, .008, .008, .006, shine, sph);
+    const g = new THREE.Group(); g.position.set(sx * .107, .052, .168); head.add(g);
+    blob(g, 0, 0, 0, .058, .062, .042, eyeMat, sph);
+    blob(g, .019, .024, .034, .017, .017, .01, shine, sph);
+    blob(g, -.015, -.018, .036, .0075, .0075, .006, shine, sph);
     eyes.push(g);
   }
-  const mouth = new THREE.Group(); mouth.position.set(0, -.14, .235); head.add(mouth);
-  const mo = blob(mouth, 0, 0, 0, .06, .03, .03, mouthMat, sph);
-  const tongue = blob(mouth, 0, -.018, .03, .036, .012, .05, pink, sph);
+  // open happy mouth with her tongue out
+  const mouth = new THREE.Group(); mouth.position.set(0, -.152, .27); head.add(mouth);
+  const mo = blob(mouth, 0, 0, 0, .062, .03, .032, mouthMat, sph);
+  const tongue = blob(mouth, 0, -.02, .032, .038, .013, .055, pink, sph);
+
+  // ---- ears: long, wavy, hanging well below the chin and flaring outward ----
   const ears = [];
   for (const sx of [-1, 1]) {
-    const p = new THREE.Group(); p.position.set(sx * .24, .07, -.01); head.add(p);   // floppy ears hang outside the head fluff
-    blob(p, sx * .08, -.08, 0, .09, .12, .075, coatShade); blob(p, sx * .1, -.2, .01, .1, .12, .08, coatShade); blob(p, sx * .09, -.31, .01, .085, .08, .07, coatShade);
-    fluff(p, sx * .095, -.18, 0, .085, .15, .065, 16, .045, .07, null, coatShade);
+    const p = new THREE.Group(); p.position.set(sx * .175, .035, .005); head.add(p);
+    const seg = [[.075, -.1, .03, .072, .11, .075], [.095, -.23, .04, .078, .12, .082], [.105, -.36, .03, .072, .11, .074], [.108, -.465, .005, .058, .078, .06]];
+    for (const [x, y, z, a, b, c] of seg) blob(p, sx * x, y, z, a, b, c, coatShade);
+    for (const [x, y, z, a, b, c] of seg) curls(p, sx * x, y, z, a * .8, b * .8, c * .75, 15, .036, .056, null, coatShade);
     ears.push({ p, sx });
   }
+
+  // ---- legs: longer and straighter, with fluffy upper and neat paws ----
   const legs = [];
   for (const [sx, sz, front] of [[-1, 1, 1], [1, 1, 1], [-1, -1, 0], [1, -1, 0]]) {
-    const lp = new THREE.Group(); lp.position.set(sx * .15, -.15, sz * .21); body.add(lp);
-    blob(lp, 0, -.12, 0, .08, .14, .08); fluff(lp, 0, -.12, 0, .07, .13, .07, 9, .045, .07);
-    blob(lp, 0, -.285, .025, .075, .05, .09);
+    const lp = new THREE.Group(); lp.position.set(sx * .135, -.17, sz * .18); body.add(lp);
+    blob(lp, 0, -.175, 0, .07, .215, .072);
+    curls(lp, 0, -.15, 0, .058, .175, .058, 20, .038, .06);
+    blob(lp, 0, -.43, .025, .068, .05, .085);
+    curls(lp, 0, -.43, .02, .055, .035, .07, 8, .031, .047);
     legs.push({ p: lp, front, ph: (sx * sz > 0) ? 0 : Math.PI });
   }
-  const tail = new THREE.Group(); tail.position.set(0, .14, -.38); body.add(tail);
-  for (const [x, y, z, r] of [[0, .05, -.02, .075], [0, .12, -.04, .082], [0, .19, -.02, .078], [0, .245, .03, .068], [0, .27, .09, .056]]) { blob(tail, x, y, z, r, r, r); fluff(tail, x, y, z, r * .8, r * .8, r * .8, 4, r * .5, r * .75); }
-  // pink collar with CeCe's heart name tag
-  const collar = new THREE.Mesh(new THREE.TorusGeometry(.2, .032, 10, 40), std(0xff7fa6, .45)); collar.position.set(0, .13, .3); collar.rotation.x = -1.15; body.add(collar);
-  const tagPivot = new THREE.Group(); tagPivot.position.set(0, .03, .5); body.add(tagPivot);
+
+  // ---- tail: plumed, curving up and over her back ----
+  const tail = new THREE.Group(); tail.position.set(0, .12, -.31); body.add(tail);
+  const tseg = [[0, .05, -.04, .07], [0, .14, -.03, .082], [0, .22, .03, .086], [0, .27, .12, .078], [0, .27, .21, .064], [0, .23, .28, .05]];
+  for (const [x, y, z, r] of tseg) { blob(tail, x, y, z, r, r, r); curls(tail, x, y, z, r * .85, r * .85, r * .85, 9, r * .42, r * .62); }
+
+  // ---- pink collar with CeCe's heart name tag ----
+  const collar = new THREE.Mesh(new THREE.TorusGeometry(.155, .028, 10, 40), std(0xff7fa6, .45)); collar.position.set(0, .165, .255); collar.rotation.x = -1.3; body.add(collar);
+  const tagPivot = new THREE.Group(); tagPivot.position.set(0, .075, .43); body.add(tagPivot);
   const tagMat = new THREE.MeshStandardMaterial({ map: TEX.tag, transparent: true, alphaTest: .4, roughness: .35, metalness: .15, side: THREE.DoubleSide });
   const tag = new THREE.Mesh(new THREE.PlaneGeometry(.2, .2), tagMat); tag.position.set(0, -.105, .12); tag.renderOrder = 3; tagPivot.add(tag);
   add(new THREE.TorusGeometry(.016, .005, 6, 12), std(0xe9c46a, .3, { metalness: .7 }), 0, .005, .11, tagPivot);
-  const dirt = [blob(body, .22, -.12, .22, .07, .05, .045, dirtMat), blob(body, -.26, .02, -.12, .06, .06, .05, dirtMat), blob(body, .12, .18, -.25, .05, .04, .05, dirtMat), blob(head, -.12, -.15, .12, .045, .035, .04, dirtMat)];
-  legs.forEach((l, i) => i % 2 || dirt.push(blob(l.p, 0, -.25, .05, .06, .04, .06, dirtMat)));
+
+  const dirt = [blob(body, .24, -.1, .2, .07, .05, .045, dirtMat), blob(body, -.27, .04, -.12, .06, .06, .05, dirtMat), blob(body, .13, .2, -.24, .05, .04, .05, dirtMat), blob(head, -.13, -.13, .11, .045, .035, .04, dirtMat)];
+  legs.forEach((l, i) => i % 2 || dirt.push(blob(l.p, 0, -.4, .05, .058, .042, .058, dirtMat)));
   dirt.forEach(d => d.renderOrder = 2);
-  const shadow = new THREE.Mesh(new THREE.CircleGeometry(.6, 32), new THREE.MeshBasicMaterial({ map: TEX.blob, transparent: true, depthWrite: false }));
+  const shadow = new THREE.Mesh(new THREE.CircleGeometry(.58, 32), new THREE.MeshBasicMaterial({ map: TEX.blob, transparent: true, depthWrite: false }));
   shadow.rotation.x = -Math.PI / 2; shadow.position.y = .013; shadow.scale.set(1, 1.35, 1); root.add(shadow);
-  // merge static fluff blobs per part to keep draw calls low on phones
+  // merge the static curls per part so the whole coat costs one draw call per material
   const mergeIn = grp => {
     const by = new Map();
     for (const m of [...grp.children]) if (m.isMesh && m.geometry.userData.merge && m.material !== dirtMat) { if (!by.has(m.material)) by.set(m.material, []); by.get(m.material).push(m); }
@@ -1370,12 +1402,12 @@ class Dog {
   }
   applyPose(dt, N) {
     const m = this.m, p = this.pose, mood = N.happiness / 100, en = N.energy / 100, hl = N.health / 100;
-    const t = { sit: 0, lie: 0, bow: 0, headPitch: 0, headYaw: 0, headRoll: 0, ear: lerp(-.25, .42, mood) - (hl < .4 ? .2 : 0), tailUp: lerp(-1.6, -.35, mood), wag: 4 + 14 * mood, wagAmp: .08 + .5 * mood, mouth: mood > .75 && en > .4 ? .3 : 0, eye: en < .25 ? .7 : 1 };
+    const t = { sit: 0, lie: 0, bow: 0, headPitch: 0, headYaw: 0, headRoll: 0, ear: lerp(-.25, .42, mood) - (hl < .4 ? .2 : 0), tailUp: lerp(-1.25, .12, mood), wag: 4 + 14 * mood, wagAmp: .08 + .5 * mood, mouth: mood > .5 && en > .3 ? .5 : mood > .3 ? .2 : 0, eye: en < .25 ? .7 : 1 };
     switch (this.mode) {
       case 'sit': t.sit = 1; break;
       case 'lie': t.lie = 1; t.headPitch = .15; break;
       case 'sleep': t.lie = 1; t.headPitch = .4; t.headYaw = .3; t.eye = 0; t.wagAmp = 0; t.ear = -.25; t.mouth = 0; t.tailUp = -1.4; break;
-      case 'eat': case 'drink': t.bow = .5; t.headPitch = .95; t.mouth = .2 + .3 * Math.max(0, Math.sin(this.time * 14)); break;
+      case 'eat': case 'drink': t.bow = .6; t.headPitch = 1.25; t.mouth = .2 + .3 * Math.max(0, Math.sin(this.time * 14)); break;
       case 'beg': t.sit = 1; t.headPitch = -.32; t.ear += .15; t.wagAmp += .15; t.mouth = .25; break;
       case 'restless': t.ear += .1; t.headPitch = -.1; t.mouth = .2; break;
       case 'potty': t.sit = .55; t.tailUp = -.15; t.wagAmp = 0; t.headPitch = -.05; break;
@@ -1403,12 +1435,12 @@ class Dog {
     const breath = Math.sin(this.time * (this.mode === 'sleep' ? 1.3 : 2.4)) * (this.mode === 'sleep' ? .022 : .012);
     m.body.rotation.x = tilt;
     m.body.rotation.z = o.roll + Math.sin(this.time * 47) * o.tremble * 4;
-    m.body.position.y = .48 - .13 * sit - .26 * lie - .08 * bow + bob;
+    m.body.position.y = .66 - .21 * sit - .44 * lie - .10 * bow + bob;
     m.body.scale.set(1 + breath * .6, 1 + breath, 1);
     const sw = (1 - sit) * (1 - lie);
     for (const l of m.legs) {
       const swing = Math.sin(this.phase + l.ph) * .6 * this.walkAmt * sw;
-      l.p.rotation.x = l.front ? (-tilt - 1.45 * lie - .6 * bow + swing) : (-tilt - 1.4 * sit + 1.45 * lie + swing);
+      l.p.rotation.x = l.front ? (-tilt - 1.5 * lie - .18 * bow + swing) : (-tilt - 1.4 * sit + 1.45 * lie + swing);
     }
     m.legs[0].p.rotation.x -= o.paw * 1.25 + o.pawShake;
     m.tagPivot.rotation.x = -tilt + Math.sin(this.time * 3.1) * .08 + this.walkAmt * Math.sin(this.phase * 2) * .25;
@@ -1416,16 +1448,16 @@ class Dog {
     m.head.rotation.y = p.headYaw + o.yaw;
     m.head.rotation.z = p.headRoll + o.headRoll;
     const ear = p.ear + o.ear;
-    for (const e of m.ears) { e.p.rotation.z = e.sx * (ear + Math.sin(this.phase * 2) * .1 * this.walkAmt); e.p.rotation.x = -.15 * ear; }
+    for (const e of m.ears) { e.p.rotation.z = e.sx * (ear * .85 + Math.sin(this.phase * 2) * .16 * this.walkAmt); e.p.rotation.x = -.2 * ear + Math.sin(this.phase * 2 + 1) * .1 * this.walkAmt; }
     const wagSpeed = p.wag + o.wag * 8;
     this.wagPhase += dt * wagSpeed;
     const wagAmp = clamp(p.wagAmp + (o.wag > 0 ? .35 : o.wag < 0 ? -.5 : 0), 0, .9);
     m.tail.rotation.x = p.tailUp + o.tail;
     m.tail.rotation.y = Math.sin(this.wagPhase) * wagAmp;
     const mouth = o.mouth != null ? Math.max(o.mouth, p.mouth) : p.mouth;
-    m.mo.scale.set(.06, .012 + .045 * mouth, .03);
-    m.tongue.visible = mouth > .22 || o.tongue > 0;
-    m.tongue.position.set(0, -.02 - .025 * mouth, .03 + .03 * mouth + .04 * o.tongue);
+    m.mo.scale.set(.062, .014 + .05 * mouth, .032);
+    m.tongue.visible = mouth > .18 || o.tongue > 0;
+    m.tongue.position.set(0, -.022 - .028 * mouth, .032 + .032 * mouth + .045 * o.tongue);
     const eye = Math.max(.07, (o.eye != null ? Math.min(o.eye, p.eye) : p.eye) * this.blink);
     m.eyes.forEach(e => e.scale.y = eye);
     // coat condition
@@ -1521,7 +1553,7 @@ function updateWorld(dt, t) {
   freshFood.visible = foodLevel > .02 && foodType !== 'kibble'; freshFood.scale.set(.6 + .4 * foodLevel, Math.max(.05, foodLevel), .6 + .4 * foodLevel);
   waterSurf.position.y = .04 + .07 * waterLevel; waterSurf.scale.setScalar(.75 + .25 * waterLevel);
   ice.visible = waterCold && waterLevel > .25; ice.position.y = waterSurf.position.y - .1 + Math.sin(performance.now() / 600) * .004;
-  if (steamT > 0 && foodLevel > .05) { steamT -= dt; steamFx -= dt; if (steamFx <= 0) { steamFx = .25; emitP(TEX.steam, new V3(SPOTS.food[0], .2, SPOTS.food[1]), 1, { size: .16, vy: .35, vx: .3, spread: .08, life: 1.4 }); } }
+  if (steamT > 0 && foodLevel > .05) { steamT -= dt; steamFx -= dt; if (steamFx <= 0) { steamFx = .25; emitP(TEX.steam, new V3(SPOTS.food[0], FEED_H + .2, SPOTS.food[1]), 1, { size: .16, vy: .35, vx: .3, spread: .08, life: 1.4 }); } }
   if (microT > 0) { microT -= dt; microGlow.color.setHex(0xffd27a); microDisp.color.setHex(0x7dff9e); }
   else { microGlow.color.setHex(0x2a241c); microDisp.color.setHex(0x1d3a2a); }
   // rain + wet grass
