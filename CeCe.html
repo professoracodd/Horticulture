@@ -158,6 +158,18 @@ textarea.inp{font-size:12px;height:88px;resize:none;font-family:ui-monospace,Men
 #bubble.urgent{border-color:var(--bad);color:#a8322a}
 #bubble.urgent::after{border-top-color:var(--bad)}
 
+/* ---------- hard-mode distractions: fake computer pop-ups ---------- */
+.popup{position:fixed;z-index:45;width:236px;background:#f4f4f4;border:2px solid #2b4a8c;border-radius:6px;box-shadow:0 10px 28px rgba(0,0,0,.4);font-family:Arial,Helvetica,sans-serif;color:#222;animation:popIn .22s cubic-bezier(.2,1.6,.4,1)}
+@keyframes popIn{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+.popup .pbar{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(#3a6fd8,#2b4a8c);color:#fff;font-size:11px;font-weight:700;padding:3px 4px 3px 8px}
+.popup .pbar button{width:20px;height:18px;border:1px solid #fff;background:#d9534f;color:#fff;font:700 12px/1 Arial;border-radius:3px;padding:0}
+.popup .pbody{padding:8px 10px 12px;text-align:center}
+.popup .pbody svg{width:150px;height:130px}
+.popup .pbody h4{margin:2px 0 2px;font-size:17px;color:#c4281c;text-transform:uppercase;letter-spacing:.02em}
+.popup .pbody p{margin:0 0 8px;font-size:12px}
+.popup .pbody .claim{display:block;width:100%;border:0;border-radius:4px;background:#2fb344;color:#fff;font:800 15px Arial;padding:9px;animation:pulseBtn .7s infinite alternate}
+@keyframes pulseBtn{to{transform:scale(1.05)}}
+
 /* ---------- option picker ---------- */
 #scrPick{align-items:flex-end}
 #scrPick .panel{border-radius:26px;margin-bottom:6px}
@@ -1246,20 +1258,42 @@ const Snd = {
   ctx: null, on: store.get('rrr_sound', true),
   init() {
     try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) { }   // iOS: play even with the silent switch on
-    try { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); if (this.ctx.state !== 'running') this.ctx.resume(); } catch (e) { }
+    try {
+      if (!this.ctx) {
+        const c = this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        // master chain: big boost, then a limiter so the louder sounds don't crackle
+        const g = c.createGain(); g.gain.value = 3.4;
+        const lim = c.createDynamicsCompressor(); lim.threshold.value = -10; lim.knee.value = 6; lim.ratio.value = 14; lim.attack.value = .002; lim.release.value = .12;
+        g.connect(lim); lim.connect(c.destination); this.out = g;
+      }
+      if (this.ctx.state !== 'running') this.ctx.resume();
+    } catch (e) { }
   },
   env(g, t, a, d, v) { g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + a); g.gain.exponentialRampToValueAtTime(0.0001, t + a + d); },
   tone(f0, f1, dur, type = 'sine', vol = .12, delay = 0, filt) {
     const c = this.ctx, t = c.currentTime + delay, o = c.createOscillator(), g = c.createGain();
     o.type = type; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(Math.max(20, f1), t + dur);
     let node = o; if (filt) { const f = c.createBiquadFilter(); f.type = filt[0]; f.frequency.value = filt[1]; f.Q.value = filt[2] || 1; o.connect(f); node = f; }
-    node.connect(g); g.connect(c.destination); this.env(g, t, Math.min(.02, dur / 4), dur, vol); o.start(t); o.stop(t + dur + .05);
+    node.connect(g); g.connect(this.out); this.env(g, t, Math.min(.02, dur / 4), dur, vol); o.start(t); o.stop(t + dur + .05);
   },
   noise(dur, vol, freq, delay = 0, type = 'bandpass') {
     const c = this.ctx, t = c.currentTime + delay, n = Math.floor(c.sampleRate * dur), b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0);
     for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
     const s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain(); s.buffer = b; f.type = type; f.frequency.value = freq; f.Q.value = 1.2;
-    s.connect(f); f.connect(g); g.connect(c.destination); this.env(g, t, .005, dur, vol); s.start(t);
+    s.connect(f); f.connect(g); g.connect(this.out); this.env(g, t, .005, dur, vol); s.start(t);
+  },
+  /* An original 132 bpm dance beat (four-on-the-floor kick, claps, offbeat bass, bleepy arpeggio). */
+  dance(beats = 20) {
+    if (!this.on) return; this.init(); if (!this.ctx) return;
+    const B = 60 / 132, arp = [440, 523, 659, 523, 587, 698, 880, 698];
+    for (let i = 0; i < beats; i++) {
+      const d = i * B;
+      this.tone(160, 45, .16, 'sine', .55, d);
+      this.noise(.04, .10, 7000, d + B / 2, 'highpass');
+      if (i % 2) this.noise(.10, .22, 1600, d);
+      this.tone(i % 4 < 2 ? 110 : 98, i % 4 < 2 ? 110 : 98, .18, 'square', .12, d + B / 2, ['lowpass', 420]);
+      this.tone(arp[i % 8], arp[i % 8], .12, 'square', .07, d + B * .25, ['lowpass', 2600]);
+    }
   },
   play(name) {
     if (!this.on) return;
@@ -1271,7 +1305,7 @@ const Snd = {
         case 'yip': this.tone(950, 1300, .07, 'square', .05, 0, ['lowpass', 2400]); this.tone(1050, 1450, .07, 'square', .05, .12, ['lowpass', 2400]); break;
         case 'whine': { const c = this.ctx, t = c.currentTime, o = c.createOscillator(), g = c.createGain(), l = c.createOscillator(), lg = c.createGain();
           o.type = 'sine'; o.frequency.setValueAtTime(820, t); o.frequency.linearRampToValueAtTime(1250, t + .45); o.frequency.linearRampToValueAtTime(860, t + 1);
-          l.frequency.value = 8; lg.gain.value = 28; l.connect(lg); lg.connect(o.frequency); o.connect(g); g.connect(c.destination); this.env(g, t, .08, 1, .07); o.start(t); l.start(t); o.stop(t + 1.1); l.stop(t + 1.1); } break;
+          l.frequency.value = 8; lg.gain.value = 28; l.connect(lg); lg.connect(o.frequency); o.connect(g); g.connect(this.out); this.env(g, t, .08, 1, .07); o.start(t); l.start(t); o.stop(t + 1.1); l.stop(t + 1.1); } break;
         case 'growl': this.tone(130, 95, .5, 'sawtooth', .07, 0, ['lowpass', 420]); break;
         case 'huff': this.noise(.18, .08, 900, 0, 'lowpass'); break;
         case 'yawn': this.tone(520, 260, .7, 'triangle', .05); break;
@@ -1284,7 +1318,9 @@ const Snd = {
         case 'chime': this.tone(784, 784, .25, 'sine', .06); this.tone(1175, 1175, .35, 'sine', .05, .15); break;
         case 'tap': this.tone(600, 900, .06, 'sine', .04); break;
         case 'boof': this.tone(430, 260, .13, 'sawtooth', .09, 0, ['lowpass', 700]); this.noise(.08, .04, 700, 0, 'lowpass'); break;
-        case 'snore': this.tone(96, 78, .9, 'sawtooth', .045, 0, ['lowpass', 260]); this.tone(150, 120, .5, 'sine', .02, .95); break;
+        case 'snore':
+          this.tone(110, 70, .85, 'sawtooth', .16, 0, ['lowpass', 330]); this.noise(.8, .12, 420, 0, 'lowpass');       // breathing in, rattling
+          this.tone(180, 120, .6, 'sawtooth', .10, 1.0, ['lowpass', 380]); this.noise(.55, .09, 520, 1.0, 'lowpass'); break;   // and out
         case 'pant': for (let i = 0; i < 4; i++) { this.noise(.07, .035, 1500, i * .22, 'bandpass'); this.noise(.06, .03, 900, i * .22 + .1, 'bandpass'); } break;
         case 'slosh': this.noise(.25, .05, 700, 0, 'lowpass'); this.tone(300, 500, .2, 'sine', .035); break;
         case 'micro': this.tone(118, 118, 1.15, 'sawtooth', .025, 0, ['lowpass', 300]); [1.2, 1.38, 1.56].forEach(d => this.tone(1900, 1900, .1, 'square', .03, d, ['lowpass', 3000])); break;
@@ -1564,6 +1600,7 @@ class Dog {
     for (const c of gltf.animations) this.clips[c.name] = c;
     this.action = null; this.actionName = null;
     this.pos = new V3(SPOTS.front[0], 0, SPOTS.front[1]); this.yaw = 0; this.targetYaw = 0;
+    this.dancing = false;
     this.mode = 'idle'; this.queue = []; this.cur = null; this.seqKind = null; this.isAction = false;
     this.moving = false; this.speedNow = 0; this.time = 0;
     this.react = null; this.lift = 0; this.paceT = 0; this.paceTo = null; this.fxT = 0;
@@ -1701,14 +1738,14 @@ class Dog {
     this.fxT -= dt;
     if (this.fxT <= 0) {
       this.fxT = .9;
-      if (this.mode === 'sleep') { emitP(TEX.z, this.headPos(), 1, { size: .14, vy: .35, vx: .4, life: 1.8 }); this.fxT = 1.6; }
+      if (this.mode === 'sleep' || (this.mode === 'lie' && !this.dancing)) { emitP(TEX.z, this.headPos(), 1, { size: .14, vy: .35, vx: .4, life: 1.8 }); this.fxT = 1.6; }
       else if (this.mode === 'cuddle') { emitP(TEX.heart, this.headPos(), 1, { size: .15 }); this.fxT = .6; }
       else if (this.mode === 'groom') { emitP(TEX.spark, this.pos.clone().add(new V3(0, .75, 0)), 2, { size: .08, spread: .3, vy: .4 }); this.fxT = .4; }
     }
     // ambient vocalising — the kids wanted her noisier
     this.vocT = (this.vocT || rnd(3, 7)) - dt;
     if (this.vocT <= 0 && !this.react) {
-      if (this.mode === 'sleep') { Snd.play('snore'); this.vocT = rnd(5, 9); }
+      if (this.mode === 'sleep' || (this.mode === 'lie' && !this.dancing)) { Snd.play('snore'); this.vocT = rnd(3.5, 6); }
       else if (this.mode === 'play' || this.speedNow > 1.9) { Snd.play('pant'); this.vocT = rnd(5, 9); }
       else if (N.happiness > 70 && N.energy > 40) { Snd.play(pick(['yip', 'boof'])); this.vocT = rnd(9, 16); }
       else if (N.happiness < 35) { Snd.play('whine'); this.vocT = rnd(7, 12); }
@@ -1730,7 +1767,8 @@ class Dog {
     // --- clip selection ---
     if (!this.react) {
       let want, speed = 1, once = false;
-      if (this.moving) {
+      if (this.dancing) { want = 'happy'; speed = 1.7; this.mouthHold = 1; this.moving = false; }
+      else if (this.moving) {
         const fast = this.speedNow > 1.9;
         want = fast ? 'run' : 'walk';
         speed = clamp(this.speedNow / (fast ? 2.6 : 1.25), .55, 1.9);
@@ -1793,9 +1831,11 @@ class Dog {
 
     // --- root transform ---
     const bd = Math.hypot(this.pos.x - SPOTS.bed[0], this.pos.z - SPOTS.bed[1]);
-    this.lift = damp(this.lift, bd < .55 ? .09 : 0, 8, dt);
+    const beat = Math.abs(Math.sin(this.time * Math.PI * 2.2));      // 132 bpm: one hop per beat
+    this.lift = this.dancing ? .02 + beat * .17 : damp(this.lift, bd < .55 ? .09 : 0, 8, dt);
     m.root.position.set(this.pos.x, this.lift, this.pos.z);
     m.root.rotation.set(0, this.yaw, 0);
+    if (this.dancing) { m.root.rotation.z = Math.sin(this.time * Math.PI * 1.1) * .16; m.root.rotation.y += Math.sin(this.time * Math.PI * 2.2) * .12; }
     // wet-dog shake, layered over whatever clip is running
     this.shakeHold = Math.max(0, this.shakeHold - dt);
     if (this.shakeHold > 0) m.root.rotation.z = Math.sin(this.time * 42) * .13 * Math.min(1, this.shakeHold * 3);
@@ -2204,12 +2244,27 @@ function handleEvent(ev) {
         const settled = dog.mode === 'lie' && dog.seqKind === 'crate';
         if (settled || performance.now() - t0 > 20000) {
           clearInterval(handleEvent.endT);
-          setTimeout(() => { hideBanner('end'); showResults(ev.final); }, settled ? 1400 : 0);
+          const [pa, pb] = ev.final.players;
+          const champ = pa.score === pb.score ? null : (pa.score > pb.score ? pa : pb);
+          setTimeout(() => {
+            hideBanner('end');
+            if (champ) victoryDance(`${champ.name} wins! CeCe's victory dance`, () => showResults(ev.final));
+            else showResults(ev.final);
+          }, settled ? 1000 : 0);
         }
       }, 200);
       break;
     }
   }
+}
+/* Victory dance: she hops up in her crate and busts a move to a little beat. */
+function victoryDance(label, done, secs = 9.1) {
+  hideScreens();
+  showBanner('dance', label + '!');
+  dog.dancing = true; Snd.dance(Math.round(secs / (60 / 132)));
+  Snd.play('bark');
+  const em = setInterval(() => { try { emitP(TEX.heart, dog.headPos(), 1, { size: .16 }); emitP(TEX.spark, dog.headPos(), 2, { size: .1, spread: .35 }); } catch (e) { } }, 450);
+  setTimeout(() => { dog.dancing = false; clearInterval(em); hideBanner('dance'); done && done(); }, secs * 1000);
 }
 function faceLick(stinky) {
   const el = $('lick'); el.classList.remove('on', 'stinky'); void el.offsetWidth;
@@ -2256,6 +2311,9 @@ const Bubble = {
       if (V.sleeping && urgent[0] !== 'bladder') return;
       this.show(pick(SAYS[urgent[0]]), { ms: 3400, urgent: !!urgent[2] });
       this.cool = rnd(7, 12);
+    } else if (!V.sleeping && Math.random() < .3) {
+      this.show("Where is mommy? She's my favorite.", { ms: 3600 });
+      this.cool = rnd(12, 20);
     } else if (N.happiness > 78 && !V.sleeping && Math.random() < .5) {
       this.show(pick(SAYS.happy), { ms: 2800 });
       this.cool = rnd(14, 22);
@@ -2264,6 +2322,44 @@ const Bubble = {
 };
 
 ['pointerdown','touchend','click','keydown'].forEach(ev => addEventListener(ev, () => Snd.init(), { passive: true }));
+
+/* Hard mode only: a fake "pop-up ad" with a French bulldog that has to be clicked off. */
+const FRENCHIE = `<svg viewBox="0 0 150 130" aria-hidden="true"><g stroke="#3a2f2a" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+  <path d="M30 60 22 14 56 38z" fill="#b98f66"/><path d="M120 60 128 14 94 38z" fill="#b98f66"/>
+  <path d="M31 52 28 25 48 40z" fill="#f3b5b0" stroke="none"/><path d="M119 52 122 25 102 40z" fill="#f3b5b0" stroke="none"/>
+  <ellipse cx="75" cy="75" rx="52" ry="46" fill="#c9a27c"/>
+  <ellipse cx="75" cy="90" rx="34" ry="26" fill="#6e5846"/>
+  <circle cx="53" cy="66" r="9" fill="#fff"/><circle cx="97" cy="66" r="9" fill="#fff"/>
+  <circle cx="55" cy="67" r="5" fill="#222" stroke="none"/><circle cx="95" cy="67" r="5" fill="#222" stroke="none"/>
+  <ellipse cx="75" cy="82" rx="12" ry="8" fill="#222"/>
+  <path d="M75 90v8M60 100c8 8 22 8 30 0" fill="none"/>
+  <path d="M62 104c0 12 26 12 26 0z" fill="#f08a8a"/></g></svg>`;
+const Pop = {
+  t: 0, n: 0,
+  spawn() {
+    if (this.n >= 3) return;
+    this.n++;
+    const el = document.createElement('div'); el.className = 'popup';
+    el.innerHTML = `<div class="pbar"><span>Frenchie Fun Time.exe</span><button aria-label="Close">×</button></div>
+      <div class="pbody">${FRENCHIE}<h4>You won a dog!</h4><p>Frenchie wants to be your friend. Click now!</p><button class="claim">CLAIM FRENCHIE</button></div>`;
+    const W = innerWidth, H = innerHeight;
+    el.style.left = Math.max(6, Math.min(W - 242, rnd(0, W - 236))) + 'px';
+    el.style.top = Math.max(70, Math.min(H - 330, rnd(90, H - 360))) + 'px';
+    const gone = () => { if (el.parentNode) { el.remove(); this.n--; } };
+    el.querySelector('.pbar button').onclick = gone;
+    // the big green button is a trap: it just brings another one
+    el.querySelector('.claim').onclick = () => { Snd.play('bad'); this.spawn(); };
+    document.body.appendChild(el);
+    Snd.play('chime'); setTimeout(() => Snd.play('yip'), 160);
+  },
+  clear() { document.querySelectorAll('.popup').forEach(e => e.remove()); this.n = 0; },
+  update(dt) {
+    if (!V || V.diff !== 'hard' || V.paused || V.over || App.screen !== 'game') { if (App.screen !== 'game') this.clear(); return; }
+    this.t -= dt;
+    if (this.t <= 0) { this.t = rnd(22, 38); this.spawn(); }
+  }
+};
+
 function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) { } }
 
 /* =====================================================================
@@ -2418,6 +2514,7 @@ function setPause(on, why) {
 }
 
 function showResults(F) {
+  Pop.clear();
   App.screen = 'results';
   const [a, b] = F.players, w = a.score === b.score ? -1 : a.score > b.score ? 0 : 1;
   const myWin = w === App.seat && App.role !== 'local';
@@ -2449,10 +2546,12 @@ function showResults(F) {
     <div class="note">${DIFFS[F.diff] ? DIFFS[F.diff].name : 'Medium'} · Accidents: ${F.accidents} · Final health ${Math.round(N.health)} · Happiness ${Math.round(N.happiness)}</div>
     ${chart}
     <div class="sect">${esc(F.dogName)}'s true personality</div><div class="traits">${pers}</div>
+    <button class="btn" id="resDance">CeCe, dance again!</button>
     ${canRestart ? '<button class="btn pri" id="resAgain">Play another day with CeCe</button>' : '<div class="status">The host can start a new game. Stay here to join it.</div>'}
     <button class="btn ghost" id="resQuit">Back to title</button>`;
   show('scrResults');
   setTimeout(() => { Snd.play('bark'); }, 420);
+  $('resDance').onclick = () => victoryDance('CeCe dance party', () => showResults(F), 7.5);
   if (canRestart) $('resAgain').onclick = restartGame;
   $('resQuit').onclick = quitToTitle;
   Snd.play('bonus'); store.del('rrr_save');
@@ -2653,10 +2752,11 @@ function frame(now) {
   updateCamera(dt);
   if (App.screen === 'game') updateHUD(dt);
   if (inGame) Bubble.update(dt, N);
+  Pop.update(dt);
   renderer.render(scene, camera);
 }
 requestAnimationFrame(frame);
-window.__mm = { get G() { return G; }, dog, App, doAction, tickSim, Bubble }; // handy for debugging in the console
+window.__mm = { get G() { return G; }, dog, App, doAction, tickSim, Bubble, Snd, Pop, victoryDance }; // handy for debugging in the console
 </script>
 </body>
 </html>
