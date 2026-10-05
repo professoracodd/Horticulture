@@ -1244,7 +1244,10 @@ function updateParticles(dt) {
    ===================================================================== */
 const Snd = {
   ctx: null, on: store.get('rrr_sound', true),
-  init() { try { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); if (this.ctx.state === 'suspended') this.ctx.resume(); } catch (e) { } },
+  init() {
+    try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) { }   // iOS: play even with the silent switch on
+    try { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); if (this.ctx.state !== 'running') this.ctx.resume(); } catch (e) { }
+  },
   env(g, t, a, d, v) { g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + a); g.gain.exponentialRampToValueAtTime(0.0001, t + a + d); },
   tone(f0, f1, dur, type = 'sine', vol = .12, delay = 0, filt) {
     const c = this.ctx, t = c.currentTime + delay, o = c.createOscillator(), g = c.createGain();
@@ -1259,7 +1262,9 @@ const Snd = {
     s.connect(f); f.connect(g); g.connect(c.destination); this.env(g, t, .005, dur, vol); s.start(t);
   },
   play(name) {
-    if (!this.on || !this.ctx) return;
+    if (!this.on) return;
+    if (!this.ctx || this.ctx.state !== 'running') this.init();
+    if (!this.ctx) return;
     try {
       switch (name) {
         case 'bark': for (const d of [0, .2]) { this.tone(760, 380, .11, 'sawtooth', .13, d, ['bandpass', 1100, 1.5]); this.noise(.07, .06, 1800, d); } break;
@@ -2258,6 +2263,7 @@ const Bubble = {
   }
 };
 
+['pointerdown','touchend','click','keydown'].forEach(ev => addEventListener(ev, () => Snd.init(), { passive: true }));
 function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) { } }
 
 /* =====================================================================
