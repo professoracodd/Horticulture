@@ -398,6 +398,10 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none}
     <button class="s-item" data-a="pdfAll"><span class="ic tn-lav"><span class="ms" aria-hidden="true">library_books</span></span><span class="txt">All recipes<small>One PDF, a page per recipe</small></span></button>
     <label class="s-item"><span class="ic tn-mint"><span class="ms" aria-hidden="true">payments</span></span><span class="txt">Include costs &amp; pricing<small>Turn off for a clean recipe card</small></span><span class="switch"><input type="checkbox" id="incCosts" checked><span></span></span></label>
   </div>
+  <div class="caps s-cap">Settings</div>
+  <div class="s-group">
+    <label class="s-item"><span class="ic tn-sky"><span class="ms" aria-hidden="true">volume_up</span></span><span class="txt">Sound effects<small>Clicks, slider ticks and chimes</small></span><span class="switch"><input type="checkbox" id="soundOn" checked><span></span></span></label>
+  </div>
   <div class="caps s-cap">Spreadsheet</div>
   <div class="s-group">
     <button class="s-item" data-a="xlsx"><span class="ic tn-mint"><span class="ms" aria-hidden="true">table_view</span></span><span class="txt">Export to Excel<small>A tab per recipe with live formulas</small></span></button>
@@ -449,11 +453,11 @@ function defaults(){
       label:{inkPrice:30,pages:400,perSheet:null,half:2,dozen:2},v2:true
     },
     recipes:[
-      {id:id(),name:'Chocolate Chip',yield:30,price:2,minutes:40,halfPrice:12,dozenPrice:22,planDozens:3,notes:'',
+      {id:id(),name:'Chocolate Chip',yield:12,price:2,minutes:40,halfPrice:12,dozenPrice:22,planDozens:3,notes:'',
        sections:[
         {name:'Dough',items:[I('Butter',5.96,8,'stick','1 cup (2 sticks)',2),I('Granulated sugar',7.38,10,'lb','3/4 cup',5.25),I('Brown sugar',1.99,32,'oz','3/4 cup packed',5.6),I('Eggs',8.05,8,'dozen','2 large',2),I('Vanilla extract',10.88,16,'fl oz','1 tsp',0.167),I('Flour',2.49,5,'lb','2 1/4 cups',9.6),I('Baking soda',10.2,13.5,'lb','1 tsp',0.2),I('Salt',1.89,26,'oz','1 tsp',0.2)]},
         {name:'Mix-ins',items:[I('Chocolate chips',16.99,72,'oz','2 cups',12)]}]},
-      {id:id(),name:'Decorated Sugar Cookies',yield:15,price:3,minutes:100,halfPrice:18,dozenPrice:34,planDozens:2,notes:'',
+      {id:id(),name:'Decorated Sugar Cookies',yield:15,price:3,minutes:90,halfPrice:18,dozenPrice:34,planDozens:2,notes:'',
        sections:[
         {name:'Dough',items:[I('Butter',2.99,4,'stick','1 cup (2 sticks)',2),I('Granulated sugar',7.38,10,'lb','1 cup',7),I('Flour',2.49,5,'lb','3 cups',12.75),I('Eggs',8.05,8,'dozen','1 large',1),I('Vanilla extract',10.88,16,'fl oz','1 tsp',0.167),I('Almond extract',5.16,2,'fl oz','1/2 tsp',0.083),I('Baking powder',1.99,8.1,'oz','2 tsp',0.32)]},
         {name:'Royal Icing & Color',items:[I('Powdered sugar',1.99,2,'lb','4 cups',16),I('Meringue powder',8.48,4,'oz','3 tbsp',0.9),I('Gel food coloring',null,null,'oz','',null)]}]}
@@ -517,6 +521,34 @@ const nfmt=v=>blank(v)?'':String(+num(v).toFixed(3));
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const val=v=>blank(v)?'':esc(v);
 
+/* ---------- sound ---------- */
+let AC=null,lastTick=0,lastKey=0;
+function ac(){if(!AC){const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;try{AC=new C();}catch(e){return null;}}if(AC.state==='suspended')AC.resume().catch(()=>{});return AC;}
+function tone(freq,dur,o={}){
+  if(S&&S.sound===false)return;const a=ac();if(!a||a.state!=='running')return;
+  const t=a.currentTime+(o.delay||0),osc=a.createOscillator(),g=a.createGain();
+  osc.type=o.type||'sine';osc.frequency.setValueAtTime(freq,t);if(o.to)osc.frequency.exponentialRampToValueAtTime(o.to,t+dur);
+  g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(o.vol||.06,t+.006);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  osc.connect(g);g.connect(a.destination);osc.start(t);osc.stop(t+dur+.03);
+}
+const SFX={
+  tap:()=>tone(1150,.05,{vol:.055,to:780}),
+  nav:()=>{tone(660,.06,{vol:.045});tone(990,.08,{vol:.045,delay:.05});},
+  up:()=>tone(680,.08,{type:'triangle',vol:.07,to:1080}),
+  down:()=>tone(1080,.08,{type:'triangle',vol:.07,to:680}),
+  tick:p=>{const n=performance.now();if(n-lastTick<28)return;lastTick=n;tone(420+Math.max(0,Math.min(1,p))*1100,.022,{type:'square',vol:.016});},
+  key:()=>{const n=performance.now();if(n-lastKey<22)return;lastKey=n;tone(1700+Math.random()*500,.016,{type:'square',vol:.011});},
+  check:()=>{tone(880,.07,{type:'triangle',vol:.065});tone(1320,.11,{type:'triangle',vol:.055,delay:.06});},
+  uncheck:()=>tone(560,.09,{type:'triangle',vol:.05,to:400}),
+  add:()=>{tone(523,.07,{vol:.055});tone(784,.11,{vol:.055,delay:.06});},
+  del:()=>tone(260,.16,{type:'triangle',vol:.08,to:120}),
+  open:()=>tone(420,.13,{vol:.045,to:860}),
+  close:()=>tone(860,.11,{vol:.04,to:420}),
+  chime:()=>[784,988,1319].forEach((f,i)=>tone(f,.24,{vol:.045,delay:i*.07})),
+  toggle:on=>tone(on?920:580,.07,{type:'triangle',vol:.06}),
+};
+['pointerdown','keydown','touchstart'].forEach(ev=>document.addEventListener(ev,()=>ac(),{passive:true}));
+
 /* ---------- render ---------- */
 const $=s=>document.querySelector(s);
 let OPEN=null;const CHECK=new Set();
@@ -535,7 +567,7 @@ function render(){
   if(S.active>=S.recipes.length)S.active=0;
   $('#title').textContent=TABS[S.tab];
   document.querySelectorAll('[data-tab]').forEach(a=>{const on=a.dataset.tab===S.tab;a.classList.toggle('on',on);on?a.setAttribute('aria-current','page'):a.removeAttribute('aria-current');});
-  $('#incCosts').checked=S.incCosts!==false;
+  $('#incCosts').checked=S.incCosts!==false;$('#soundOn').checked=S.sound!==false;
   $('#main').innerHTML=(S.tab==='pack'?'':pillsHTML())+({profit:profitHTML,recipe:recipeHTML,pack:packHTML,orders:ordersHTML}[S.tab])();
   update();
 }
@@ -746,15 +778,17 @@ function openSheet(on){$('#sheet').classList.toggle('on',on);$('#scrim').classLi
 
 document.addEventListener('input',e=>{
   const t=e.target;if(!t.dataset)return;
-  if(t.dataset.b){setBound(t);return;}
+  if(t.dataset.b){if(t.tagName!=='SELECT')SFX.key();setBound(t);return;}
+  if(t.dataset.s){const mn=+t.min,mx=+t.max;SFX.tick(mx>mn?(+t.value-mn)/(mx-mn):.5);}
   if(t.dataset.s==='price'){setOrderPrice(+t.value);save();update();}
   else if(t.dataset.s==='dz'){R().planDozens=+t.value;save();update();}
   else if(t.dataset.s==='min'){R().minutes=+t.value;save();update();}
 });
 document.addEventListener('change',e=>{
   const t=e.target;
-  if(t.tagName==='SELECT'&&t.dataset.b){setBound(t);return;}
-  if(t.id==='incCosts'){S.incCosts=t.checked;save();if(S.tab==='profit')render();}
+  if(t.tagName==='SELECT'&&t.dataset.b){SFX.tap();setBound(t);return;}
+  if(t.id==='soundOn'){S.sound=t.checked;save();if(t.checked)SFX.toggle(true);return;}
+  if(t.id==='incCosts'){SFX.toggle(t.checked);S.incCosts=t.checked;save();if(S.tab==='profit')render();}
 });
 let TI=-1,tourTimer,TOKEN=0,SNAP=null,AUTO=true,advTimer;
 const sleep=(ms,tok)=>new Promise((res,rej)=>setTimeout(()=>tok===TOKEN?res():rej('stop'),ms));
@@ -768,7 +802,7 @@ function thumbXY(el){const r=el.getBoundingClientRect(),mn=+el.min,mx=+el.max,v=
 async function drag(sel,to,tok,steps=22){const el=q(sel);if(!el)return;const [x0,y0]=thumbXY(el);fingerXY(x0,y0,600);await sleep(700,tok);await tap(tok);const from=+el.value;
   for(let i=1;i<=steps;i++){const e2=q(sel);if(!e2)return;e2.value=from+(to-from)*i/steps;e2.dispatchEvent(new Event('input',{bubbles:true}));const [x,y]=thumbXY(e2);fingerXY(x,y,50);await sleep(60,tok);}}
 async function typeInto(sel,text,tok){await fingerTo(sel,tok);await tap(tok);const el=q(sel);if(!el)return;el.classList.add('demo-focus');el.value='';setBound(el);await sleep(250,tok);
-  for(let i=1;i<=text.length;i++){const pre=text.slice(0,i);if(!/\.$/.test(pre)){el.value=pre;setBound(el);}await sleep(190,tok);}await sleep(400,tok);el.classList.remove('demo-focus');}
+  for(let i=1;i<=text.length;i++){const pre=text.slice(0,i);if(!/\.$/.test(pre)){el.value=pre;setBound(el);}SFX.key();await sleep(190,tok);}await sleep(400,tok);el.classList.remove('demo-focus');}
 const TOUR=[
   {tab:'profit',sel:'.brand',t:'Welcome to Batch',d:'Your cookie pricing app. Sit back and this tour will play itself. Tap pause anytime, or use Back and Next.',dur:6500},
   {tab:'profit',sel:'.pills',t:'Your recipes',d:'Tap a recipe to switch to it. The + adds a new one.',dur:7500,
@@ -838,6 +872,10 @@ document.addEventListener('click',e=>{
   const b=e.target.closest('[data-a]');if(!b)return;
   const raw=b.dataset.a,ix=raw.indexOf(':'),a=ix<0?raw:raw.slice(0,ix),rest=ix<0?'':raw.slice(ix+1),[x,y]=rest.split(':');
   const r=R();
+  ({sel:SFX.tap,tab:SFX.nav,size:SFX.tap,exp:()=>(OPEN===rest?SFX.close:SFX.open)(),chk:()=>(CHECK.has(rest)?SFX.uncheck:SFX.check)(),chkReset:SFX.down,
+    step:()=>(+x>0?SFX.up:SFX.down)(),dz:()=>(+x>0?SFX.up:SFX.down)(),addRecipe:SFX.add,dupRecipe:SFX.add,addItem:SFX.add,addSec:SFX.add,addPk:SFX.add,delItem:SFX.del,delPk:SFX.del,
+    sheet:SFX.open,closeSheet:SFX.close,pdfOne:SFX.chime,pdfAll:SFX.chime,xlsx:SFX.chime,backup:SFX.chime,import:SFX.tap,
+    tour:SFX.nav,tourNext:SFX.nav,tourPrev:SFX.nav,tourEnd:SFX.close,tourAuto:()=>SFX.toggle(!AUTO)}[a]||(()=>{}))();
   switch(a){
     case 'sel':S.active=+x;OPEN=null;break;
     case 'tab':S.tab=x;OPEN=null;window.scrollTo(0,0);break;
@@ -849,11 +887,11 @@ document.addEventListener('click',e=>{
     case 'chkReset':CHECK.clear();update();return;
     case 'addRecipe':S.recipes.push(newRecipe());S.active=S.recipes.length-1;S.tab='recipe';OPEN=null;save();render();window.scrollTo(0,0);{const t=document.querySelector('[data-b="r:name"]');if(t){t.focus();t.select();}}return;
     case 'dupRecipe':{const c=JSON.parse(JSON.stringify(r));c.id=id();c.name=(r.name||'Recipe')+' (copy)';S.recipes.splice(S.active+1,0,c);S.active++;OPEN=null;toast('Recipe duplicated');break;}
-    case 'delRecipe':if(!confirm(`Delete "${r.name||'this recipe'}"? This can't be undone.`))return;S.recipes.splice(S.active,1);if(!S.recipes.length)S.recipes.push(newRecipe());S.active=Math.max(0,S.active-1);OPEN=null;break;
+    case 'delRecipe':if(!confirm(`Delete "${r.name||'this recipe'}"? This can't be undone.`))return;SFX.del();S.recipes.splice(S.active,1);if(!S.recipes.length)S.recipes.push(newRecipe());S.active=Math.max(0,S.active-1);OPEN=null;break;
     case 'addItem':r.sections[+x].items.push(I('',null,null,'oz','',null));OPEN=`i:${x}:${r.sections[+x].items.length-1}`;save();render();document.querySelector(`[data-b="i:${x}:${r.sections[+x].items.length-1}:name"]`)?.focus();return;
     case 'delItem':r.sections[+x].items.splice(+y,1);OPEN=null;break;
     case 'addSec':r.sections.push({name:'New section',items:[I('',null,null,'oz','',null)]});OPEN=`i:${r.sections.length-1}:0`;break;
-    case 'delSec':if(r.sections[+x].items.some(i=>i.name)&&!confirm('Remove this section and its ingredients?'))return;r.sections.splice(+x,1);OPEN=null;break;
+    case 'delSec':if(r.sections[+x].items.some(i=>i.name)&&!confirm('Remove this section and its ingredients?'))return;SFX.del();r.sections.splice(+x,1);OPEN=null;break;
     case 'addPk':S.packaging.items.push({name:'',price:null,count:null,half:1,dozen:1});OPEN='p:'+(S.packaging.items.length-1);save();render();document.querySelector(`[data-b="p:${S.packaging.items.length-1}:name"]`)?.focus();return;
     case 'delPk':S.packaging.items.splice(+x,1);OPEN=null;break;
     case 'tour':tourStart();return;
@@ -868,7 +906,7 @@ document.addEventListener('click',e=>{
     case 'xlsx':openSheet(false);exportXlsx();return;
     case 'import':openSheet(false);$('#fileIn').click();return;
     case 'backup':openSheet(false);download(new Blob([JSON.stringify(S,null,2)],{type:'application/json'}),'cookie-calculator-backup.json');toast('Backup downloaded');return;
-    case 'reset':openSheet(false);if(!confirm('Replace everything with the sample recipes? Your changes will be lost.'))return;S=defaults();OPEN=null;break;
+    case 'reset':openSheet(false);if(!confirm('Replace everything with the sample recipes? Your changes will be lost.'))return;SFX.del();S=defaults();OPEN=null;break;
     default:return;
   }
   save();render();
@@ -1046,6 +1084,7 @@ if(!S.tab||!({profit:1,recipe:1,pack:1,orders:1})[S.tab])S.tab='profit';
 if(S.orderSize===undefined)S.orderSize=2;
 if(S.incCosts===undefined)S.incCosts=true;
 delete S.view;
+if(!S.v4){S.recipes.forEach(x=>{if(/chocolate chip/i.test(x.name||'')&&num(x.yield)===30)x.yield=12;if(/sugar/i.test(x.name||'')&&num(x.minutes)===100)x.minutes=90;});S.v4=true;}
 if(!S.v3){S.recipes.forEach(x=>{if(/chocolate chip/i.test(x.name||'')&&num(x.minutes)===41)x.minutes=40;});S.v3=true;}
 save();
 render();
