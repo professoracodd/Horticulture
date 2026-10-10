@@ -126,6 +126,12 @@ main{padding:calc(56px + env(safe-area-inset-top,0px) + 4px) 0 calc(96px + env(s
 .seg button{padding:4px 12px;border-radius:8px;font-size:11px;line-height:14px;letter-spacing:.06em;font-weight:600;text-transform:uppercase;color:var(--on-sv);display:flex;align-items:center;gap:4px;transition:all .15s;white-space:nowrap}
 .seg button.on{background:var(--sc-high);color:#fff;box-shadow:inset 0 0 0 1px var(--lav-line)}
 .seg i{width:6px;height:6px;border-radius:50%;background:var(--lav-ink);display:inline-block}
+.hero-pf{align-self:flex-start;margin-top:10px}
+.seg.full{width:100%}
+.seg.full button{flex:1;justify-content:center}
+.pay{color:var(--good)}
+.tot-line{display:flex;justify-content:space-between;align-items:center;padding:12px 0 0;margin-top:4px;border-top:1px solid var(--line)}
+.tot-line b{font-size:17px}
 .time-card{padding:12px 16px;display:flex;flex-direction:column;gap:4px}
 .time-top{display:flex;align-items:center;gap:10px}
 .time-ic{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none}
@@ -382,7 +388,6 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none}
     <div class="top-act">
       <button class="icon-btn" data-a="tour" data-tour="help" aria-label="Take the tour"><span class="ms" aria-hidden="true">help</span></button>
       <button class="icon-btn" data-a="sheet" aria-label="Export and data"><span class="ms" aria-hidden="true">ios_share</span></button>
-      <button class="avatar" data-a="addRecipe" aria-label="New recipe"><span class="ms" aria-hidden="true">add</span></button>
     </div>
   </div>
 </header>
@@ -418,7 +423,6 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none}
     <button class="s-item" data-a="xlsx"><span class="ic tn-mint"><span class="ms" aria-hidden="true">table_view</span></span><span class="txt">Export to Excel<small>A tab per recipe with live formulas</small></span></button>
     <button class="s-item" data-a="import"><span class="ic tn-sky"><span class="ms" aria-hidden="true">upload_file</span></span><span class="txt">Import Excel or backup<small>A file exported from this app</small></span></button>
     <button class="s-item" data-a="backup"><span class="ic tn-butter"><span class="ms" aria-hidden="true">save</span></span><span class="txt">Download backup<small>Move your data to another device</small></span></button>
-    <button class="s-item" data-a="tour"><span class="ic tn-peach"><span class="ms" aria-hidden="true">tour</span></span><span class="txt">Watch the tour<small>A self-playing walk through the app</small></span></button>
     <button class="s-item danger" data-a="reset"><span class="ic"><span class="ms" aria-hidden="true">restart_alt</span></span><span class="txt">Reset to sample recipes</span></button>
   </div>
   <button class="cancel" data-a="closeSheet">Done</button>
@@ -584,45 +588,31 @@ function render(){
   update();
 }
 function pillsHTML(){
-  return `<section class="pills-wrap" aria-label="Recipes"><div class="pills">${S.recipes.map((x,i)=>`<button class="pill${i===S.active?' on':''}" data-a="sel:${i}">${i===S.active?ms('cookie','',1):''}<span class="t" data-o="pill-${i}"></span></button>`).join('')}<button class="pill add" data-a="addRecipe" aria-label="New recipe">${ms('add')}</button></div>
-  <div class="capsule"><div class="cap-l">${ms('schedule','pri')}<span><b data-o="cap-min"></b> / batch</span></div><div class="vr"></div><div class="cap-r">${ms('cookie','pri')}<span data-o="cap-yield"></span></div></div></section>`;
+  return `<section class="pills-wrap" aria-label="Recipes"><div class="pills">${S.recipes.map((x,i)=>`<button class="pill${i===S.active?' on':''}" data-a="sel:${i}">${i===S.active?ms('cookie','',1):''}<span class="t" data-o="pill-${i}"></span></button>`).join('')}<button class="pill add" data-a="addRecipe" aria-label="New recipe">${ms('add')}</button></div></section>`;
 }
 function profitHTML(){
   return `
   <section class="card hero" aria-label="Price">
     <div class="hero-top">
-      <div class="hero-l"><span class="caps muted" data-o="h-lab"></span><div class="metric-row"><span class="metric num" data-o="h-price"></span><span class="title muted" data-o="h-unit"></span></div><span class="foot muted"><b class="pri num" data-o="h-each"></b> per cookie</span></div>
-      <div class="stepper"><button data-a="step:-1" aria-label="Lower price">${ms('remove')}</button><div class="badge-wrap"><span class="badge" data-o="h-mg"></span></div><button data-a="step:1" aria-label="Raise price">${ms('add')}</button></div>
+      <div class="hero-l"><span class="caps muted" data-o="h-lab"></span><div class="metric-row"><span class="metric num" data-o="h-price"></span><span class="title muted" data-o="h-unit"></span></div><span class="foot muted"><b class="pri num" data-o="h-each"></b> per cookie</span><span class="glow hero-pf" data-o="h-pf"></span></div>
+      <div class="stepper"><button data-a="step:-1" aria-label="Lower price">${ms('remove')}</button><button data-a="step:1" aria-label="Raise price">${ms('add')}</button></div>
     </div>
-    <div class="slider"><div class="slider-lab caps"><span data-o="h-min"></span><span class="glow" data-o="h-pf"></span><span data-o="h-max"></span></div><input type="range" class="range" data-s="price" aria-label="Price"></div>
-    <div class="seg-row"><span class="foot muted flex">${ms('shopping_bag','pri sm')}Order size:</span>
-      <div class="seg" role="group" aria-label="Order size">${['Single','Half dozen','Dozen'].map((s,i)=>`<button class="${i===S.orderSize?'on':''}" data-a="size:${i}">${i===S.orderSize?'<i></i>':''}${s}</button>`).join('')}</div></div>
+    <input type="range" class="range" data-s="price" aria-label="Price">
+    <div class="seg full" role="group" aria-label="Order size">${['Single','Half dozen','Dozen'].map((s,i)=>`<button class="${i===S.orderSize?'on':''}" data-a="size:${i}">${i===S.orderSize?'<i></i>':''}${s}</button>`).join('')}</div>
   </section>
   <section class="card time-card" aria-label="Time per batch">
-    <div class="time-top"><span class="time-ic tn-sky">${ms('timer','sm')}</span><span class="time-l"><span class="bodyE sm">Time per batch</span><span class="foot muted">Affects your hourly pay</span></span><span class="time-v num" data-o="tm-v"></span></div>
+    <div class="time-top"><span class="time-ic tn-sky">${ms('timer','sm')}</span><span class="time-l"><span class="bodyE sm">Time per batch</span><span class="foot muted">You earn <b class="num pay" data-o="tm-hr"></b></span></span><span class="time-v num" data-o="tm-v"></span></div>
     <input type="range" class="range sm" data-s="min" min="5" step="1" aria-label="Minutes per batch">
-    <div class="slider-lab caps"><span>5 min</span><span class="badge tn-mint" data-o="tm-hr"></span><span data-o="tm-max"></span></div>
   </section>
-  <section class="tiles" aria-label="Order costs">${tile('payments','Cost','t-cost','t-cost-s','tn-peach')}${tile('cookie','Each','t-cpc','t-cpc-s','tn-sky')}${tile('schedule','Per Hour','t-hr','t-hr-s','tn-mint')}</section>
-  <section class="card" data-tour="pricelist">
-    <div class="card-h"><div><h2 class="title">Price List</h2><p class="caps muted">Tap a size to adjust its price</p></div></div>
-    <div class="rows">${[0,1,2].map(i=>`<button class="row" data-a="size:${i}"><span class="row-l"><span class="dot-ic ${['tn-pink','tn-butter','tn-lav'][i]}${i===S.orderSize?' on':''}">${ms(['cookie','view_module','apps'][i],'sm')}</span><span><span class="blk bodyE">${SIZES[i]}</span><span class="blk foot muted" data-o="pl-${i}-s"></span></span></span><span class="row-r"><span class="blk bodyE num" data-o="pl-${i}-p"></span><span class="badge glow" data-o="pl-${i}-pf"></span></span></button>`).join('')}</div>
-  </section>
-  <section class="card"><div class="card-h"><div><h2 class="title">Where the Money Goes</h2><p class="caps muted">Cost per cookie, biggest first</p></div></div><div class="bars" data-html="bars"></div></section>
-  <section class="tools" aria-label="Export">
-    <div class="grid2">
-      <button class="tool" data-a="pdfOne"><span class="tool-ic tn-pink">${ms('picture_as_pdf')}</span><span class="bodyE sm">Export Recipe PDF</span><span class="caps muted">${S.incCosts!==false?'With costs':'Recipe only'}</span></button>
-      <button class="tool" data-a="xlsx"><span class="tool-ic tn-mint">${ms('table_view')}</span><span class="bodyE sm">Export to Excel</span><span class="caps muted">Live formulas</span></button>
-    </div>
-    <button class="master" data-a="tab:orders">${ms('receipt_long','',1)}Plan an Order</button>
-  </section>`;
+  <section class="tiles two" aria-label="Costs">${tile('payments','Order cost','t-cost','t-cost-s','tn-peach')}${tile('cookie','Cost per cookie','t-cpc','t-cpc-s','tn-sky')}</section>
+  <section class="card"><div class="card-h"><h2 class="title">Where the Money Goes</h2></div><div class="bars" data-html="bars"></div></section>`;
 }
 function recipeHTML(){
   const r=R();let ing='';
   r.sections.forEach((s,si)=>{
     ing+=`<div class="sec-h"><input class="sec-in" data-b="s:${si}:name" value="${val(s.name)}" aria-label="Section name"><button class="link" data-a="addItem:${si}">${ms('add','xs')}Add</button><button class="icon-sm" data-a="delSec:${si}" aria-label="Remove section">${ms('delete','sm')}</button></div><div class="rows">`;
     s.items.forEach((it,ii)=>{const k=`${si}-${ii}`,key=`i:${si}:${ii}`,open=OPEN===key,p=`i:${si}:${ii}:`;
-      ing+=`<div class="item${open?' open':''}"><button class="row" data-a="exp:${key}" aria-expanded="${open}"><span class="row-l"><span class="chev">${ms('expand_more','sm')}</span><span><span class="blk bodyE" data-o="n-${k}"></span><span class="blk foot muted" data-o="f-${k}"></span></span></span><span class="row-r"><span class="blk bodyE num" data-o="cc-${k}"></span><span class="badge soft" data-o="sh-${k}"></span></span></button>
+      ing+=`<div class="item${open?' open':''}"><button class="row" data-a="exp:${key}" aria-expanded="${open}"><span class="row-l"><span class="chev">${ms('expand_more','sm')}</span><span><span class="blk bodyE" data-o="n-${k}"></span><span class="blk foot muted" data-o="f-${k}"></span></span></span><span class="row-r"><span class="blk bodyE num" data-o="cc-${k}"></span></span></button>
       ${open?`<div class="editor">
         <label class="fld wide"><span class="caps">Ingredient</span><input data-b="${p}name" value="${val(it.name)}" placeholder="Ingredient name"></label>
         <label class="fld"><span class="caps">Package price</span><span class="pre"><i>$</i>${numIn(p+'price',it.price)}</span></label>
@@ -630,50 +620,43 @@ function recipeHTML(){
         <label class="fld"><span class="caps">Package unit</span><select data-b="${p}unit">${unitOpts(it.unit)}</select></label>
         <label class="fld"><span class="caps">Recipe measure</span><input data-b="${p}measure" value="${val(it.measure)}" placeholder="e.g. 2 cups"></label>
         <label class="fld wide"><span class="caps">Amount per batch</span><span class="suf">${numIn(p+'amount',it.amount)}<i data-o="b-${k}"></i></span></label>
-        <div class="ed-foot wide"><span class="foot muted" data-o="cpu-${k}"></span><button class="link danger" data-a="delItem:${si}:${ii}">${ms('delete','xs')}Remove</button></div>
+        <div class="ed-foot wide"><span></span><button class="link danger" data-a="delItem:${si}:${ii}">${ms('delete','xs')}Remove</button></div>
       </div>`:''}</div>`;});
     ing+='</div>';
   });
   return `
   <section class="card">
-    <div class="card-h"><div><h2 class="title">Recipe Details</h2><p class="caps muted">Blank half-dozen or dozen price = price × quantity</p></div></div>
     <div class="glist">
       ${gl('Name','r:name',r.name,{text:true,ph:'Recipe name'})}
       ${gl('Cookies per batch','r:yield',r.yield)}
-      ${gl('Minutes per batch','r:minutes',r.minutes)}
-      ${gl('Price per cookie','r:price',r.price,{pre:true})}
-      ${gl('Half-dozen price','r:halfPrice',r.halfPrice,{pre:true,ph:'auto'})}
-      ${gl('Dozen price','r:dozenPrice',r.dozenPrice,{pre:true,ph:'auto'})}
     </div>
-    <div class="btn-row"><button class="chip" data-a="dupRecipe">${ms('content_copy','xs')}Duplicate</button><button class="chip danger" data-a="delRecipe">${ms('delete','xs')}Delete recipe</button></div>
+    <div class="btn-row"><button class="chip" data-a="dupRecipe">${ms('content_copy','xs')}Duplicate</button><button class="chip danger" data-a="delRecipe">${ms('delete','xs')}Delete</button></div>
   </section>
   <section class="card" data-tour="ingredients">
     <div class="card-h"><div><h2 class="title">Ingredients</h2><p class="caps muted">Cost per cookie · tap to edit</p></div><button class="link" data-a="addSec">${ms('add','xs')}Section</button></div>
     ${ing}
-    <div class="tiles two in"><div class="tile soft"><span class="caps muted">Per Batch</span><span class="title b num" data-o="t-batch"></span></div><div class="tile soft"><span class="caps muted">Ingredients / Cookie</span><span class="title b num" data-o="t-cookie"></span></div></div>
+    <div class="tot-line"><span class="foot muted">Ingredients per batch</span><b class="num" data-o="t-batch"></b></div>
     <details class="conv"><summary class="foot">${ms('straighten','sm pri')}Measurement conversions</summary><div class="conv-grid">${CONV.map(c=>`<div><span>${c[0]}</span><b>${c[1]}</b></div>`).join('')}</div></details>
   </section>
-  <section class="card"><div class="card-h"><div><h2 class="title">Method &amp; Notes</h2><p class="caps muted">Prints on the PDF</p></div></div><textarea data-b="r:notes" placeholder="1. Cream butter and sugars...&#10;2. ...">${esc(r.notes)}</textarea></section>`;
+  <section class="card"><div class="card-h"><h2 class="title">Notes</h2></div><textarea data-b="r:notes" placeholder="Steps, oven temp, decorating notes. These print on the PDF.">${esc(r.notes)}</textarea></section>`;
 }
 function packHTML(){
   const P=S.packaging,L=P.label;
   const rows=P.items.map((it,i)=>{const key='p:'+i,open=OPEN===key,p=`p:${i}:`;
-    return `<div class="item${open?' open':''}"><button class="row" data-a="exp:${key}" aria-expanded="${open}"><span class="row-l"><span class="chev">${ms('expand_more','sm')}</span><span><span class="blk bodyE" data-o="pn-${i}"></span><span class="blk foot muted" data-o="pf-${i}"></span></span></span><span class="row-r"><span class="blk bodyE num" data-o="pk-${i}"></span><span class="badge soft" data-o="pq-${i}"></span></span></button>
+    return `<div class="item${open?' open':''}"><button class="row" data-a="exp:${key}" aria-expanded="${open}"><span class="row-l"><span class="chev">${ms('expand_more','sm')}</span><span><span class="blk bodyE" data-o="pn-${i}"></span><span class="blk foot muted" data-o="pf-${i}"></span></span></span><span class="row-r"><span class="blk bodyE num" data-o="pk-${i}"></span></span></button>
     ${open?`<div class="editor">
       <label class="fld wide"><span class="caps">Item</span><input data-b="${p}name" value="${val(it.name)}" placeholder="Item name"></label>
       <label class="fld"><span class="caps">Package price</span><span class="pre"><i>$</i>${numIn(p+'price',it.price)}</span></label>
       <label class="fld"><span class="caps">Items in package</span>${numIn(p+'count',it.count)}</label>
       <label class="fld"><span class="caps">Per half dozen</span>${numIn(p+'half',it.half)}</label>
       <label class="fld"><span class="caps">Per dozen</span>${numIn(p+'dozen',it.dozen)}</label>
-      <div class="ed-foot wide"><span class="foot muted" data-o="pe-${i}"></span><button class="link danger" data-a="delPk:${i}">${ms('delete','xs')}Remove</button></div>
+      <div class="ed-foot wide"><span></span><button class="link danger" data-a="delPk:${i}">${ms('delete','xs')}Remove</button></div>
     </div>`:''}</div>`;}).join('');
   return `
-  <section class="pills-wrap"><div class="capsule first"><div class="cap-l">${ms('inventory_2','pri')}<span><b>All recipes</b></span></div><div class="vr"></div><div class="cap-r">${ms('print','pri')}<span data-o="cap-ink"></span></div></div></section>
   <section class="card hero"><div class="hero-top">
-    <div class="hero-l"><span class="caps muted">Packaging per dozen</span><div class="metric-row"><span class="metric num" data-o="pk-dozen"></span><span class="title muted">/ box</span></div></div>
-    <div class="mini-stat tn-mint"><span class="caps">Half dozen</span><span class="bodyE num" data-o="pk-half"></span></div></div></section>
-  <section class="card" data-tour="packaging"><div class="card-h"><div><h2 class="title">Packaging Items</h2><p class="caps muted">Pack price ÷ count · tap to edit</p></div><button class="link" data-a="addPk">${ms('add','xs')}Item</button></div><div class="rows">${rows}</div></section>
-  <section class="card"><div class="card-h"><div><h2 class="title">Printer Ink</h2><p class="caps muted">Cartridge split across printed labels</p></div></div>
+    <div class="hero-l"><span class="caps muted">Packaging per box</span><div class="metric-row"><span class="metric num" data-o="pk-dozen"></span><span class="title muted">dozen</span></div><span class="foot muted"><b class="num" data-o="pk-half"></b> half dozen</span></div></div></section>
+  <section class="card" data-tour="packaging"><div class="card-h"><div><h2 class="title">Packaging Items</h2><p class="caps muted">Shared by all recipes · tap to edit</p></div><button class="link" data-a="addPk">${ms('add','xs')}Item</button></div><div class="rows">${rows}</div></section>
+  <section class="card"><div class="card-h"><h2 class="title">Printer Ink</h2></div>
     <div class="glist">
       ${gl('Ink cartridge price','l:inkPrice',L.inkPrice,{pre:true})}
       ${gl('Pages per cartridge','l:pages',L.pages)}
@@ -681,24 +664,22 @@ function packHTML(){
       ${gl('Labels / half dozen','l:half',L.half)}
       ${gl('Labels / dozen','l:dozen',L.dozen)}
     </div>
-    <p class="foot muted note">Page yield is printed on the ink box. Use about half that for full-color labels.</p>
-  </section>
-  <section class="tiles" aria-label="Ink costs">${tile('description','Ink / Page','lb-page','lb-page-s','tn-sky')}${tile('label','Ink / Label','lb-ink','lb-ink-s','tn-pink')}${tile('inventory_2','Ink / Dozen','lb-tot','lb-tot-s','tn-butter')}</section>`;
+    <p class="foot muted note" data-o="ink-note"></p>
+  </section>`;
 }
 function ordersHTML(){
   return `
   <section class="card hero" aria-label="Order size" data-tour="orderhero">
     <div class="hero-top">
       <div class="hero-l"><span class="caps muted">Dozens Ordered</span><div class="metric-row"><span class="metric num" data-o="o-dz"></span><span class="title muted">Dozen</span></div></div>
-      <div class="stepper"><button data-a="dz:-1" aria-label="Fewer dozens">${ms('remove')}</button><div class="badge-wrap"><span class="badge" data-o="o-bt"></span></div><button data-a="dz:1" aria-label="More dozens">${ms('add')}</button></div>
+      <div class="stepper"><button data-a="dz:-1" aria-label="Fewer dozens">${ms('remove')}</button><button data-a="dz:1" aria-label="More dozens">${ms('add')}</button></div>
     </div>
-    <div class="slider"><div class="slider-lab caps"><span>0 dozen</span><span class="pri b" data-o="o-rev"></span><span data-o="o-max"></span></div><input type="range" class="range" data-s="dz" min="0" step="1" aria-label="Dozens ordered"></div>
+    <input type="range" class="range" data-s="dz" min="0" step="1" aria-label="Dozens ordered">
   </section>
   <section class="tiles">${tile('cookie','Batches','o-b','o-b-s','tn-lav')}${tile('timer','Bake Time','o-h','o-h-s','tn-sky')}${tile('add_circle','Extras','o-x','o-x-s','tn-pink')}</section>
-  <section class="card"><div class="card-h"><div><h2 class="title">Order Totals</h2><p class="caps muted">Uses your dozen price and packaging</p></div></div>
-    <div class="rows">${[['payments','Revenue','ot-rev'],['egg','Ingredients','ot-ing'],['inventory_2','Packaging','ot-pk'],['savings','Profit','ot-pf'],['schedule','Pay per hour','ot-hr']].map(([ic,l,k],j)=>`<div class="row static${k==='ot-pf'?' hl':''}"><span class="row-l"><span class="dot-ic ${['tn-sky','tn-butter','tn-peach','tn-mint','tn-lav'][j]}">${ms(ic,'sm')}</span><span class="bodyE">${l}</span></span><span class="bodyE num${k==='ot-pf'?' glow':''}" data-o="${k}"></span></div>`).join('')}</div>
+  <section class="card"><div class="rows">${[['payments','Revenue','ot-rev'],['egg','Ingredients','ot-ing'],['inventory_2','Packaging','ot-pk'],['savings','Profit','ot-pf'],['schedule','Pay per hour','ot-hr']].map(([ic,l,k],j)=>`<div class="row static${k==='ot-pf'?' hl':''}"><span class="row-l"><span class="dot-ic ${['tn-sky','tn-butter','tn-peach','tn-mint','tn-lav'][j]}">${ms(ic,'sm')}</span><span class="bodyE">${l}</span></span><span class="bodyE num${k==='ot-pf'?' glow':''}" data-o="${k}"></span></div>`).join('')}</div>
   </section>
-  <section class="card"><div class="card-h"><div><h2 class="title">Shopping &amp; Prep List</h2><p class="caps muted">Scaled to this order · tap to check off</p></div><button class="link" data-a="chkReset">${ms('checklist','xs')}Reset</button></div><div data-html="checklist"></div></section>`;
+  <section class="card"><div class="card-h"><h2 class="title">Shopping List</h2><button class="link" data-a="chkReset">${ms('checklist','xs')}Reset</button></div><div data-html="checklist"></div></section>`;
 }
 function checklistHTML(r,c){
   const b=c.plan.batches;
@@ -728,20 +709,20 @@ function update(){
     o['cap-ink']=`${money(num(L.inkPrice))} ink · ${nfmt(L.pages)||0} pg`;
     o['lb-page']=cents(pk.page);o['lb-page-s']='per printed page';
     o['lb-ink']=num(L.perSheet)?cents(pk.ink):'—';o['lb-ink-s']=num(L.perSheet)?`${nfmt(L.perSheet)} labels / sheet`:'add labels / sheet';
-    o['lb-tot']=cents(pk.ink*num(L.dozen));o['lb-tot-s']=`${nfmt(L.dozen)||0} printed / box`;
+    o['lb-tot']=cents(pk.ink*num(L.dozen));o['ink-note']=num(L.perSheet)?`Ink adds ${cents(pk.ink*num(L.dozen))} per dozen box (${cents(pk.ink)} a label).`:'Add labels per sheet to include ink. Page yield is on the ink box.';o['lb-tot-s']=`${nfmt(L.dozen)||0} printed / box`;
   }else{
     const c=calc(r);
     o['cap-min']=`${num(r.minutes)} min`;o['cap-yield']=`${num(r.yield)} cookies · ${cents(c.perCookie+c.pk.dozen/12)} each`;
     if(S.tab==='profit'){
       const i=S.orderSize,x=c.orders[i];
-      o['h-lab']=`Price · ${SIZES[i]}`;o['h-price']=money(x.used);o['h-unit']=i===0?'each':`for ${x.n}`;
+      o['h-lab']=SIZES[i];o['h-price']=money(x.used);o['h-unit']=i===0?'each':`for ${x.n}`;
       o['h-mg']=[pct(x.margin),x.margin<0];o['h-each']=money(x.n?x.used/x.n:0);o['h-pf']=[`Profit ${money(x.profit)}`,x.profit<0];
       const [mn,mx0,st]=BOUNDS[i];const mx=Math.max(mx0,Math.ceil(x.used));o['h-min']=money(mn);o['h-max']=money(mx);
       const rg=document.querySelector('[data-s=price]');if(rg){rg.min=mn;rg.max=mx;rg.step=st;if(document.activeElement!==rg)rg.value=x.used;}
-      o['tm-v']=`${nfmt(r.minutes)||0} min`;o['tm-hr']=[`${money(c.hourly)} / hour`,c.hourly<0];const tmx=Math.max(180,Math.ceil(num(r.minutes)));o['tm-max']=`${tmx} min`;
+      o['tm-v']=`${nfmt(r.minutes)||0} min`;o['tm-hr']=[`${money(c.hourly)}/hour`,c.hourly<0];const tmx=Math.max(180,Math.ceil(num(r.minutes)));o['tm-max']=`${tmx} min`;
       const tr=document.querySelector('[data-s=min]');if(tr){tr.max=tmx;if(document.activeElement!==tr)tr.value=num(r.minutes);}
-      o['t-cost']=money(x.total);o['t-cost-s']=`${money(x.ing)} + ${money(x.pkg)} pkg`;
-      o['t-cpc']=cents(x.n?x.total/x.n:0);o['t-cpc-s']=x.pkg?`${cents(x.ing/x.n)} + ${cents(x.pkg/x.n)} pkg`:'no box on singles';
+      o['t-cost']=money(x.total);o['t-cost-s']=`${money(x.ing)} + ${money(x.pkg)} box`;
+      o['t-cpc']=cents(x.n?x.total/x.n:0);o['t-cpc-s']=x.pkg?`${cents(x.ing/x.n)} + ${cents(x.pkg/x.n)} box`:'no box on singles';
       o['t-hr']=[money(c.hourly),c.hourly<0];o['t-hr-s']=`selling by the dozen`;
       c.orders.forEach((y,j)=>{o[`pl-${j}-s`]=`Ingredients ${money(y.ing)} · Pkg ${money(y.pkg)}`;o[`pl-${j}-p`]=money(y.used);o[`pl-${j}-pf`]=[`${y.profit<0?'':'+'}${money(y.profit)} profit`,y.profit<0];});
       const bars=c.rows.filter(z=>z.cc>0).map(z=>({n:z.name||'Unnamed',v:z.cc,pk:false}));
@@ -819,23 +800,18 @@ const TOUR=[
   {tab:'profit',sel:'.brand',t:'Welcome to Batch',d:'Your cookie pricing app. Sit back and this tour will play itself. Tap pause anytime, or use Back and Next.',dur:6500},
   {tab:'profit',sel:'.pills',t:'Your recipes',d:'Tap a recipe to switch to it. The + adds a new one.',dur:7500,
     demo:async tok=>{if(S.recipes.length<2)return;await tapClick('.pill:nth-child(2)',tok);await sleep(1500,tok);await tapClick('.pill:nth-child(1)',tok);}},
-  {tab:'profit',sel:'.capsule',t:'Quick facts',d:'Bake time per batch, cookies per batch, and what each cookie really costs you, box included.',dur:6500},
-  {tab:'profit',sel:'.hero',t:'Set your price',d:'Drag the slider or tap − and +. Your price per cookie changes with it, and the green box shows your profit.',dur:11500,
+  {tab:'profit',sel:'.hero',t:'Set your price',d:'Drag the slider or tap − and +. The green box shows your profit. Pick single, half dozen, or dozen below.',dur:11500,
     demo:async tok=>{const v=+q('[data-s=price]').value;await drag('[data-s=price]',v+10,tok);await sleep(900,tok);await drag('[data-s=price]',v,tok);await sleep(400,tok);await tapClick('[data-a="step:1"]',tok);await sleep(350,tok);await tap(tok);q('[data-a="step:1"]').click();}},
-  {tab:'profit',sel:'.time-card',t:'Time per batch',d:'Slide this to match how long a batch really takes you. Your hourly pay updates as you go.',dur:9000,
+  {tab:'profit',sel:'.time-card',t:'Time per batch',d:'Slide to match how long a batch takes you. Your hourly pay updates as you go.',dur:9000,
     demo:async tok=>{const v=+q('[data-s=min]').value;await drag('[data-s=min]',v+25,tok);await sleep(900,tok);await drag('[data-s=min]',v,tok);}},
-  {tab:'profit',sel:'.seg',t:'Pick an order size',d:'Switch between a single cookie, a half dozen, or a dozen.',dur:7500,
-    demo:async tok=>{await tapClick('[data-a="size:1"]',tok);await sleep(1100,tok);await tapClick('[data-a="size:0"]',tok);await sleep(1100,tok);await tapClick('[data-a="size:2"]',tok);}},
-  {tab:'profit',sel:'.tiles',t:'The numbers that matter',d:'What the order costs you, your cost per cookie with packaging, and what you earn per hour.',dur:7000},
-  {tab:'profit',sel:'[data-tour=pricelist]',t:'Price list',d:'All three sizes side by side with the profit on each. Tap one to adjust its price.',dur:7500,
-    demo:async tok=>{await tapClick('[data-a="size:1"]',tok);await sleep(1300,tok);await tapClick('[data-a="size:2"]',tok);}},
+  {tab:'profit',sel:'.tiles',t:'Your costs',d:'What the order costs you, and what each cookie costs with its box.',dur:7000},
   {tab:'recipe',sel:'[data-tour=ingredients] .item',t:'Your ingredients',d:'Tap any ingredient to change what you paid or how much you use. Watch the cost per cookie update instantly.',dur:12000,
     demo:async tok=>{await tapClick('[data-a="exp:i:0:0"]',tok);await sleep(500,tok);const p=q('[data-b="i:0:0:price"]');const old=p?String(p.value):'';await typeInto('[data-b="i:0:0:price"]',(Math.round((num(old)*1.3)*100)/100).toFixed(2),tok);await sleep(900,tok);await typeInto('[data-b="i:0:0:amount"]','3',tok);}},
   {tab:'pack',sel:'[data-tour=packaging] .rows',t:'Packaging',d:'Boxes, wax paper, labels, and ink. Shared by every recipe and added to each order.',dur:9500,
     demo:async tok=>{await tapClick('[data-a="exp:p:0"]',tok);await sleep(500,tok);await typeInto('[data-b="p:0:price"]','35',tok);}},
   {tab:'orders',sel:'[data-tour=orderhero]',t:'Plan an order',d:'Set how many dozens someone ordered to see batches, bake time, and profit, plus a shopping list you can check off.',dur:9000,
     demo:async tok=>{await tapClick('[data-a="dz:1"]',tok);await sleep(400,tok);await tap(tok);q('[data-a="dz:1"]').click();await sleep(400,tok);await tap(tok);q('[data-a="dz:1"]').click();await sleep(700,tok);const v=+q('[data-s=dz]').value;await drag('[data-s=dz]',v+6,tok);}},
-  {tab:'profit',sel:'[data-a=sheet]',t:'Export & save',d:'Make PDF recipe cards, export to Excel, or download a backup to move your data to another device.',dur:7000,
+  {tab:'profit',sel:'[data-a=sheet]',t:'Export & save',d:'Make PDF recipe cards, export to Excel, change settings, or back up your data.',dur:7000,
     demo:async tok=>{await fingerTo('[data-a=sheet]',tok);await tap(tok);await sleep(700,tok);await tap(tok);}},
   {tab:'profit',sel:'[data-tour=help]',t:'Replay anytime',d:'Tap here to watch this tour again. Happy baking!',dur:0,
     demo:async tok=>{await fingerTo('[data-tour=help]',tok);await tap(tok);}}
