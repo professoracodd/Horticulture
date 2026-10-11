@@ -130,6 +130,8 @@ main{padding:calc(56px + env(safe-area-inset-top,0px) + 4px) 0 calc(96px + env(s
 .seg.full{width:100%}
 .seg.full button{flex:1;justify-content:center}
 .pay{color:var(--good)}
+.auto-hint{color:var(--good)}
+.auto-hint.neg{color:var(--on-sv)!important}
 .tot-line{display:flex;justify-content:space-between;align-items:center;padding:12px 0 0;margin-top:4px;border-top:1px solid var(--line)}
 .tot-line b{font-size:17px}
 .time-card{padding:12px 16px;display:flex;flex-direction:column;gap:4px}
@@ -455,6 +457,44 @@ try{document.fonts.load("24px 'Material Symbols Outlined'","cookie").then(functi
 const KEY='cookieCostCalc.v1';
 const UNITS={'lb':{b:'oz',f:16},'oz':{b:'oz',f:1},'kg':{b:'g',f:1000},'g':{b:'g',f:1},'fl oz':{b:'fl oz',f:1},'dozen':{b:'each',f:12},'each':{b:'each',f:1},'stick':{b:'stick',f:1},'cup':{b:'cup',f:1},'tbsp':{b:'tbsp',f:1},'tsp':{b:'tsp',f:1}};
 const CONV=[['1 tsp (liquid)','0.167 fl oz'],['1 tbsp (liquid)','0.5 fl oz'],['1 cup flour','≈ 4.25 oz'],['1 cup granulated sugar','≈ 7 oz'],['1 cup brown sugar (packed)','≈ 7.5 oz'],['1 cup powdered sugar','≈ 4 oz'],['1 cup chocolate chips','≈ 6 oz'],['1 tsp baking soda','≈ 0.2 oz'],['1 tsp baking powder','≈ 0.16 oz'],['1 tsp table salt','≈ 0.2 oz'],['1 tbsp meringue powder','≈ 0.3 oz'],['1 lb','16 oz']];
+/* ---------- measure → amount ---------- */
+const DENS=[ // ounces per cup (standard baking weights)
+  [/brown sugar/,7.5],[/powdered|confectioner|icing sugar/,4],[/sugar/,7],
+  [/flour/,4.25],[/cocoa/,3],[/chocolate|chip/,6],[/butter|margarine/,8],[/shortening/,6.75],
+  [/baking soda/,9.6],[/baking powder/,7.68],[/salt/,9.6],[/meringue/,4.8],[/corn ?starch/,4],
+  [/oat/,3.2],[/pecan|walnut|almond(?! extract)|nut/,4],[/honey|molasses|syrup/,12],[/sprinkle|nonpareil/,6.4]];
+const VOLC={cup:1,tbsp:1/16,tsp:1/48,floz:1/8,ml:1/236.6,l:1000/236.6},WTOZ={oz:1,lb:16,g:1/28.3495,kg:35.274};
+const UFR={'½':' 1/2','¼':' 1/4','¾':' 3/4','⅓':' 1/3','⅔':' 2/3','⅛':' 1/8','⅜':' 3/8','⅝':' 5/8','⅞':' 7/8'};
+function parseMeasure(str){
+  let t=String(str||'').toLowerCase().replace(/[½¼¾⅓⅔⅛⅜⅝⅞]/g,c=>UFR[c]).replace(/(\d)-(\d+\/)/g,'$1 $2').trim();
+  if(/^an? /.test(t))t='1 '+t.replace(/^an? /,'');
+  const m=t.match(/^(\d+\s+\d+\/\d+|\d+\/\d+|\d+(?:\.\d+)?|\.\d+)\s*(.*)$/);if(!m)return null;
+  const q=m[1].trim().split(/\s+/).reduce((a,x)=>{if(x.includes('/')){const[n,d]=x.split('/');return a+(+d?+n/+d:0);}return a+ +x;},0);
+  if(!(q>0))return null;const r=m[2];
+  const U=[[/^(fl\.?\s*oz|fluid\s*ounces?)\b/,'floz'],[/^(cups?|c)\b/,'cup'],[/^(tablespoons?|tbsps?|tbls?|tbs)\b/,'tbsp'],[/^(teaspoons?|tsps?)\b/,'tsp'],
+    [/^(ounces?|oz)\b/,'oz'],[/^(pounds?|lbs?)\b/,'lb'],[/^(kilograms?|kgs?)\b/,'kg'],[/^(grams?|g)\b/,'g'],[/^(milliliters?|ml)\b/,'ml'],[/^(liters?|l)\b/,'l'],
+    [/^sticks?\b/,'stick'],[/^dozen\b/,'dozen']];
+  for(const[re,u]of U)if(re.test(r))return{q,u};
+  if(/^(pinch|dash|drop|handful)/.test(r))return null;
+  return{q,u:'each'};
+}
+function measureToAmount(measure,name,pkgUnit){
+  const pm=parseMeasure(measure);if(!pm)return{v:null,why:'parse'};
+  const base=(UNITS[pkgUnit]||{b:pkgUnit}).b,n=String(name||'').toLowerCase();
+  const d=(DENS.find(([re])=>re.test(n))||[])[1]||null;const{q,u}=pm;
+  let cups=null,oz=null,cnt=null;
+  if(u in VOLC){cups=q*VOLC[u];if(d)oz=cups*d;}
+  else if(u in WTOZ){oz=q*WTOZ[u];if(d)cups=oz/d;}
+  else if(u==='stick'){oz=q*4;cups=q/2;}
+  else if(u==='dozen')cnt=q*12;else cnt=q;
+  const out={oz:oz,g:oz==null?null:oz*28.3495,'fl oz':cups==null?null:cups*8,cup:cups,tbsp:cups==null?null:cups*16,tsp:cups==null?null:cups*48,stick:oz==null?null:oz/4,each:cnt}[base];
+  if(out==null||!isFinite(out))return{v:null,why:(u in VOLC)&&!d&&base!=='fl oz'?'dens':'unit',base};
+  return{v:Math.round(out*1000)/1000,base};
+}
+function autoAmount(si,ii){
+  const it=R().sections[si].items[ii];const res=measureToAmount(it.measure,it.name,it.unit);if(res.v==null)return;
+  it.amount=res.v;const el=document.querySelector(`[data-b="i:${si}:${ii}:amount"]`);if(el&&document.activeElement!==el)el.value=nfmt(res.v);
+}
 
 let uid=Date.now();
 const id=()=>'r'+(uid++).toString(36);
@@ -618,9 +658,9 @@ function recipeHTML(){
         <label class="fld"><span class="caps">Package price</span><span class="pre"><i>$</i>${numIn(p+'price',it.price)}</span></label>
         <label class="fld"><span class="caps">Package size</span>${numIn(p+'size',it.size)}</label>
         <label class="fld"><span class="caps">Package unit</span><select data-b="${p}unit">${unitOpts(it.unit)}</select></label>
-        <label class="fld"><span class="caps">Recipe measure</span><input data-b="${p}measure" value="${val(it.measure)}" placeholder="e.g. 2 cups"></label>
+        <label class="fld"><span class="caps">Measure</span><input data-b="${p}measure" value="${val(it.measure)}" placeholder="e.g. 1 cup"></label>
         <label class="fld wide"><span class="caps">Amount per batch</span><span class="suf">${numIn(p+'amount',it.amount)}<i data-o="b-${k}"></i></span></label>
-        <div class="ed-foot wide"><span></span><button class="link danger" data-a="delItem:${si}:${ii}">${ms('delete','xs')}Remove</button></div>
+        <div class="ed-foot wide"><span class="foot auto-hint" data-o="am-${k}"></span><button class="link danger" data-a="delItem:${si}:${ii}">${ms('delete','xs')}Remove</button></div>
       </div>`:''}</div>`;});
     ing+='</div>';
   });
@@ -735,7 +775,9 @@ function update(){
         o['n-'+k]=it.name||'New ingredient';
         o['f-'+k]=`${it.measure||'—'} · ${blank(it.price)?'no price yet':`${money(num(it.price))} / ${nfmt(it.size)||'?'} ${it.unit}`}`;
         o['cc-'+k]=cents(z.cc);o['sh-'+k]=`${c.batch?Math.round(z.cb/c.batch*100):0}%`;o['b-'+k]=z.base;
-        o['cpu-'+k]=`${cents(z.cpu)} per ${z.base} · ${money(z.cb)} per batch`;});
+        o['cpu-'+k]=`${cents(z.cpu)} per ${z.base} · ${money(z.cb)} per batch`;
+        if(OPEN===`i:${z.si}:${z.ii}`){const m=measureToAmount(it.measure,it.name,it.unit);
+          o['am-'+k]=!String(it.measure||'').trim()?['Type a measure and the amount fills in',false]:m.v!=null?[`✓ ${it.measure.trim()} = ${nfmt(m.v)} ${m.base}`,false]:m.why==='dens'?['No cup weight for this one. Type the amount.',true]:['Type the amount below',true];}});
       o['t-batch']=money(c.batch);o['t-cookie']=cents(c.perCookie);
     }else if(S.tab==='orders'){
       const p=c.plan,dz=num(r.planDozens);
@@ -759,7 +801,7 @@ function setBound(el){
   switch(parts[0]){
     case 'r':r[parts[1]]=v;break;
     case 's':r.sections[+parts[1]].name=v;break;
-    case 'i':r.sections[+parts[1]].items[+parts[2]][parts[3]]=v;break;
+    case 'i':r.sections[+parts[1]].items[+parts[2]][parts[3]]=v;if(parts[3]==='measure'||parts[3]==='unit')autoAmount(+parts[1],+parts[2]);break;
     case 'p':S.packaging.items[+parts[1]][parts[2]]=v;break;
     case 'l':S.packaging.label[parts[1]]=v;break;
   }
@@ -805,8 +847,8 @@ const TOUR=[
   {tab:'profit',sel:'.time-card',t:'Time per batch',d:'Slide to match how long a batch takes you. Your hourly pay updates as you go.',dur:9000,
     demo:async tok=>{const v=+q('[data-s=min]').value;await drag('[data-s=min]',v+25,tok);await sleep(900,tok);await drag('[data-s=min]',v,tok);}},
   {tab:'profit',sel:'.tiles',t:'Your costs',d:'What the order costs you, and what each cookie costs with its box.',dur:7000},
-  {tab:'recipe',sel:'[data-tour=ingredients] .item',t:'Your ingredients',d:'Tap any ingredient to change what you paid or how much you use. Watch the cost per cookie update instantly.',dur:12000,
-    demo:async tok=>{await tapClick('[data-a="exp:i:0:0"]',tok);await sleep(500,tok);const p=q('[data-b="i:0:0:price"]');const old=p?String(p.value):'';await typeInto('[data-b="i:0:0:price"]',(Math.round((num(old)*1.3)*100)/100).toFixed(2),tok);await sleep(900,tok);await typeInto('[data-b="i:0:0:amount"]','3',tok);}},
+  {tab:'recipe',sel:'[data-tour=ingredients] .item',t:'Your ingredients',d:'Tap an ingredient and type a measure like "1 cup". The amount fills itself in, and cost per cookie updates instantly.',dur:12000,
+    demo:async tok=>{await tapClick('[data-a="exp:i:0:0"]',tok);await sleep(500,tok);await typeInto('[data-b="i:0:0:measure"]','1 1/2 cups',tok);await sleep(1200,tok);const p=q('[data-b="i:0:0:price"]');const old=p?String(p.value):'';await typeInto('[data-b="i:0:0:price"]',(Math.round((num(old)*1.3)*100)/100).toFixed(2),tok);}},
   {tab:'pack',sel:'[data-tour=packaging] .rows',t:'Packaging',d:'Boxes, wax paper, labels, and ink. Shared by every recipe and added to each order.',dur:9500,
     demo:async tok=>{await tapClick('[data-a="exp:p:0"]',tok);await sleep(500,tok);await typeInto('[data-b="p:0:price"]','35',tok);}},
   {tab:'orders',sel:'[data-tour=orderhero]',t:'Plan an order',d:'Set how many dozens someone ordered to see batches, bake time, and profit, plus a shopping list you can check off.',dur:9000,
