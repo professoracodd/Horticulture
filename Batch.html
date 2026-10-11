@@ -515,6 +515,11 @@ function measureToAmount(measure,name,pkgUnit){
   if(out==null||!isFinite(out))return{v:null,why:(u in VOLC)&&!d&&base!=='fl oz'?'dens':'unit',base};
   return{v:Math.round(out*1000)/1000,base};
 }
+const ULBL={floz:'fl oz'};
+function unitLabel(v,base,name){if(base==='stick')return v===1?'stick':'sticks';if(base==='each')return /egg/i.test(name||'')?(v===1?'egg':'eggs'):'each';if(base==='cup')return v===1?'cup':'cups';return base;}
+function stripEquiv(m){const t=String(m||'');const x=t.match(/^(.*?)\s*\(([^)]*)\)\s*$/);if(x&&x[1].trim()&&parseMeasure(x[2]))return x[1].trim();return t;}
+function measureLine(it){const m=String(it.measure||'').trim();if(!m)return null;const r=measureToAmount(m,it.name,it.unit);if(r.v==null)return{m,eq:null};
+  const pm=parseMeasure(m);const same=pm&&((ULBL[pm.u]||pm.u)===r.base);return{m,eq:same?null:`${nfmt(r.v)} ${unitLabel(r.v,r.base,it.name)}`,v:r.v,base:r.base};}
 function autoAmount(si,ii){
   const it=R().sections[si].items[ii];const res=measureToAmount(it.measure,it.name,it.unit);if(res.v==null)return;
   it.amount=res.v;const el=document.querySelector(`[data-b="i:${si}:${ii}:amount"]`);if(el&&document.activeElement!==el)el.value=nfmt(res.v);
@@ -534,11 +539,11 @@ function defaults(){
     recipes:[
       {id:id(),name:'Chocolate Chip',yield:12,price:2,minutes:40,halfPrice:12,dozenPrice:22,planDozens:3,notes:'',
        sections:[
-        {name:'Dough',items:[I('Butter',5.96,8,'stick','1 cup (2 sticks)',2),I('Granulated sugar',7.38,10,'lb','3/4 cup',5.25),I('Brown sugar',1.99,32,'oz','3/4 cup packed',5.6),I('Eggs',8.05,8,'dozen','2 large',2),I('Vanilla extract',10.88,16,'fl oz','1 tsp',0.167),I('Flour',2.49,5,'lb','2 1/4 cups',9.6),I('Baking soda',10.2,13.5,'lb','1 tsp',0.2),I('Salt',1.89,26,'oz','1 tsp',0.2)]},
+        {name:'Dough',items:[I('Butter',5.96,8,'stick','1 cup',2),I('Granulated sugar',7.38,10,'lb','3/4 cup',5.25),I('Brown sugar',1.99,32,'oz','3/4 cup packed',5.6),I('Eggs',8.05,8,'dozen','2 large',2),I('Vanilla extract',10.88,16,'fl oz','1 tsp',0.167),I('Flour',2.49,5,'lb','2 1/4 cups',9.6),I('Baking soda',10.2,13.5,'lb','1 tsp',0.2),I('Salt',1.89,26,'oz','1 tsp',0.2)]},
         {name:'Mix-ins',items:[I('Chocolate chips',16.99,72,'oz','2 cups',12)]}]},
       {id:id(),name:'Decorated Sugar Cookies',yield:15,price:3,minutes:90,halfPrice:18,dozenPrice:34,planDozens:2,notes:'',
        sections:[
-        {name:'Dough',items:[I('Butter',2.99,4,'stick','1 cup (2 sticks)',2),I('Granulated sugar',7.38,10,'lb','1 cup',7),I('Flour',2.49,5,'lb','3 cups',12.75),I('Eggs',8.05,8,'dozen','1 large',1),I('Vanilla extract',10.88,16,'fl oz','1 tsp',0.167),I('Almond extract',5.16,2,'fl oz','1/2 tsp',0.083),I('Baking powder',1.99,8.1,'oz','2 tsp',0.32)]},
+        {name:'Dough',items:[I('Butter',2.99,4,'stick','1 cup',2),I('Granulated sugar',7.38,10,'lb','1 cup',7),I('Flour',2.49,5,'lb','3 cups',12.75),I('Eggs',8.05,8,'dozen','1 large',1),I('Vanilla extract',10.88,16,'fl oz','1 tsp',0.167),I('Almond extract',5.16,2,'fl oz','1/2 tsp',0.083),I('Baking powder',1.99,8.1,'oz','2 tsp',0.32)]},
         {name:'Royal Icing & Color',items:[I('Powdered sugar',1.99,2,'lb','4 cups',16),I('Meringue powder',8.48,4,'oz','3 tbsp',0.9),I('Gel food coloring',null,null,'oz','',null)]}]}
     ]
   };
@@ -688,7 +693,8 @@ function recipeHTML(){
           <label class="fld"><span class="caps">Measure</span><input data-b="${p}measure" value="${val(it.measure)}" placeholder="e.g. 1 cup"></label>
           <label class="fld"><span class="caps">Amount / batch</span><span class="suf">${numIn(p+'amount',it.amount)}<i data-o="b-${k}"></i></span></label>
         </div><span class="foot auto-hint" data-o="am-${k}"></span></div>
-        <div class="ed-foot wide"><span></span><button class="link danger" data-a="delItem:${si}:${ii}">${ms('delete','xs')}Remove</button></div>`:''}</div>`;});
+        <div class="ed-foot wide"><span></span><button class="link danger" data-a="delItem:${si}:${ii}">${ms('delete','xs')}Remove</button></div>
+      </div>`:''}</div>`;});
     ing+='</div>';
   });
   return `
@@ -800,11 +806,11 @@ function update(){
     }else if(S.tab==='recipe'){
       c.rows.forEach(z=>{const k=`${z.si}-${z.ii}`,it=r.sections[z.si].items[z.ii];
         o['n-'+k]=it.name||'New ingredient';
-        o['fm-'+k]=it.measure||'no measure';o['fp-'+k]=blank(it.price)?'no price yet':`${money(num(it.price))} / ${nfmt(it.size)||'?'} ${it.unit}`;
-        o['cc-'+k]=cents(z.cc);o['sh-'+k]=`${c.batch?Math.round(z.cb/c.batch*100):0}%`;o['b-'+k]=z.base;
+        {const ml=measureLine(it);o['fm-'+k]=!ml?'no measure':ml.eq?`${ml.m} = ${ml.eq}`:ml.m;}o['fp-'+k]=blank(it.price)?'no price yet':`${money(num(it.price))} / ${nfmt(it.size)||'?'} ${it.unit}`;
+        o['cc-'+k]=cents(z.cc);o['b-'+k]=unitLabel(num(it.amount),z.base,it.name);
         o['cpu-'+k]=`${cents(z.cpu)} per ${z.base} · ${money(z.cb)} per batch`;
         if(OPEN===`i:${z.si}:${z.ii}`){const m=measureToAmount(it.measure,it.name,it.unit);
-          o['am-'+k]=!String(it.measure||'').trim()?['Type a measure and the amount fills in',false]:m.v!=null?[`✓ ${it.measure.trim()} = ${nfmt(m.v)} ${m.base}`,false]:m.why==='dens'?['No cup weight for this one. Type the amount.',true]:['Type the amount below',true];}});
+          const ml=measureLine(it);o['am-'+k]=!ml?['Type a measure and the amount fills in',false]:m.v!=null?[`✓ ${ml.m} = ${nfmt(m.v)} ${unitLabel(m.v,m.base,it.name)}`,false]:m.why==='dens'?['No cup weight for this one. Type the amount.',true]:['Type the amount',true];}});
       o['t-batch']=money(c.batch);o['t-cookie']=cents(c.perCookie);
     }else if(S.tab==='orders'){
       const p=c.plan,dz=num(r.planDozens);
@@ -849,6 +855,7 @@ document.addEventListener('input',e=>{
 document.addEventListener('change',e=>{
   const t=e.target;
   if(t.tagName==='SELECT'&&t.dataset.b){SFX.tap();setBound(t);return;}
+  if(t.dataset.b&&/:measure$/.test(t.dataset.b)){const c=stripEquiv(t.value);if(c!==t.value){t.value=c;setBound(t);}return;}
   if(t.id==='soundOn'){S.sound=t.checked;save();if(t.checked)SFX.toggle(true);return;}
   if(t.id==='incCosts'){SFX.toggle(t.checked);S.incCosts=t.checked;save();if(S.tab==='profit')render();}
 });
@@ -1141,6 +1148,7 @@ if(!S.tab||!({profit:1,recipe:1,pack:1,orders:1})[S.tab])S.tab='profit';
 if(S.orderSize===undefined)S.orderSize=2;
 if(S.incCosts===undefined)S.incCosts=true;
 delete S.view;
+if(!S.v5){S.recipes.forEach(x=>x.sections.forEach(sec=>sec.items.forEach(it=>{it.measure=stripEquiv(it.measure);})));S.v5=true;}
 if(!S.v4){S.recipes.forEach(x=>{if(/chocolate chip/i.test(x.name||'')&&num(x.yield)===30)x.yield=12;if(/sugar/i.test(x.name||'')&&num(x.minutes)===100)x.minutes=90;});S.v4=true;}
 if(!S.v3){S.recipes.forEach(x=>{if(/chocolate chip/i.test(x.name||'')&&num(x.minutes)===41)x.minutes=40;});S.v3=true;}
 save();
