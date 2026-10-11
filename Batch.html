@@ -130,6 +130,30 @@ main{padding:calc(56px + env(safe-area-inset-top,0px) + 4px) 0 calc(96px + env(s
 .seg.full{width:100%}
 .seg.full button{flex:1;justify-content:center}
 .pay{color:var(--good)}
+.panel{border-radius:14px;padding:10px 12px 12px;display:flex;flex-direction:column;gap:8px}
+.panel.buy{background:var(--peach);box-shadow:inset 0 0 0 1px var(--peach-line)}
+.panel.use{background:var(--lav);box-shadow:inset 0 0 0 1px var(--lav-line)}
+.panel-h{display:flex;align-items:center;gap:6px;font-size:11px;line-height:14px;letter-spacing:.06em;font-weight:700;text-transform:uppercase}
+.panel.buy .panel-h,.panel.buy .fld>.caps{color:var(--peach-ink)}
+.panel.use .panel-h,.panel.use .fld>.caps{color:var(--lav-ink)}
+.panel .fld>.caps{opacity:.8}
+.panel-g{display:grid;grid-template-columns:1.15fr .85fr 1fr;gap:8px}
+.panel.use .panel-g{grid-template-columns:repeat(2,minmax(0,1fr))}
+.panel input,.panel select{background-color:var(--sc-lowest);padding:8px 10px}
+.panel select{padding-right:26px;background-position:right 8px center}
+.panel.buy input,.panel.buy select{border-color:var(--peach-line)}
+.panel.use input{border-color:var(--lav-line)}
+.panel.buy input:focus,.panel.buy select:focus{border-color:var(--peach-ink);box-shadow:0 0 0 3px rgba(253,186,116,.16)}
+.panel.use input:focus{border-color:var(--lav-ink);box-shadow:0 0 0 3px rgba(196,181,253,.16)}
+.panel .pre i{left:10px}.panel .pre input{padding-left:21px}
+.panel .auto-hint:empty{display:none}
+.sub2{display:flex;gap:6px;min-width:0;white-space:nowrap;overflow:hidden}
+.sub2 .sep{color:var(--on-sv)}
+.sub2 .m-buy{overflow:hidden;text-overflow:ellipsis}
+.m-use{color:var(--lav-ink)}.m-buy{color:var(--peach-ink)}
+.legend{display:flex;gap:12px;flex-wrap:wrap}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:8px;height:8px;border-radius:3px;background:currentColor;opacity:.85}
 .auto-hint{color:var(--good)}
 .auto-hint.neg{color:var(--on-sv)!important}
 .tot-line{display:flex;justify-content:space-between;align-items:center;padding:12px 0 0;margin-top:4px;border-top:1px solid var(--line)}
@@ -652,16 +676,19 @@ function recipeHTML(){
   r.sections.forEach((s,si)=>{
     ing+=`<div class="sec-h"><input class="sec-in" data-b="s:${si}:name" value="${val(s.name)}" aria-label="Section name"><button class="link" data-a="addItem:${si}">${ms('add','xs')}Add</button><button class="icon-sm" data-a="delSec:${si}" aria-label="Remove section">${ms('delete','sm')}</button></div><div class="rows">`;
     s.items.forEach((it,ii)=>{const k=`${si}-${ii}`,key=`i:${si}:${ii}`,open=OPEN===key,p=`i:${si}:${ii}:`;
-      ing+=`<div class="item${open?' open':''}"><button class="row" data-a="exp:${key}" aria-expanded="${open}"><span class="row-l"><span class="chev">${ms('expand_more','sm')}</span><span><span class="blk bodyE" data-o="n-${k}"></span><span class="blk foot muted" data-o="f-${k}"></span></span></span><span class="row-r"><span class="blk bodyE num" data-o="cc-${k}"></span></span></button>
+      ing+=`<div class="item${open?' open':''}"><button class="row" data-a="exp:${key}" aria-expanded="${open}"><span class="row-l"><span class="chev">${ms('expand_more','sm')}</span><span><span class="blk bodyE" data-o="n-${k}"></span><span class="blk foot sub2"><span class="m-use" data-o="fm-${k}"></span><span class="sep">·</span><span class="m-buy" data-o="fp-${k}"></span></span></span></span><span class="row-r"><span class="blk bodyE num" data-o="cc-${k}"></span></span></button>
       ${open?`<div class="editor">
         <label class="fld wide"><span class="caps">Ingredient</span><input data-b="${p}name" value="${val(it.name)}" placeholder="Ingredient name"></label>
-        <label class="fld"><span class="caps">Package price</span><span class="pre"><i>$</i>${numIn(p+'price',it.price)}</span></label>
-        <label class="fld"><span class="caps">Package size</span>${numIn(p+'size',it.size)}</label>
-        <label class="fld"><span class="caps">Package unit</span><select data-b="${p}unit">${unitOpts(it.unit)}</select></label>
-        <label class="fld"><span class="caps">Measure</span><input data-b="${p}measure" value="${val(it.measure)}" placeholder="e.g. 1 cup"></label>
-        <label class="fld wide"><span class="caps">Amount per batch</span><span class="suf">${numIn(p+'amount',it.amount)}<i data-o="b-${k}"></i></span></label>
-        <div class="ed-foot wide"><span class="foot auto-hint" data-o="am-${k}"></span><button class="link danger" data-a="delItem:${si}:${ii}">${ms('delete','xs')}Remove</button></div>
-      </div>`:''}</div>`;});
+        <div class="panel buy wide"><div class="panel-h">${ms('shopping_cart','xs')}What you buy</div><div class="panel-g">
+          <label class="fld"><span class="caps">Price</span><span class="pre"><i>$</i>${numIn(p+'price',it.price)}</span></label>
+          <label class="fld"><span class="caps">Size</span>${numIn(p+'size',it.size)}</label>
+          <label class="fld"><span class="caps">Unit</span><select data-b="${p}unit">${unitOpts(it.unit)}</select></label>
+        </div></div>
+        <div class="panel use wide"><div class="panel-h">${ms('scale','xs')}In your recipe</div><div class="panel-g">
+          <label class="fld"><span class="caps">Measure</span><input data-b="${p}measure" value="${val(it.measure)}" placeholder="e.g. 1 cup"></label>
+          <label class="fld"><span class="caps">Amount / batch</span><span class="suf">${numIn(p+'amount',it.amount)}<i data-o="b-${k}"></i></span></label>
+        </div><span class="foot auto-hint" data-o="am-${k}"></span></div>
+        <div class="ed-foot wide"><span></span><button class="link danger" data-a="delItem:${si}:${ii}">${ms('delete','xs')}Remove</button></div>`:''}</div>`;});
     ing+='</div>';
   });
   return `
@@ -673,7 +700,7 @@ function recipeHTML(){
     <div class="btn-row"><button class="chip" data-a="dupRecipe">${ms('content_copy','xs')}Duplicate</button><button class="chip danger" data-a="delRecipe">${ms('delete','xs')}Delete</button></div>
   </section>
   <section class="card" data-tour="ingredients">
-    <div class="card-h"><div><h2 class="title">Ingredients</h2><p class="caps muted">Cost per cookie · tap to edit</p></div><button class="link" data-a="addSec">${ms('add','xs')}Section</button></div>
+    <div class="card-h"><div><h2 class="title">Ingredients</h2><p class="caps muted legend"><span class="m-use"><i></i>Recipe</span><span class="m-buy"><i></i>Bought</span><span>Tap to edit</span></p></div><button class="link" data-a="addSec">${ms('add','xs')}Section</button></div>
     ${ing}
     <div class="tot-line"><span class="foot muted">Ingredients per batch</span><b class="num" data-o="t-batch"></b></div>
     <details class="conv"><summary class="foot">${ms('straighten','sm pri')}Measurement conversions</summary><div class="conv-grid">${CONV.map(c=>`<div><span>${c[0]}</span><b>${c[1]}</b></div>`).join('')}</div></details>
@@ -773,7 +800,7 @@ function update(){
     }else if(S.tab==='recipe'){
       c.rows.forEach(z=>{const k=`${z.si}-${z.ii}`,it=r.sections[z.si].items[z.ii];
         o['n-'+k]=it.name||'New ingredient';
-        o['f-'+k]=`${it.measure||'—'} · ${blank(it.price)?'no price yet':`${money(num(it.price))} / ${nfmt(it.size)||'?'} ${it.unit}`}`;
+        o['fm-'+k]=it.measure||'no measure';o['fp-'+k]=blank(it.price)?'no price yet':`${money(num(it.price))} / ${nfmt(it.size)||'?'} ${it.unit}`;
         o['cc-'+k]=cents(z.cc);o['sh-'+k]=`${c.batch?Math.round(z.cb/c.batch*100):0}%`;o['b-'+k]=z.base;
         o['cpu-'+k]=`${cents(z.cpu)} per ${z.base} · ${money(z.cb)} per batch`;
         if(OPEN===`i:${z.si}:${z.ii}`){const m=measureToAmount(it.measure,it.name,it.unit);
