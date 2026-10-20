@@ -573,23 +573,32 @@ function sflower(x, y, R) {
   return out + '<circle cx="' + x + '" cy="' + y + '" r="' + f(R * .33) + '" fill="#f1c232"/>';
 }
 
-function drawTulip() {
-  var r = rng(51), above = "", below = "", i;
-  // bulb 6 in deep
-  for (i = 0; i < 10; i++) below += roots(184 + i * 3.5, 328, Math.PI / 2 + (r() - .5) * 1.2, 22 + r() * 14, 1.1, r, 356);
-  below += stem([[200, G], [200, 296]], "#d8e6b0", 4, "#6d7f45");
-  function bulb(x, y, s, main) {
-    var d = "M" + x + " " + (y - 34 * s) + " C" + (x + 6 * s) + " " + (y - 20 * s) + " " + (x + 26 * s) + " " + (y - 10 * s) + " " + (x + 25 * s) + " " + (y + 8 * s) + " C" + (x + 24 * s) + " " + (y + 22 * s) + " " + (x + 12 * s) + " " + (y + 26 * s) + " " + x + " " + (y + 26 * s) + " C" + (x - 12 * s) + " " + (y + 26 * s) + " " + (x - 24 * s) + " " + (y + 22 * s) + " " + (x - 25 * s) + " " + (y + 8 * s) + " C" + (x - 26 * s) + " " + (y - 10 * s) + " " + (x - 6 * s) + " " + (y - 20 * s) + " " + x + " " + (y - 34 * s) + "Z";
-    var o = '<path d="' + d + '" fill="' + (main ? "#b98653" : "#c39463") + '" stroke="#5a3a1c" stroke-width="1.2"/>';
-    for (var k = -2; k <= 2; k++) o += '<path d="M' + f(x + k * 4 * s) + " " + f(y - 30 * s) + " Q" + f(x + k * 10 * s) + " " + f(y) + " " + f(x + k * 7 * s) + " " + f(y + 24 * s) + '" fill="none" stroke="#5a3a1c" stroke-width=".7" opacity=".6"/>';
+function drawNakedLady() {
+  var r = rng(121), above = "", below = "", i;
+  // crowded clump of big bulbs, necks reaching the soil surface
+  var bulbs = [[150, 300, .9], [204, 292, 1.05], [258, 302, .92], [118, 318, .5], [292, 322, .48], [178, 326, .42]];
+  bulbs.forEach(function (b) {
+    for (i = 0; i < 6; i++) below += roots(b[0] - 12 * b[2] + i * 5 * b[2], b[1] + 24 * b[2], Math.PI / 2 + (r() - .5) * 1.2, 20 + r() * 16, 1.1, r, 356);
+  });
+  bulbs.forEach(function (b) {
+    var x = b[0], y = b[1], s = b[2];
+    below += '<path d="M' + f(x - 5 * s) + " " + f(y - 30 * s) + " L" + f(x - 4 * s) + " " + (G + 2) + " L" + f(x + 4 * s) + " " + (G + 2) + " L" + f(x + 5 * s) + " " + f(y - 30 * s) + 'Z" fill="#c9a37a" stroke="#5a3a1c" stroke-width="1"/>';
+    below += bulbShape(x, y, s, s > .8 ? "#a7744a" : "#bf8f60");
+  });
+  // bare flower stalks with pink trumpets (leaves have died back)
+  function trumpet(x, y, a, L) {
+    var ex = x + Math.cos(a * D2R) * 14, ey = y + Math.sin(a * D2R) * 14;
+    var o = '<path d="M' + f(x) + " " + f(y) + " L" + f(ex) + " " + f(ey) + '" stroke="#8a4a5a" stroke-width="1.6"/>';
+    o += at(ex, ey, a, '<path d="M0 -2.5 C10 -3 ' + f(L * .6) + ' -5 ' + L + ' -12 L' + f(L - 4) + ' -3 L' + (L + 2) + ' 0 L' + f(L - 4) + ' 3 L' + L + ' 12 C' + f(L * .6) + ' 5 10 3 0 2.5Z" fill="#f4b0c4" stroke="#a24b68" stroke-width="1"/><path d="M3 0 L' + f(L - 2) + ' 0" stroke="#d9789a" stroke-width=".9"/>');
     return o;
   }
-  below += bulb(171, 322, .42, false) + bulb(230, 324, .38, false) + bulb(200, 310, 1, true);
-  below += '<ellipse cx="200" cy="334" rx="20" ry="4.5" fill="#d9c49a" stroke="#5a3a1c" stroke-width="1"/>';
-  // leaves and flower
-  above += sword(200, G - 2, -62, 120, 34, "#6c9b5a", "#2f4a24") + sword(200, G - 2, -124, 112, 32, "#5f8f4f", "#2f4a24");
-  above += stem([[200, G - 2], [201, 150], [200, 92]], "#6c9b5a", 4, "#2f4a24");
-  above += '<path d="M178 90 C176 60 186 48 192 46 L200 60 L208 46 C214 48 224 60 222 90 C214 102 186 102 178 90Z" fill="#d8323a" stroke="#6e1016" stroke-width="1.3"/><path d="M200 60 L200 98" stroke="#8e1a20" stroke-width="1"/>';
+  [[150, 84, -.08], [204, 62, 0], [258, 90, .1]].forEach(function (st, k) {
+    var top = [st[0] + st[2] * 120, st[1]];
+    above += stem([[st[0], G - 2], [st[0] + st[2] * 40, 160], top], "#8a4a5a", 4.2, "#3e1c26");
+    [-170, -140, -110, -70, -40, -10, -125, -55].forEach(function (a, j) { above += trumpet(top[0], top[1], a + (k - 1) * 6, 30 + (j % 3) * 3); });
+  });
+  // dry leaf remnants at the soil line
+  for (i = 0; i < 8; i++) above += at(120 + i * 22, G - 2, -90 + (r() - .5) * 120, '<path d="M0 -2 Q14 -3 24 0 Q14 3 0 2Z" fill="#c4a76e" stroke="#7a5a2c" stroke-width=".7"/>');
   return { above: above, below: below };
 }
 
@@ -619,11 +628,11 @@ function drawGlad() {
   return { above: above, below: below };
 }
 
-function drawRaspberry() {
+function drawBoysenberry() {
   var r = rng(71), above = "", below = "", i;
   for (i = 0; i < 10; i++) below += roots(108 + (r() - .5) * 18, G + 4, Math.PI / 2 + (r() - .5) * 1.4, 70 + r() * 35, 1.8, r, 352);
   // buried tip with new roots and a bud
-  below += stem(quad([326, G - 2], [336, G + 16], [346, G + 32], 8), "#8a3f5a", 3, "#3f1426");
+  below += stem(quad([326, G - 2], [336, G + 16], [346, G + 32], 8), "#7f8a4a", 3, "#34401c");
   for (i = 0; i < 8; i++) below += roots(344 + (r() - .5) * 6, G + 30, Math.PI / 2 + (r() - .5) * 1.6, 30 + r() * 20, 1.3, r, 352);
   below += at(338, G + 18, -70, '<path d="M0 -4 C6 -5 12 -2 15 0 C12 2 6 5 0 4Z" fill="#f0f0dc" stroke="#6d7f45" stroke-width="1"/>');
   var canes = [
@@ -636,10 +645,18 @@ function drawRaspberry() {
   var lv = "";
   canes.forEach(function (c, k) {
     var pts = quad(c[0], c[1], c[2], 20);
-    above += stem(pts, "#8a3f5a", 3.4, "#3f1426");
+    above += stem(pts, "#7f8a4a", 3.4, "#34401c");
     for (var j = 2; j < 19; j += 3) {   // prickles
-      var p = pts[j]; above += '<path d="M' + f(p[0] - 1.5) + " " + f(p[1]) + " l2 -5 l1.5 5Z" + '" fill="#3f1426"/>';
+      var p = pts[j]; above += '<path d="M' + f(p[0] - 1.5) + " " + f(p[1]) + " l2 -5 l1.5 5Z" + '" fill="#34401c"/>';
     }
+    if (k < 3) [9, 14].forEach(function (j2) {   // fruit clusters
+      var bp = pts[j2];
+      [[0, 8], [7, 12], [-6, 13]].forEach(function (o) {
+        var bx = bp[0] + o[0], by = bp[1] + o[1];
+        above += '<ellipse cx="' + f(bx) + '" cy="' + f(by) + '" rx="5" ry="6.5" fill="#4a1630" stroke="#22060f" stroke-width=".8"/>';
+        above += '<circle cx="' + f(bx - 1.5) + '" cy="' + f(by - 2) + '" r="1.2" fill="#9a5a7a"/>';
+      });
+    });
     [6, 11, 16].forEach(function (j, n) {
       if (k === 4 && j === 16) return;
       var p = pts[j], q = pts[j + 1], a = Math.atan2(q[1] - p[1], q[0] - p[0]) / D2R, side = (n + k) % 2 ? 1 : -1;
@@ -651,37 +668,39 @@ function drawRaspberry() {
   return { above: above, below: below };
 }
 
-function drawForsythia() {
-  var r = rng(111), above = "", below = "", i;
-  var WOOD = "#8a7052", WOODD = "#3e2e1c";
-  for (i = 0; i < 9; i++) below += roots(110 + (r() - .5) * 18, G + 4, Math.PI / 2 + (r() - .5) * 1.4, 70 + r() * 35, 1.8, r, 352);
-  // buried section of the layered branch, wound, new roots, back leg of the pin
+function drawJasmine() {
+  var r = rng(141), above = "", below = "", i;
+  var VINE = "#6b6a3e", VINED = "#2f3a1c", JL = ["#2f5a2c", "#3a6a32", "#284e26"];
+  for (i = 0; i < 9; i++) below += roots(112 + (r() - .5) * 18, G + 4, Math.PI / 2 + (r() - .5) * 1.4, 70 + r() * 35, 1.8, r, 352);
   below += '<path d="M286 ' + (G - 26) + ' L286 ' + (G + 46) + '" stroke="#55585c" stroke-width="3.4" stroke-linecap="round"/>';
-  var bur = quad([246, G], [276, G + 40], [312, G], 14);
-  below += stem(bur, WOOD, 4.5, WOODD);
+  below += stem(quad([246, G], [276, G + 40], [312, G], 14), VINE, 3.4, VINED);
   below += '<path d="M272 ' + (G + 22) + ' l9 -3 l3 6 z" fill="#f2e6c4" stroke="#5a3a1c" stroke-width=".9"/>';
   for (i = 0; i < 9; i++) below += roots(276 + (r() - .5) * 12, G + 24, Math.PI / 2 + (r() - .5) * 1.5, 34 + r() * 26, 1.4, r, 352);
   below += '<path d="M274 ' + (G - 26) + ' L274 ' + (G + 46) + '" stroke="#7a7d82" stroke-width="3.4" stroke-linecap="round"/><path d="M274 ' + (G - 26) + ' Q280 ' + (G - 36) + ' 286 ' + (G - 26) + '" stroke="#7a7d82" stroke-width="3.4" fill="none"/>';
-  // pin top shows above the soil
   above += '<path d="M274 ' + (G - 2) + ' L274 ' + (G - 26) + ' Q280 ' + (G - 36) + ' 286 ' + (G - 26) + ' L286 ' + (G - 2) + '" stroke="#7a7d82" stroke-width="3.4" fill="none" stroke-linecap="round"/>';
-  var canes = [
-    [[106, G - 2], [70, 90], [30, 110]],
-    [[108, G - 2], [96, 50], [150, 40]],
-    [[112, G - 2], [140, 60], [200, 92]],
-    [[104, G - 2], [50, 160], [26, 196]],
-    [[114, G - 2], [190, 70], [246, G]],      // layered branch, going down
-    [[312, G], [326, 190], [330, 120]]        // tip coming back up
+  // wooden trellis behind the vine
+  above += '<g stroke="#a88a64" stroke-width="3" opacity=".9"><path d="M70 ' + (G - 2) + ' L70 40 M150 ' + (G - 2) + ' L150 40 M60 70 L160 70 M60 130 L160 130 M60 190 L160 190"/></g>';
+  function flower(x, y) {
+    var o = "";
+    for (var k = 0; k < 5; k++) o += at(x, y, k * 72 + 20, '<path d="M0 0 C3 -3 9 -4 12 -1 C10 2 5 3 0 0Z" fill="#ffffff" stroke="#a9a99a" stroke-width=".6"/>');
+    return o + '<circle cx="' + f(x) + '" cy="' + f(y) + '" r="1.6" fill="#f2dd9a"/>';
+  }
+  var vines = [
+    [[110, G - 2], [60, 140], [80, 50]],
+    [[112, G - 2], [150, 150], [140, 44]],
+    [[108, G - 2], [40, 190], [24, 150]],
+    [[116, G - 2], [200, 120], [246, G]],      // layered stem going down
+    [[312, G], [324, 196], [336, 140]]         // tip coming back up
   ];
-  canes.forEach(function (c, k) {
-    var pts = quad(c[0], c[1], c[2], 18);
-    above += stem(pts, WOOD, k >= 4 ? 4.5 : 3.6, WOODD);
-    for (var j = 4; j < 18; j += 3) {
-      if (k === 4 && j > 13) continue;
+  vines.forEach(function (c, k) {
+    var pts = quad(c[0], c[1], c[2], 20);
+    above += stem(pts, VINE, k === 3 ? 3.4 : 2.8, VINED);
+    for (var j = 3; j < 19; j += 2) {
+      if (k === 3 && j > 15) continue;
       var p = pts[j], q = pts[j + 1], a = Math.atan2(q[1] - p[1], q[0] - p[0]) / D2R;
-      above += leaf(p[0], p[1], a - 55, 26, 8, GREENS[(j + k) % 4]) + leaf(p[0], p[1], a + 55, 26, 8, GREENS[(j + k + 1) % 4]);
+      above += leaf(p[0], p[1], a - 62, 20, 8, JL[(j + k) % 3]) + leaf(p[0], p[1], a + 62, 20, 8, JL[(j + k + 1) % 3]);
+      if (k < 3 && j % 6 === 5) above += flower(p[0] + 8, p[1] - 8) + flower(p[0] - 6, p[1] - 12) + flower(p[0] + 2, p[1] - 18);
     }
-    var tp = pts[18], tq = pts[16];
-    if (k !== 4) above += leaf(tp[0], tp[1], Math.atan2(tp[1] - tq[1], tp[0] - tq[0]) / D2R, 22, 7, GREENS[k % 4]);
   });
   return { above: above, below: below };
 }
@@ -715,33 +734,35 @@ function drawDaffodil() {
   above += stem([[210, G - 2], [216, 150], [238, 104]], "#6d9c5c", 3, "#2f4a24") + daff(244, 100, .85, 30);
   return { above: above, below: below };
 }
-function drawCrocus() {
-  var r = rng(101), above = "", below = "", i;
-  [[150, 290], [200, 286], [252, 292]].forEach(function (c, k) {
-    for (i = 0; i < 6; i++) below += roots(c[0] - 10 + i * 4, c[1] + 26, Math.PI / 2 + (r() - .5) * 1.3, 16 + r() * 14, 1, r, 356);
+function drawFreesia() {
+  var r = rng(131), above = "", below = "", i;
+  [[148, 284], [204, 280], [258, 288]].forEach(function (c) {
+    for (i = 0; i < 6; i++) below += roots(c[0] - 10 + i * 4, c[1] + 24, Math.PI / 2 + (r() - .5) * 1.3, 16 + r() * 14, 1, r, 356);
     below += stem([[c[0], G], [c[0], c[1] - 14]], "#d8e6b0", 3, "#6d7f45");
-    // old corm under new one
     below += '<ellipse cx="' + c[0] + '" cy="' + (c[1] + 20) + '" rx="12" ry="5" fill="#7a6248" stroke="#3d2c1a"/>';
-    // new corm with netted tunic
-    below += '<ellipse cx="' + c[0] + '" cy="' + c[1] + '" rx="17" ry="14" fill="#cfae7a" stroke="#5a3a1c" stroke-width="1.2"/>';
-    below += '<path d="M' + (c[0] - 14) + " " + (c[1] - 6) + " L" + (c[0] + 14) + " " + (c[1] + 8) + " M" + (c[0] - 14) + " " + (c[1] + 8) + " L" + (c[0] + 14) + " " + (c[1] - 6) + " M" + (c[0] - 16) + " " + (c[1] + 1) + " L" + (c[0] + 16) + " " + (c[1] + 1) + '" stroke="#7a5a34" stroke-width=".8" opacity=".7"/>';
-    [[-20, 12], [21, 10]].forEach(function (p) { below += '<circle cx="' + (c[0] + p[0]) + '" cy="' + (c[1] + p[1]) + '" r="4" fill="#c79e66" stroke="#5a3a1c" stroke-width=".9"/>'; });
+    below += '<path d="M' + (c[0] - 15) + " " + (c[1] + 8) + " C" + (c[0] - 17) + " " + (c[1] - 6) + " " + (c[0] - 6) + " " + (c[1] - 18) + " " + c[0] + " " + (c[1] - 20) + " C" + (c[0] + 6) + " " + (c[1] - 18) + " " + (c[0] + 17) + " " + (c[1] - 6) + " " + (c[0] + 15) + " " + (c[1] + 8) + " C" + (c[0] + 10) + " " + (c[1] + 14) + " " + (c[0] - 10) + " " + (c[1] + 14) + " " + (c[0] - 15) + " " + (c[1] + 8) + 'Z" fill="#d6b27c" stroke="#5a3a1c" stroke-width="1.2"/>';
+    below += '<path d="M' + (c[0] - 12) + " " + (c[1] - 4) + " L" + (c[0] + 12) + " " + (c[1] + 8) + " M" + (c[0] - 12) + " " + (c[1] + 8) + " L" + (c[0] + 12) + " " + (c[1] - 4) + '" stroke="#7a5a34" stroke-width=".8" opacity=".7"/>';
+    [[-20, 14], [20, 12], [-12, 22], [13, 22]].forEach(function (p) { below += '<circle cx="' + (c[0] + p[0]) + '" cy="' + (c[1] + p[1]) + '" r="3.6" fill="#c79e66" stroke="#5a3a1c" stroke-width=".9"/>'; });
   });
-  // grassy leaves with a white stripe and goblet flowers
-  [150, 200, 252].forEach(function (x, k) {
-    for (i = 0; i < 5; i++) {
-      var a = -90 + (i - 2) * 9;
-      above += at(x + (i - 2) * 2, G - 2, a, '<path d="M0 -2.6 Q45 -3 ' + (78 + k * 6) + ' 0 Q45 3 0 2.6Z" fill="#4f8a3d" stroke="#2a4a20" stroke-width=".8"/><path d="M2 0 L' + (70 + k * 6) + ' 0" stroke="#f2f6ea" stroke-width="1"/>');
+  // fans of sword leaves, starting to yellow at the tips
+  [148, 204, 258].forEach(function (x, k) {
+    for (i = 0; i < 5; i++) { var fct = (i - 2) / 2; above += sword(x + fct * 4, G - 2, -90 + fct * 22, 92 - Math.abs(fct) * 18, 10, ["#7aa868", "#8fb070", "#a8b56a"][(i + k) % 3], "#3a5a2c"); }
+  });
+  // arching one-sided flower spikes
+  function spike(x0, x1, y1, col) {
+    var sp = quad([x0, G - 2], [x0 + 6, y1 + 40], [x1, y1], 14);
+    var o = stem(sp, "#7aa868", 2.4, "#3a5a2c");
+    for (var j = 7; j < 15; j++) {
+      var p = sp[j], sc = 1 - (j - 7) * .1;
+      o += at(p[0], p[1], -60, '<path d="M0 0 C3 -6 12 -10 18 -9 C16 -3 14 3 10 6 C6 6 2 4 0 0Z" fill="' + (j > 12 ? "#cfe0a2" : col) + '" stroke="#8a7a2a" stroke-width=".8" transform="scale(' + f(sc) + ')"/>');
     }
-    var fx = x + (k - 1) * 4, fy = G - 70 - k * 6;
-    above += stem([[x, G - 2], [fx, fy + 16]], "#f1ecdc", 3, "#8a8670");
-    above += '<path d="M' + (fx - 12) + " " + (fy + 18) + " C" + (fx - 16) + " " + (fy - 6) + " " + (fx - 6) + " " + (fy - 18) + " " + fx + " " + (fy - 20) + " C" + (fx + 6) + " " + (fy - 18) + " " + (fx + 16) + " " + (fy - 6) + " " + (fx + 12) + " " + (fy + 18) + " Z" + '" fill="#8a64c8" stroke="#3e2470" stroke-width="1.1"/>';
-    above += '<path d="M' + fx + " " + (fy - 18) + " L" + fx + " " + (fy + 16) + " M" + (fx - 7) + " " + (fy - 12) + " Q" + (fx - 6) + " " + fy + " " + (fx - 3) + " " + (fy + 16) + " M" + (fx + 7) + " " + (fy - 12) + " Q" + (fx + 6) + " " + fy + " " + (fx + 3) + " " + (fy + 16) + '" stroke="#5a3a98" stroke-width=".9" fill="none"/>';
-  });
+    return o;
+  }
+  above += spike(196, 262, 96, "#fbe7a0") + spike(150, 214, 120, "#ffffff") + spike(256, 318, 132, "#f6d77a");
   return { above: above, below: below };
 }
 
-var DRAW = { peony: drawPeony, iris: drawIris, grass: drawGrass, strawberry: drawStrawberry, tulip: drawTulip, glad: drawGlad, raspberry: drawRaspberry, forsythia: drawForsythia, daffodil: drawDaffodil, crocus: drawCrocus };
+var DRAW = { peony: drawPeony, iris: drawIris, grass: drawGrass, strawberry: drawStrawberry, nakedlady: drawNakedLady, glad: drawGlad, boysenberry: drawBoysenberry, jasmine: drawJasmine, daffodil: drawDaffodil, freesia: drawFreesia };
 var ART = {};
 Object.keys(DRAW).forEach(function (k) { ART[k] = DRAW[k](); });
 
@@ -776,7 +797,7 @@ var CATS = Object.keys(FAMILIES);
 var STATIONS = [
   {
     id: "peony", name: "Peony", latin: "Paeonia lactiflora", bed: "Perennial border",
-    clues: ["Herbaceous perennial. Stems die back to the ground each fall.", "This clump has grown in the same spot for eight years and now blooms less.", "It is early fall."],
+    clues: ["Herbaceous perennial. Stems die back to the ground each fall.", "Planted where it gets afternoon shade, which helps peonies handle Valley heat. After eight years in the same spot it blooms less.", "It is early fall."],
     dig: "Thick, fleshy storage roots meet in one woody crown. Pink buds (eyes) sit 1–2 in. below the soil.",
     cat: "Division", method: "Crown",
     hint: ["The roots and buds are all joined in one solid mass. Nothing comes apart on its own.", "Look at where the buds are: on top of one woody base that the storage roots hang from."],
@@ -819,15 +840,15 @@ var STATIONS = [
       why: "Pin the daughter into soil or a pot and wait until it roots, usually two to three weeks. Then cut the runner and plant with the crown at the soil surface." }
   },
   {
-    id: "tulip", name: "Tulip", latin: "Tulipa", bed: "Spring bulb bed",
-    clues: ["Flowered in spring.", "The leaves are now yellow and flopping over.", "Blooms got smaller each year."],
-    dig: "About 6 in. down: a layered, papery-coated structure. Smaller copies are attached at its base.",
+    id: "nakedlady", name: "Naked lady", latin: "Amaryllis belladonna", bed: "Dry bank",
+    clues: ["Tall bare stalks topped with pink trumpet flowers in late summer, with no leaves in sight.", "The strap leaves grew all winter and died back in late spring.", "The clump has grown so crowded that bulbs are pushing up out of the soil."],
+    dig: "A tight cluster of large, layered bulbs with papery brown coats. Their long necks reach up to the soil surface. Smaller bulbs are attached at the sides.",
     cat: "Separation", method: "Bulb",
-    hint: ["The small copies are complete little plants. They come apart in your hand.", "Look inside: fleshy layers, like an onion."],
-    why: ["The small copies come apart naturally, without cutting. That is separation.", "Fleshy, layered scale leaves on a basal plate make a bulb."],
-    q3: { prompt: "Where do the new offsets come from?", options: ["Buds on the basal plate", "Seeds that fell from the flower", "The papery outer tunic", "The tips of the roots"], correct: 0,
-      hint: "Look at the base of the parent bulb, where the roots attach.",
-      why: "Offsets grow from buds on the basal plate. Lift the bulbs after the foliage yellows, pull the offsets off, and replant them; small offsets may take a year or two to bloom." }
+    hint: ["Each bulb in the clump already has its own roots. They pull apart by hand.", "Picture one cut in half: fleshy layers wrapped around a center, like an onion."],
+    why: ["Each bulb is a complete plant that comes apart without cutting. That is separation.", "Layered, fleshy scales on a basal plate: these are bulbs."],
+    q3: { prompt: "How deep do you replant the separated bulbs?", options: ["With the neck at or just above the soil surface", "About 12 in. deep so summer heat can’t reach them", "Laid on their sides on top of the soil", "Upside down, neck pointing down"], correct: 0,
+      hint: "Look at where the necks were when you dug the clump.",
+      why: "Replant right after bloom with the neck at or just above the soil line. Planted deep, naked ladies often won’t flower. Once established they need no summer water, which is why they thrive in the Valley." }
   },
   {
     id: "daffodil", name: "Daffodil", latin: "Narcissus", bed: "Woodland edge",
@@ -842,47 +863,47 @@ var STATIONS = [
   },
   {
     id: "glad", name: "Gladiolus", latin: "Gladiolus × hortulanus", bed: "Cutting garden",
-    clues: ["Sword-shaped leaves and a tall flower spike in late summer.", "It is fall, before the first frost.", "Not hardy here; it is dug and stored each winter."],
+    clues: ["Sword-shaped leaves and a tall flower spike in late summer.", "It is fall and the leaves have turned yellow.", "Corms can stay in the ground over our mild winters, but this clump has become crowded and the spikes are getting shorter."],
     dig: "A solid, flattened structure with a papery tunic. A shriveled one sits under it. Marble-size pieces cluster around the base.",
     cat: "Separation", method: "Corm",
     hint: ["The little marble-size pieces pop off by hand.", "Cut one open in your mind: it is solid all the way through, not layered."],
     why: ["The new pieces come apart without cutting, so this is separation.", "A solid, swollen stem base with a tunic is a corm."],
     q3: { prompt: "What happened to the corm you planted in spring?", options: ["It shriveled under the new corm; discard it", "It doubled in size", "It split into fleshy scales", "It turned into a rhizome"], correct: 0,
       hint: "Look at the bottom of the stack.",
-      why: "A corm is used up each season and a new one forms on top. Discard the old corm, cure the new corm and cormels, and store them. Cormels take two to three years to reach blooming size." }
+      why: "A corm is used up each season and a new one forms on top. Discard the old corm, separate the new corm and cormels, and replant them about 4–6 in. deep. Cormels take two to three years to reach blooming size." }
   },
   {
-    id: "crocus", name: "Crocus", latin: "Crocus vernus", bed: "Lawn edge",
-    clues: ["Grass-like leaves with a silver-white stripe down the middle.", "Cup-shaped purple flowers in late winter.", "The patch is crowded, and the leaves died back in late spring."],
-    dig: "Small, solid, rounded structures in a netted, fibrous tunic. Each sits on a shriveled older one, with tiny ones clustered around the base.",
+    id: "freesia", name: "Freesia", latin: "Freesia × hybrida", bed: "Sunny border",
+    clues: ["Fans of narrow sword leaves and arching spikes of fragrant flowers in spring.", "It is late spring. The leaves are turning yellow and the plants are going dormant for summer.", "The patch has spread and the flowers are getting smaller."],
+    dig: "Small, solid, pointed structures in a netted tunic. Each sits on a shriveled older one, with tiny ones clustered around its base.",
     cat: "Separation", method: "Corm",
-    hint: ["The little pieces around the base pop off by hand.", "It looks like a small bulb on the outside, but it is solid inside, with no layers."],
+    hint: ["The tiny pieces around the base pop off by hand.", "It looks like a small bulb on the outside, but it is solid inside, with no layers."],
     why: ["The new pieces come apart without cutting, so this is separation.", "Solid stem tissue in a tunic, sitting on last year’s shriveled one: a corm."],
-    q3: { prompt: "How do you replant the corms and cormels?", options: ["About 3–4 in. deep, pointed end up", "On the soil surface", "About 12 in. deep", "Pointed end down"], correct: 0,
-      hint: "The growing point is on top of a corm.",
-      why: "Plant crocus corms 3–4 in. deep with the pointed growing end up, in fall. Discard the shriveled old corms. Cormels can go in the same planting; they reach blooming size in a year or two." }
+    q3: { prompt: "When and how do you replant the corms and cormels?", options: ["In fall, about 2 in. deep, pointed end up", "Right away in June, 8 in. deep", "In spring, on the soil surface", "In fall, pointed end down"], correct: 0,
+      hint: "Freesias grow through our mild winter and rest during the hot summer.",
+      why: "Let the foliage die back, lift and separate the corms, and keep them dry over summer. Replant in fall about 2 in. deep, pointed growing end up. Cormels reach blooming size in a year or two." }
   },
   {
-    id: "raspberry", name: "Black raspberry", latin: "Rubus occidentalis", bed: "Berry row",
-    clues: ["Arching, prickly purple canes.", "It is late summer.", "One cane has bent over and its tip is touching the soil."],
+    id: "boysenberry", name: "Boysenberry", latin: "Rubus ursinus × idaeus", bed: "Berry row",
+    clues: ["Long, trailing, prickly canes trained along a wire.", "Dark purple berries ripened in early summer. It is now late summer.", "One new cane has trailed off the wire and its tip is touching the soil."],
     dig: "The cane tip has pushed into the soil and formed roots. A new bud near the tip is ready to grow.",
     cat: "Layering", method: "Tip",
     hint: ["The new plant formed while the cane was still attached to the parent.", "Which part of the cane went into the ground?"],
     why: ["Roots formed while the cane was still attached to the parent plant. That is layering.", "The buried part is the very tip of the cane: tip layering."],
     q3: { prompt: "To make more, how deep do you bury other cane tips?", options: ["3–4 in.", "Lay them on the surface", "About 12 in.", "Cut the tips off first, then bury them"], correct: 0,
       hint: "The tip has to turn back up to make a shoot.",
-      why: "Bury tips 3–4 in. deep in late summer. Leave them attached through winter and cut the new plant free the next spring, keeping about 6 in. of old cane as a handle." }
+      why: "Bury tips 3–4 in. deep in late summer and keep them moist. Leave them attached through winter and cut the new plant free in early spring, keeping about 6 in. of old cane as a handle." }
   },
   {
-    id: "forsythia", name: "Forsythia", latin: "Forsythia × intermedia", bed: "Shrub border",
-    clues: ["Deciduous shrub with long, arching, flexible branches.", "Bright yellow flowers cover it in early spring, before the leaves.", "Last spring, someone bent one low branch down to the ground and covered part of it with soil."],
-    dig: "The middle of the branch is pinned 3–4 in. under the soil with a wire staple. Roots are growing from a nicked node. The branch tip still sticks up out of the soil.",
+    id: "jasmine", name: "Star jasmine", latin: "Trachelospermum jasminoides", bed: "Fence line",
+    clues: ["Evergreen vine with glossy, dark green leaves in opposite pairs.", "Clusters of fragrant white pinwheel flowers in late spring.", "Last spring, someone bent one long stem down to the ground and covered part of it with soil."],
+    dig: "The middle of the stem is pinned 3–4 in. under the soil with a wire staple. Roots are growing from a nicked node. The stem tip still sticks up out of the soil.",
     cat: "Layering", method: "Simple",
-    hint: ["The new roots formed while the branch was still attached to the shrub.", "Only one section is buried, and the tip is still above the soil."],
-    why: ["Roots formed while the branch was still attached to the parent shrub. That is layering.", "One bend, one buried and wounded node, tip left above ground: simple layering."],
-    q3: { prompt: "Why was the buried node nicked with a knife?", options: ["To block sugars and auxin moving down the stem so they build up and trigger roots", "To let water drain out of the stem", "To kill the branch tip so it stops growing", "To make the stem easier to bend"], correct: 0,
+    hint: ["The new roots formed while the stem was still attached to the vine.", "Only one section is buried, and the tip is still above the soil."],
+    why: ["Roots formed while the stem was still attached to the parent vine. That is layering.", "One bend, one buried and wounded node, tip left above ground: simple layering."],
+    q3: { prompt: "Why was the buried node nicked with a knife?", options: ["To block sugars and auxin moving down the stem so they build up and trigger roots", "To let water drain out of the stem", "To kill the stem tip so it stops growing", "To make the stem easier to bend"], correct: 0,
       hint: "Think about what moves down a stem through the phloem.",
-      why: "Wounding cuts the phloem, so sugars and auxin collect at the wound and roots form there. The xylem stays intact, so the tip keeps getting water. Cut the rooted layer free once it has a good root system, usually after one season." }
+      why: "Wounding cuts the phloem, so sugars and auxin collect at the wound and roots form there. The xylem stays intact, so the tip keeps getting water. Cut the rooted layer free once it has a good root system, usually by fall." }
   }
 ];
 
@@ -914,8 +935,8 @@ function isDone(id) { return state.stations[id].done[2]; }
 /* Garden map                                                          */
 /* ------------------------------------------------------------------ */
 var SPOTS = {
-  peony: [180, 330, .72], grass: [480, 330, .72], raspberry: [800, 330, .72], forsythia: [1130, 330, .72], daffodil: [1430, 330, .72],
-  iris: [230, 560, .76], strawberry: [530, 560, .76], tulip: [830, 560, .76], glad: [1110, 560, .76], crocus: [1380, 560, .76]
+  peony: [180, 330, .72], grass: [480, 330, .72], boysenberry: [800, 330, .72], jasmine: [1130, 330, .72], daffodil: [1430, 330, .72],
+  iris: [230, 560, .76], strawberry: [530, 560, .76], nakedlady: [830, 560, .76], glad: [1110, 560, .76], freesia: [1380, 560, .76]
 };
 function drawMap() {
   var r = rng(5), s = "", i;
