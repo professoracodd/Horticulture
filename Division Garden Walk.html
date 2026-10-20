@@ -1,0 +1,1255 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Division Garden Walk</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
+<style>
+/* Botanical Sanctuary: bone canvas, moss primary, terracotta accent, Newsreader + DM Sans, hairlines over shadows.
+   Layout: garden map as the playfield, station sheet opens over it, field report below. Single light theme by design. */
+:root {
+  color-scheme: light;
+  --bg: #faf9f6;
+  --surface: #f4f3f0;
+  --surface-2: #efeeeb;
+  --surface-hi: #ffffff;
+  --fg: #1a1c1a;
+  --muted: #434842;
+  --faint: #737971;
+  --line: rgba(91, 112, 101, .16);
+  --line-strong: rgba(91, 112, 101, .32);
+  --moss: #3e5641;
+  --moss-deep: #2f4033;
+  --sage: #5b7065;
+  --clay: #c88a73;
+  --clay-deep: #754330;
+  --clay-wash: #fbe6dc;
+  --accent-ink: #f9f8f5;
+  --ok-soft: #e4efe6;
+  --bad-soft: #fbe9e4;
+  --layer: #4c644e;
+  --sep: #c88a73;
+  --div: #6e5a7e;
+  --focus: #c88a73;
+  --shadow-float: 0 18px 48px -8px rgba(47, 64, 51, .16);
+  --scrim: rgba(47, 49, 47, .42);
+  --r-sm: 4px; --r-lg: 8px;
+  --font-display: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --font-body: "DM Sans", "Segoe UI", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { background: var(--bg); }
+body {
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.65;
+  letter-spacing: .01em;
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+  padding-block: 44px 80px;
+}
+.wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 56px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; font-weight: 400; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+
+/* header */
+.top { display: grid; grid-template-columns: 1fr auto; gap: 24px 48px; align-items: end; }
+.eyebrow { font-size: 12px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--sage); margin-bottom: 14px; }
+.top h1 { font-size: clamp(40px, 5.4vw, 64px); font-weight: 300; letter-spacing: -.02em; line-height: 1.08; color: var(--moss-deep); }
+.top h1 em { font-style: italic; color: var(--clay-deep); }
+.lede { margin: 18px 0 0; max-width: 60ch; color: var(--muted); font-size: 18px; line-height: 1.7; }
+.status { display: grid; gap: 16px; justify-items: end; min-width: 0; }
+.name-field { display: grid; gap: 4px; }
+.name-field label { font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--sage); }
+.name-field input {
+  font: inherit; padding: 10px 12px 8px; border: none; border-bottom: 1.5px solid rgba(91, 112, 101, .25);
+  background: var(--surface); color: var(--fg); width: min(280px, 100%); border-radius: var(--r-sm) var(--r-sm) 0 0; transition: border-color .25s ease;
+}
+.name-field input:focus { outline: none; border-bottom-color: var(--clay); }
+.tally { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+.pill {
+  font-size: 13px; letter-spacing: .05em; padding: 6px 14px; border-radius: 9999px; color: var(--muted);
+  background: var(--surface); border: 1px solid var(--line); font-variant-numeric: tabular-nums;
+}
+.pill b { font-weight: 600; color: var(--moss); }
+
+/* map */
+.map-card { background: var(--surface); border-radius: var(--r-lg); overflow: hidden; border: 1px solid var(--line); }
+.map-scroll { overflow-x: auto; }
+.map-scroll svg { display: block; width: 100%; min-width: 760px; height: auto; }
+.map-foot { display: flex; flex-wrap: wrap; gap: 8px 20px; justify-content: space-between; align-items: center; padding: 14px 22px; border-top: 1px solid var(--line); font-size: 14px; color: var(--faint); }
+.legend { display: flex; flex-wrap: wrap; gap: 18px; }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; border: 1.5px solid var(--sage); }
+.dot.done { background: var(--moss); border-color: var(--moss); }
+.spot { cursor: pointer; }
+.spot .ring { fill: transparent; stroke: transparent; stroke-width: 2; transition: stroke .25s ease, fill .25s ease; }
+.spot:hover .ring, .spot:focus-visible .ring { stroke: #f9f8f5; fill: rgba(249, 248, 245, .22); }
+.spot:focus { outline: none; }
+.spot:focus-visible .ring { stroke: #c88a73; stroke-dasharray: 6 5; }
+
+/* station list */
+.stations h2 { font-size: 30px; color: var(--moss-deep); margin-bottom: 18px; }
+.chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
+.chip {
+  display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; text-align: left;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 14px 16px; cursor: pointer;
+  transition: border-color .25s ease, background .25s ease;
+}
+.chip:hover { border-color: var(--line-strong); background: var(--surface-hi); }
+.chip .nm { font-family: var(--font-display); font-size: 19px; line-height: 1.2; color: var(--moss-deep); }
+.chip .lt { font-style: italic; color: var(--faint); font-size: 13px; }
+.chip .state { font-size: 12px; letter-spacing: .05em; color: var(--faint); font-variant-numeric: tabular-nums; }
+.chip.done { border-color: rgba(62, 86, 65, .35); background: var(--ok-soft); }
+.chip.done .state { color: var(--moss); font-weight: 600; }
+.chip svg { width: 24px; height: 24px; }
+
+/* station sheet */
+.scrim { position: fixed; inset: 0; background: var(--scrim); z-index: 50; display: grid; place-items: center;
+  padding: max(14px, env(safe-area-inset-top, 0px)) max(14px, env(safe-area-inset-right, 0px)) max(14px, env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); }
+.sheet {
+  background: var(--bg); border-radius: var(--r-lg); width: min(1100px, 100%); max-height: 100%; overflow: auto;
+  box-shadow: var(--shadow-float); border: 1px solid var(--line);
+}
+.sheet-head { display: flex; justify-content: space-between; align-items: start; gap: 16px; padding: 26px 32px 20px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--bg); z-index: 2; }
+.sheet-head h2 { font-size: clamp(30px, 3.6vw, 40px); font-weight: 300; color: var(--moss-deep); line-height: 1.15; }
+.sheet-head .latin { font-family: var(--font-display); font-style: italic; color: var(--sage); font-size: 18px; margin-top: 2px; }
+.icon-btn { border: 1px solid rgba(91, 112, 101, .3); background: transparent; border-radius: var(--r-sm); padding: 9px 16px; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; font-size: 14px; transition: color .25s ease, border-color .25s ease; }
+.icon-btn:hover { color: var(--clay-deep); border-color: var(--clay); }
+.sheet-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 32px; padding: 28px 32px 32px; }
+.scene { background: var(--surface); border-radius: var(--r-lg); border: 1px solid var(--line); overflow: hidden; }
+.scene svg { display: block; width: 100%; height: auto; }
+.scene .soil-cover { transition: opacity 1.1s ease; }
+.scene.dug .soil-cover { opacity: .1; }
+.scene .dig-label { transition: opacity .5s ease; }
+.scene.dug .dig-label { opacity: 0; }
+.scene-foot { display: flex; gap: 14px; align-items: center; padding: 16px; border-top: 1px solid var(--line); flex-wrap: wrap; font-size: 14px; color: var(--faint); }
+.btn {
+  border: none; border-radius: var(--r-sm); padding: 12px 24px; font-weight: 500; letter-spacing: .03em; cursor: pointer;
+  background: var(--moss); color: var(--accent-ink); display: inline-flex; gap: 10px; align-items: center;
+  transition: background .25s ease, color .25s ease, border-color .25s ease;
+}
+.btn:hover:not(:disabled) { background: var(--moss-deep); }
+.btn.ghost { background: transparent; color: var(--moss); border: 1px solid rgba(91, 112, 101, .3); }
+.btn.ghost:hover:not(:disabled) { background: transparent; color: var(--clay-deep); border-color: var(--clay); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn svg { width: 18px; height: 18px; }
+.btn.glow { animation: glow 2.2s ease-in-out infinite; }
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(200, 138, 115, 0), 0 0 12px 2px rgba(200, 138, 115, .5); }
+  50% { box-shadow: 0 0 0 7px rgba(200, 138, 115, .3), 0 0 30px 10px rgba(200, 138, 115, .6); }
+}
+.notes { display: grid; gap: 22px; align-content: start; min-width: 0; }
+.notebook { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 20px 22px; }
+.notebook h3 { font-family: var(--font-body); font-size: 12px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--sage); margin-bottom: 10px; }
+.notebook ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.notebook li::marker { color: var(--clay); }
+.notebook .dig-note { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); font-family: var(--font-display); font-size: 18px; line-height: 1.55; color: var(--moss-deep); }
+.notebook .dig-note.locked { color: var(--faint); font-style: italic; }
+.steps { display: grid; gap: 16px; }
+.step { border: 1px solid var(--line); border-radius: var(--r-lg); padding: 20px 22px; background: var(--bg); transition: opacity .3s ease; }
+.step.locked { opacity: .45; }
+.step-head { display: flex; gap: 12px; align-items: center; margin-bottom: 8px; }
+.num { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; font-weight: 600; border: 1px solid var(--sage); color: var(--sage); flex: none; }
+.step.done .num { background: var(--moss); border-color: var(--moss); color: var(--accent-ink); }
+.step-head h3 { font-size: 22px; color: var(--moss-deep); }
+.prompt { margin: 0 0 14px; color: var(--muted); }
+.opts { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.opts.wide { grid-template-columns: 1fr; }
+.opt {
+  text-align: left; border: 1px solid var(--line-strong); background: var(--surface); border-radius: var(--r-sm); padding: 11px 14px; cursor: pointer; line-height: 1.35;
+  display: flex; gap: 10px; align-items: center; transition: border-color .25s ease, background .25s ease;
+}
+.opt:hover:not(:disabled) { border-color: var(--clay); background: var(--surface-hi); }
+.opt:disabled { cursor: default; }
+.opt.right { border-color: var(--moss); background: var(--ok-soft); color: var(--moss-deep); font-weight: 600; }
+.opt.wrong { border-color: rgba(147, 0, 10, .22); background: var(--bad-soft); text-decoration: line-through; color: var(--faint); }
+.opt .fam { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.fb { margin-top: 14px; padding: 12px 16px; border-radius: var(--r-sm); font-size: 15px; line-height: 1.6; }
+.fb.ok { background: var(--ok-soft); color: var(--moss-deep); }
+.fb.no { background: var(--clay-wash); color: #4a2414; }
+.fb strong { display: block; font-family: var(--font-display); font-weight: 500; font-size: 17px; margin-bottom: 2px; }
+.sheet-end { display: flex; gap: 12px; flex-wrap: wrap; justify-content: flex-end; }
+
+/* report */
+.report { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 32px; display: grid; gap: 22px; }
+.report-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: end; }
+.report h2 { font-size: 36px; font-weight: 300; color: var(--moss-deep); }
+.report p { margin: 6px 0 0; color: var(--muted); max-width: 60ch; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 15px; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 11px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { font-weight: 500; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--sage); }
+td b { font-family: var(--font-display); font-weight: 500; font-size: 17px; color: var(--moss-deep); }
+td.miss { color: var(--faint); }
+td .lt { color: var(--faint); font-style: italic; font-size: 13px; }
+.copy-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+#copyMsg { color: var(--faint); font-size: 14px; }
+#reportText { width: 100%; min-height: 0; font-family: ui-monospace, Menlo, monospace; font-size: 13px; background: var(--surface-2); color: var(--fg); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 12px; }
+.jpg-wrap { display: grid; gap: 10px; }
+.jpg-wrap p { margin: 0; color: var(--muted); }
+.jpg-wrap img { width: 100%; max-width: 900px; border: 1px solid var(--line); border-radius: var(--r-lg); }
+.reset { background: none; border: none; color: var(--faint); text-decoration: underline; text-decoration-color: var(--line-strong); text-underline-offset: 4px; cursor: pointer; font-size: 14px; padding: 0; transition: color .25s ease; }
+.reset:hover { color: var(--clay-deep); }
+
+@media (max-width: 860px) {
+  body { padding-block: 24px 48px; }
+  .wrap { gap: 40px; }
+  .top { grid-template-columns: 1fr; }
+  .status { justify-items: start; }
+  .tally { justify-content: flex-start; }
+  .sheet-head, .sheet-body { padding-left: 20px; padding-right: 20px; }
+  .sheet-body { grid-template-columns: 1fr; gap: 22px; }
+  .report { padding: 22px 20px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+  .btn.glow { box-shadow: 0 0 0 4px rgba(200, 138, 115, .7); }
+}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">Plant Propagation · Virtual Field Exercise</div>
+      <h1>Division <em>Garden</em> Walk</h1>
+      <p class="lede">Walk the garden and stop at each plant. Read the field notes, dig it up to see what is below the soil, then decide whether it is propagated by layering, separation or division, and how. You earn a point for every question you get right, and your report shows how many tries each one took.</p>
+    </div>
+    <div class="status">
+      <div class="name-field">
+        <label for="studentName">Your name</label>
+        <input id="studentName" type="text" autocomplete="name" placeholder="First and last name">
+      </div>
+      <div class="tally" aria-live="polite">
+        <span class="pill">Plants <b id="doneCount">0</b> / 10</span>
+        <span class="pill">Score <b id="scoreCount">0</b> / 30</span>
+      </div>
+    </div>
+  </header>
+
+  <section class="map-card" aria-label="Garden map">
+    <div class="map-scroll"><svg id="map" viewBox="0 0 1600 660" role="group" aria-label="Garden with ten plants. Select a plant to open its field station."></svg></div>
+    <div class="map-foot">
+      <span>Select a plant in the garden or from the list below.</span>
+      <span class="legend"><span><i class="dot"></i> Not visited</span><span><i class="dot done"></i> Complete</span></span>
+    </div>
+  </section>
+
+  <section class="stations" aria-labelledby="stTitle">
+    <h2 id="stTitle">Plants in this garden</h2>
+    <div class="chips" id="chips"></div>
+  </section>
+
+  <section class="report" aria-labelledby="rpTitle">
+    <div class="report-head">
+      <div>
+        <h2 id="rpTitle">Field report</h2>
+        <p>When you finish all ten plants, save or copy your report before closing this page. Progress is not saved; reloading starts a new walk.</p>
+      </div>
+      <button class="reset" id="resetBtn" type="button">Start over</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Plant</th><th>Category</th><th>Method</th><th>Technique</th><th>Points</th></tr></thead>
+        <tbody id="reportBody"></tbody>
+      </table>
+    </div>
+    <div class="copy-row">
+      <button class="btn" id="copyBtn" type="button">Copy report</button>
+      <button class="btn ghost" id="jpgBtn" type="button">Save results as JPG</button>
+      <span id="copyMsg" aria-live="polite"></span>
+    </div>
+    <div id="jpgWrap" hidden class="jpg-wrap">
+      <p id="jpgMsg"></p>
+      <img id="jpgImg" alt="Image of your field report">
+    </div>
+    <textarea id="reportText" rows="3" readonly hidden aria-label="Report text"></textarea>
+    <div id="confirmReset" hidden class="fb no">
+      <strong>Erase all progress?</strong>
+      This clears every answer in this browser.
+      <div class="copy-row" style="margin-top:8px">
+        <button class="btn" id="resetYes" type="button">Erase progress</button>
+        <button class="btn ghost" id="resetNo" type="button">Keep it</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="scrim" id="scrim" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" id="sheet">
+    <div class="sheet-head">
+      <div>
+        <div class="eyebrow" id="sheetEyebrow">Station</div>
+        <h2 id="sheetTitle" tabindex="-1">Plant</h2>
+        <div class="latin" id="sheetLatin"></div>
+      </div>
+      <button class="icon-btn" id="closeBtn" type="button" aria-label="Back to the garden">
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Garden
+      </button>
+    </div>
+    <div class="sheet-body">
+      <div>
+        <div class="scene" id="scene"></div>
+      </div>
+      <div class="notes">
+        <div class="notebook">
+          <h3>Field notes</h3>
+          <ul id="clues"></ul>
+          <div class="dig-note locked" id="digNote">Dig the plant up to see what is below the soil.</div>
+        </div>
+        <div class="steps" id="steps"></div>
+        <div class="sheet-end" id="sheetEnd" hidden>
+          <button class="btn ghost" id="backBtn" type="button">Back to the garden</button>
+          <button class="btn" id="nextBtn" type="button">Next plant</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+"use strict";
+
+/* ------------------------------------------------------------------ */
+/* Drawing helpers                                                     */
+/* ------------------------------------------------------------------ */
+function rng(seed) {
+  return function () {
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    var t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+var D2R = Math.PI / 180;
+function f(n) { return Math.round(n * 10) / 10; }
+function path(pts) { return "M" + pts.map(function (p) { return f(p[0]) + " " + f(p[1]); }).join(" L"); }
+function at(x, y, deg, inner) { return '<g transform="translate(' + f(x) + " " + f(y) + ") rotate(" + f(deg) + ')">' + inner + "</g>"; }
+
+var INK = "#2a3a24";
+var GREENS = ["#4f8a3d", "#5f9a46", "#447a35", "#6aa64f"];
+
+/* leaf pointing along +x from its base */
+function leaf(x, y, deg, L, w, fill, vein) {
+  var d = "M0 0 C" + f(L * .2) + " " + f(-w) + " " + f(L * .66) + " " + f(-w * .9) + " " + f(L) + " 0 C" + f(L * .66) + " " + f(w * .9) + " " + f(L * .2) + " " + f(w) + " 0 0Z";
+  var s = '<path d="' + d + '" fill="' + fill + '" stroke="' + INK + '" stroke-width="1.2"/>';
+  if (vein !== false) s += '<path d="M' + f(L * .05) + ' 0 L' + f(L * .9) + ' 0" stroke="#cfe3b4" stroke-width="1" opacity=".85"/>';
+  return at(x, y, deg, s);
+}
+/* toothed leaflet (strawberry, raspberry) */
+function toothed(x, y, deg, L, w, fill) {
+  var pts = [], N = 48, i;
+  for (i = 0; i <= N; i++) {
+    var ph = -Math.PI + 2 * Math.PI * i / N;
+    var ex = (Math.cos(ph) + 1) / 2 * L;
+    var ey = Math.sin(ph) * w * (0.3 + 0.7 * Math.pow(Math.sin(Math.PI * Math.min(1, ex / L * 1.15)), .7));
+    var t = ex / L;
+    if (t > .3 && i % 2 === 0) { var dx = ex - L * .45, dd = Math.hypot(dx, ey) || 1, a = L * .06; ex += dx / dd * a; ey += ey / dd * a; }
+    pts.push([ex, ey]);
+  }
+  var s = '<path d="' + path(pts) + 'Z" fill="' + fill + '" stroke="' + INK + '" stroke-width="1.1" stroke-linejoin="round"/>';
+  s += '<path d="M' + f(L * .05) + ' 0 L' + f(L * .9) + ' 0" stroke="#cfe3b4" stroke-width=".9"/>';
+  for (i = 0; i < 4; i++) {
+    var tt = .2 + i * .17;
+    s += '<path d="M' + f(L * tt) + " 0 L" + f(L * (tt + .14)) + " " + f(-w * .6) + " M" + f(L * tt) + " 0 L" + f(L * (tt + .14)) + " " + f(w * .6) + '" stroke="#cfe3b4" stroke-width=".7"/>';
+  }
+  return at(x, y, deg, s);
+}
+function trifoliate(x, y, deg, L, fill) {
+  return toothed(x, y, deg - 55, L * .7, L * .27, fill) + toothed(x, y, deg + 55, L * .7, L * .27, fill) + toothed(x, y, deg, L * .82, L * .3, fill);
+}
+/* sword / strap leaf */
+function sword(x, y, deg, L, w, fill, edge) {
+  var d = "M0 " + f(-w / 2) + " Q" + f(L * .55) + " " + f(-w * .5) + " " + f(L) + " 0 Q" + f(L * .55) + " " + f(w * .5) + " 0 " + f(w / 2) + "Z";
+  return at(x, y, deg, '<path d="' + d + '" fill="' + fill + '" stroke="' + (edge || INK) + '" stroke-width="1.1"/><path d="M4 0 L' + f(L * .85) + ' 0" stroke="#d6e6cc" stroke-width=".8" opacity=".7"/>');
+}
+/* curved grass blade from a base point */
+function blade(x, y, h, lean, w, fill) {
+  var tx = x + lean * h * .8, ty = y - h * (1 - Math.abs(lean) * .35);
+  var cx = x + lean * h * .15, cy = y - h * .75;
+  return '<path d="M' + f(x - w / 2) + " " + f(y) + " Q" + f(cx - w * .3) + " " + f(cy) + " " + f(tx) + " " + f(ty) + " Q" + f(cx + w * .3) + " " + f(cy) + " " + f(x + w / 2) + " " + f(y) + 'Z" fill="' + fill + '" stroke="' + INK + '" stroke-width=".8"/>';
+}
+function stem(pts, col, w, outline) {
+  return '<path d="' + path(pts) + '" fill="none" stroke="' + (outline || INK) + '" stroke-width="' + (w + 2) + '" stroke-linecap="round" stroke-linejoin="round"/>' +
+         '<path d="' + path(pts) + '" fill="none" stroke="' + col + '" stroke-width="' + w + '" stroke-linecap="round" stroke-linejoin="round"/>';
+}
+function quad(p0, c, p1, n) {
+  var out = [], i; n = n || 14;
+  for (i = 0; i <= n; i++) { var t = i / n, u = 1 - t; out.push([u * u * p0[0] + 2 * u * t * c[0] + t * t * p1[0], u * u * p0[1] + 2 * u * t * c[1] + t * t * p1[1]]); }
+  return out;
+}
+/* fibrous roots */
+function roots(x, y, ang, len, w, r, ymax, col, depth) {
+  var pts = [[x, y]], a = ang, i, out = "";
+  col = col || ["#efe3c8", "#7a6140"];
+  for (i = 0; i < len / 4; i++) {
+    a += (r() - .5) * .34; a = a * .94 + (Math.PI / 2) * .06;
+    x += Math.cos(a) * 4; y += Math.sin(a) * 4;
+    if (y > ymax) break;
+    pts.push([x, y]);
+  }
+  if (pts.length < 2) return "";
+  out += '<path d="' + path(pts) + '" fill="none" stroke="' + col[1] + '" stroke-width="' + f(w + 1.4) + '" stroke-linecap="round"/>';
+  out += '<path d="' + path(pts) + '" fill="none" stroke="' + col[0] + '" stroke-width="' + f(w) + '" stroke-linecap="round"/>';
+  if ((depth || 0) < 1 && pts.length > 6) {
+    var nb = 1 + Math.floor(r() * 2);
+    for (i = 0; i < nb; i++) {
+      var k = Math.floor(pts.length * (.3 + r() * .5));
+      out += roots(pts[k][0], pts[k][1], a + (r() < .5 ? -1 : 1) * (.5 + r() * .5), len * (.25 + r() * .2), w * .55, r, ymax, col, 1);
+    }
+  }
+  return out;
+}
+/* thick tapered storage root along +x */
+function taper(x, y, deg, L, w, fill, edge) {
+  var d = "M0 " + f(-w / 2) + " C" + f(L * .3) + " " + f(-w * .62) + " " + f(L * .78) + " " + f(-w * .36) + " " + f(L) + " 0 C" + f(L * .78) + " " + f(w * .36) + " " + f(L * .3) + " " + f(w * .62) + " 0 " + f(w / 2) + "Z";
+  var rings = "", i;
+  for (i = 1; i < 5; i++) { var xx = L * i / 5.5, hh = w * (.5 - i * .06); rings += '<path d="M' + f(xx) + " " + f(-hh) + " L" + f(xx + 2) + " " + f(hh) + '" stroke="' + edge + '" stroke-width=".7" opacity=".5"/>'; }
+  return at(x, y, deg, '<path d="' + d + '" fill="' + fill + '" stroke="' + edge + '" stroke-width="1.2"/>' + rings);
+}
+
+/* ------------------------------------------------------------------ */
+/* Plant illustrations: viewBox 400 x 360, soil line at y = 230        */
+/* Each returns { above, below }                                       */
+/* ------------------------------------------------------------------ */
+var G = 230;
+
+function drawPeony() {
+  var r = rng(11), above = "", below = "", i;
+  // storage roots and crown
+  for (i = 0; i < 9; i++) {
+    var a = 30 + i * 15 + (r() - .5) * 8;
+    below += taper(200 + (i - 4) * 5, 258, a, 70 + r() * 45, 15 + r() * 6, "#dcc394", "#6b4f2a");
+  }
+  below += roots(150, 290, 2.4, 40, 1.2, r, 352) + roots(250, 300, .8, 40, 1.2, r, 352);
+  below += '<ellipse cx="200" cy="254" rx="44" ry="13" fill="#7a5a3c" stroke="#3f2c18" stroke-width="1.4"/>';
+  [[172, 250], [186, 247], [205, 246], [222, 248], [234, 252]].forEach(function (p, k) {
+    below += at(p[0], p[1], -90 + (k - 2) * 12, '<path d="M0 -5 C6 -6 13 -3 17 0 C13 3 6 6 0 5Z" fill="#e3667b" stroke="#7a1f33" stroke-width="1"/>');
+  });
+  // stems, leaves, flowers
+  var tops = [[118, 92], [150, 62], [192, 48], [236, 58], [276, 86], [300, 128], [104, 138]];
+  var st = "", lv = "", fl = "";
+  tops.forEach(function (t, k) {
+    var pts = quad([196 + (k - 3) * 3, G], [196 + (t[0] - 196) * .2, G - 90], t);
+    st += stem(pts, "#8a4a44", 3, "#4a2220");
+    [0.42, 0.66, 0.86].forEach(function (u, j) {
+      var p = pts[Math.round(u * 14)], q = pts[Math.round(u * 14) + 1 > 14 ? 14 : Math.round(u * 14) + 1];
+      var ang = Math.atan2(q[1] - p[1], q[0] - p[0]) / D2R;
+      lv += leaf(p[0], p[1], ang - 52, 34, 9, GREENS[(k + j) % 4]) + leaf(p[0], p[1], ang + 52, 34, 9, GREENS[(k + j + 1) % 4]);
+      if (j === 2) lv += leaf(p[0], p[1], ang, 30, 8, GREENS[k % 4]);
+    });
+    if (k === 1 || k === 3 || k === 4) fl += peonyFlower(t[0], t[1] - 4, k === 3 ? 25 : 21, r);
+    if (k === 6) fl += '<circle cx="' + t[0] + '" cy="' + t[1] + '" r="8" fill="#6c9a4a" stroke="' + INK + '"/><circle cx="' + t[0] + '" cy="' + (t[1] - 3) + '" r="4" fill="#ee8ea0"/>';
+  });
+  above = st + lv + fl;
+  return { above: above, below: below };
+}
+function peonyFlower(x, y, R, r) {
+  var s = "", rings = [[1, 12, "#f4a6b8"], [.78, 10, "#ee8ea4"], [.56, 9, "#e7758f"], [.34, 7, "#dc5f7d"]];
+  rings.forEach(function (rg, k) {
+    for (var i = 0; i < rg[1]; i++) {
+      var a = i / rg[1] * 360 + k * 17;
+      var px = x + Math.cos(a * D2R) * R * rg[0] * .45, py = y + Math.sin(a * D2R) * R * rg[0] * .38;
+      s += at(px, py, a, '<ellipse cx="0" cy="0" rx="' + f(R * rg[0] * .5) + '" ry="' + f(R * rg[0] * .3) + '" fill="' + rg[2] + '" stroke="#9c3550" stroke-width=".7"/>');
+    }
+  });
+  return s;
+}
+
+function drawIris() {
+  var r = rng(21), above = "", below = "";
+  var rh = [[96, 226, 160, 222, false], [160, 222, 236, 224, true], [236, 224, 300, 220, false], [236, 224, 296, 236, false]];
+  rh.forEach(function (s) { for (var i = 0; i < 4; i++) below += roots(s[0] + (s[2] - s[0]) * (i + .5) / 4, s[1] + 8, Math.PI / 2 + (r() - .5), 50 + r() * 30, 1.6, r, 350); });
+  // rhizomes sit at the surface (drawn above so they show before digging)
+  rh.forEach(function (s) {
+    var len = Math.hypot(s[2] - s[0], s[3] - s[1]), ang = Math.atan2(s[3] - s[1], s[2] - s[0]) / D2R;
+    var fill = s[4] ? "#8d7552" : "#e2cb98", edge = s[4] ? "#4a3a24" : "#6e5530";
+    var body = '<rect x="0" y="-12" width="' + f(len) + '" height="24" rx="12" fill="' + fill + '" stroke="' + edge + '" stroke-width="1.3"/>';
+    for (var i = 1; i < 4; i++) body += '<path d="M' + f(len * i / 4) + ' -11 q3 11 0 22" fill="none" stroke="' + edge + '" stroke-width=".9" opacity=".7"/>';
+    above += at(s[0], s[1], ang, body);
+  });
+  function fan(x, y, h, lean) {
+    var s = "", n = 6;
+    for (var k = 0; k < n; k++) {
+      var fct = (k - (n - 1) / 2) / ((n - 1) / 2);
+      s += sword(x + fct * 6, y, -90 + fct * 22 + lean, h * (1 - .3 * Math.abs(fct)), 15, ["#6f9b88", "#5f8c78", "#7aa894"][k % 3], "#2f4f42");
+    }
+    return s;
+  }
+  above += stem([[200, 222], [203, 140], [206, 70]], "#5f8c78", 4, "#2f4f42");
+  above += fan(96, 220, 120, -8) + fan(300, 216, 130, 6) + fan(296, 232, 105, 18) + fan(202, 220, 84, 0);
+  above += irisFlower(206, 66, 1);
+  return { above: above, below: below };
+}
+function irisFlower(x, y, s) {
+  var out = "";
+  function pet(a, L, w, col, droop) {
+    return at(x, y, a, '<path d="M0 0 C' + f(L * .25) + " " + f(-w * .6) + " " + f(L * .75) + " " + f(-w + droop) + " " + f(L) + " " + f(droop * .6) + " C" + f(L * .8) + " " + f(w + droop) + " " + f(L * .3) + " " + f(w * .6) + ' 0 0Z" fill="' + col + '" stroke="#2f1c55" stroke-width="1"/>');
+  }
+  [135, 45, 90].forEach(function (a) { out += pet(a, 40 * s, 17 * s, "#7356b3", 4); });
+  [135, 45, 90].forEach(function (a) {
+    for (var i = 0; i < 6; i++) { var t = .12 + i * .06; out += '<circle cx="' + f(x + Math.cos(a * D2R) * 40 * s * t) + '" cy="' + f(y + Math.sin(a * D2R) * 40 * s * t) + '" r="2" fill="#f2a43a"/>'; }
+  });
+  [-118, -90, -62].forEach(function (a) { out += pet(a, 34 * s, 13 * s, "#8c72cc", 0); });
+  return out;
+}
+
+function drawGrass() {
+  var r = rng(31), above = "", below = "", i;
+  for (i = 0; i < 34; i++) {
+    var x = 132 + i * 4.1, center = Math.abs(x - 200) < 30;
+    below += roots(x, G + 4, Math.PI / 2 + (r() - .5) * .9, 70 + r() * 45, center ? 2.4 : 1.4, r, 352, center ? ["#8b6b47", "#3f2c18"] : undefined);
+  }
+  var bl = [];
+  for (i = 0; i < 120; i++) {
+    var bx = 132 + r() * 136; if (Math.abs(bx - 200) < 26) continue;
+    var side = bx > 200 ? 1 : -1;
+    bl.push([r(), bx, 120 + r() * 70, side * (.08 + r() * .55)]);
+  }
+  bl.sort(function (a, b) { return a[0] - b[0]; });
+  // plumes behind foliage
+  [[150, -0.25], [172, -0.1], [226, 0.1], [250, 0.25], [134, -0.45], [266, 0.45]].forEach(function (p) {
+    var tx = p[0] + p[1] * 90, ty = 40 + Math.abs(p[1]) * 70;
+    above += stem([[p[0], G - 4], [p[0] + p[1] * 30, 130], [tx, ty]], "#c9b58a", 1.6, "#6d5c3c");
+    for (var k = 0; k < 7; k++) {
+      var a = -90 + p[1] * 40 + (k - 3) * 9;
+      above += '<path d="M' + f(tx) + " " + f(ty + 16) + " q" + f(Math.cos(a * D2R) * 10) + " " + f(Math.sin(a * D2R) * 14) + " " + f(Math.cos(a * D2R) * 20) + " " + f(Math.sin(a * D2R) * 30) + '" stroke="#efe6d2" stroke-width="2.6" fill="none" stroke-linecap="round"/>';
+    }
+  });
+  bl.forEach(function (b) { above += blade(b[1], G - 2, b[2], b[3], 5, GREENS[Math.floor(b[0] * 4)]); });
+  for (i = 0; i < 16; i++) { var dx = 178 + r() * 44; above += blade(dx, G - 2, 18 + r() * 26, (r() - .5) * .9, 4, "#b39462"); }
+  return { above: above, below: below };
+}
+
+function drawStrawberry() {
+  var r = rng(41), above = "", below = "", i;
+  for (i = 0; i < 9; i++) below += roots(110 + (r() - .5) * 20, G + 4, Math.PI / 2 + (r() - .5) * 1.4, 60 + r() * 30, 1.6, r, 350);
+  for (i = 0; i < 6; i++) below += roots(296 + (r() - .5) * 10, G + 4, Math.PI / 2 + (r() - .5) * 1.4, 32 + r() * 18, 1.2, r, 350);
+  // runners
+  above += stem(quad([116, G - 4], [210, G - 70], [296, G - 4], 18), "#b25a52", 2.6, "#5e2420");
+  above += stem(quad([300, G - 4], [345, G - 40], [372, G - 2], 12), "#b25a52", 2.2, "#5e2420");
+  above += '<ellipse cx="372" cy="' + (G - 3) + '" rx="5" ry="4" fill="#b25a52" stroke="#5e2420"/>';
+  function plant(x, s, n, fruit) {
+    var out = "", k;
+    if (fruit) {
+      out += stem(quad([x, G - 6], [x - 40 * s, G - 40], [x - 58 * s, G - 22]), "#7aa055", 1.8) + berry(x - 58 * s, G - 22, s);
+      out += stem(quad([x, G - 6], [x + 40 * s, G - 70], [x + 64 * s, G - 52]), "#7aa055", 1.8) + sflower(x + 64 * s, G - 56, 9 * s);
+    }
+    for (k = 0; k < n; k++) {
+      var a = -90 + (k - (n - 1) / 2) * (130 / Math.max(1, n - 1));
+      var pl = (55 + 30 * (1 - Math.abs(k - (n - 1) / 2) / ((n - 1) / 2 || 1))) * s;
+      var ex = x + Math.cos(a * D2R) * pl, ey = G - 6 + Math.sin(a * D2R) * pl;
+      out += stem(quad([x, G - 6], [x + Math.cos(a * D2R) * pl * .4, G - 6 - pl * .55], [ex, ey]), "#7aa055", 2, "#2f4a1c");
+      out += trifoliate(ex, ey, a, 46 * s, GREENS[k % 4]);
+    }
+    out += '<ellipse cx="' + x + '" cy="' + (G - 4) + '" rx="' + f(9 * s) + '" ry="' + f(6 * s) + '" fill="#8a5a3c" stroke="#3f2414"/>';
+    return out;
+  }
+  above += plant(116, 1, 6, true) + plant(298, .55, 3, false);
+  return { above: above, below: below };
+}
+function berry(x, y, s) {
+  var out = '<path d="M' + x + " " + (y + 24 * s) + " C" + (x - 13 * s) + " " + (y + 16 * s) + " " + (x - 15 * s) + " " + y + " " + (x - 9 * s) + " " + (y - 4 * s) + " C" + (x - 3 * s) + " " + (y - 8 * s) + " " + (x + 3 * s) + " " + (y - 8 * s) + " " + (x + 9 * s) + " " + (y - 4 * s) + " C" + (x + 15 * s) + " " + y + " " + (x + 13 * s) + " " + (y + 16 * s) + " " + x + " " + (y + 24 * s) + 'Z" fill="#d42a2a" stroke="#6e0d10" stroke-width="1"/>';
+  [[-5, 3], [3, 2], [-2, 9], [5, 10], [-6, 13], [1, 16], [0, 4]].forEach(function (p) { out += '<ellipse cx="' + f(x + p[0] * s) + '" cy="' + f(y + p[1] * s) + '" rx="1" ry="1.5" fill="#f5d36a"/>'; });
+  out += '<path d="M' + f(x - 9 * s) + " " + f(y - 4 * s) + " l" + f(5 * s) + " " + f(-5 * s) + " l" + f(4 * s) + " " + f(4 * s) + " l" + f(4 * s) + " " + f(-5 * s) + " l" + f(4 * s) + " " + f(6 * s) + '" fill="#5d9a45" stroke="' + INK + '" stroke-width=".8"/>';
+  return out;
+}
+function sflower(x, y, R) {
+  var out = "";
+  for (var i = 0; i < 5; i++) { var a = i * 72 - 90; out += '<circle cx="' + f(x + Math.cos(a * D2R) * R * .55) + '" cy="' + f(y + Math.sin(a * D2R) * R * .55) + '" r="' + f(R * .5) + '" fill="#ffffff" stroke="#9a9a90" stroke-width=".8"/>'; }
+  return out + '<circle cx="' + x + '" cy="' + y + '" r="' + f(R * .33) + '" fill="#f1c232"/>';
+}
+
+function drawTulip() {
+  var r = rng(51), above = "", below = "", i;
+  // bulb 6 in deep
+  for (i = 0; i < 10; i++) below += roots(184 + i * 3.5, 328, Math.PI / 2 + (r() - .5) * 1.2, 22 + r() * 14, 1.1, r, 356);
+  below += stem([[200, G], [200, 296]], "#d8e6b0", 4, "#6d7f45");
+  function bulb(x, y, s, main) {
+    var d = "M" + x + " " + (y - 34 * s) + " C" + (x + 6 * s) + " " + (y - 20 * s) + " " + (x + 26 * s) + " " + (y - 10 * s) + " " + (x + 25 * s) + " " + (y + 8 * s) + " C" + (x + 24 * s) + " " + (y + 22 * s) + " " + (x + 12 * s) + " " + (y + 26 * s) + " " + x + " " + (y + 26 * s) + " C" + (x - 12 * s) + " " + (y + 26 * s) + " " + (x - 24 * s) + " " + (y + 22 * s) + " " + (x - 25 * s) + " " + (y + 8 * s) + " C" + (x - 26 * s) + " " + (y - 10 * s) + " " + (x - 6 * s) + " " + (y - 20 * s) + " " + x + " " + (y - 34 * s) + "Z";
+    var o = '<path d="' + d + '" fill="' + (main ? "#b98653" : "#c39463") + '" stroke="#5a3a1c" stroke-width="1.2"/>';
+    for (var k = -2; k <= 2; k++) o += '<path d="M' + f(x + k * 4 * s) + " " + f(y - 30 * s) + " Q" + f(x + k * 10 * s) + " " + f(y) + " " + f(x + k * 7 * s) + " " + f(y + 24 * s) + '" fill="none" stroke="#5a3a1c" stroke-width=".7" opacity=".6"/>';
+    return o;
+  }
+  below += bulb(171, 322, .42, false) + bulb(230, 324, .38, false) + bulb(200, 310, 1, true);
+  below += '<ellipse cx="200" cy="334" rx="20" ry="4.5" fill="#d9c49a" stroke="#5a3a1c" stroke-width="1"/>';
+  // leaves and flower
+  above += sword(200, G - 2, -62, 120, 34, "#6c9b5a", "#2f4a24") + sword(200, G - 2, -124, 112, 32, "#5f8f4f", "#2f4a24");
+  above += stem([[200, G - 2], [201, 150], [200, 92]], "#6c9b5a", 4, "#2f4a24");
+  above += '<path d="M178 90 C176 60 186 48 192 46 L200 60 L208 46 C214 48 224 60 222 90 C214 102 186 102 178 90Z" fill="#d8323a" stroke="#6e1016" stroke-width="1.3"/><path d="M200 60 L200 98" stroke="#8e1a20" stroke-width="1"/>';
+  return { above: above, below: below };
+}
+
+function drawGlad() {
+  var r = rng(61), above = "", below = "", i;
+  for (i = 0; i < 12; i++) below += roots(168 + i * 6, 300, Math.PI / 2 + (r() - .5) * 1.4, 30 + r() * 22, 1.2, r, 356);
+  below += stem([[200, G], [200, 266]], "#d8e6b0", 4, "#6d7f45");
+  // old shriveled corm
+  below += '<path d="M174 306 Q178 296 200 296 Q222 296 226 306 Q222 318 200 320 Q178 318 174 306Z" fill="#7a6248" stroke="#3d2c1a" stroke-width="1.2"/>';
+  for (i = 0; i < 6; i++) below += '<path d="M' + (180 + i * 8) + ' 300 l2 16" stroke="#3d2c1a" stroke-width=".8" opacity=".6"/>';
+  // new corm
+  below += '<path d="M168 286 C166 266 186 260 200 262 C214 260 234 266 232 286 C230 300 214 302 200 302 C186 302 170 300 168 286Z" fill="#d7b77e" stroke="#5a3a1c" stroke-width="1.3"/>';
+  for (i = 0; i < 3; i++) below += '<path d="M170 ' + (272 + i * 9) + ' Q200 ' + (280 + i * 9) + ' 230 ' + (272 + i * 9) + '" fill="none" stroke="#5a3a1c" stroke-width=".8" stroke-dasharray="4 3" opacity=".7"/>';
+  [[156, 300], [246, 298], [164, 314], [238, 314], [150, 312]].forEach(function (p) {
+    below += '<path d="M200 300 Q' + f((p[0] + 200) / 2) + " " + (p[1] + 6) + " " + p[0] + " " + p[1] + '" stroke="#8a6a44" stroke-width="1.4" fill="none"/>';
+    below += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="5.5" fill="#c79e66" stroke="#5a3a1c" stroke-width="1"/>';
+  });
+  // leaves
+  for (i = 0; i < 7; i++) { var fct = (i - 3) / 3; above += sword(200 + fct * 6, G - 2, -90 + fct * 16, 150 - Math.abs(fct) * 30, 14, GREENS[i % 4], "#2f4a24"); }
+  // flower spike
+  var sp = quad([206, G - 4], [212, 120], [222, 34], 16);
+  above += stem(sp, "#6c9b5a", 3.4, "#2f4a24");
+  for (i = 4; i < 15; i++) {
+    var p = sp[i], side = i % 2 ? 1 : -1, s = 1 - (i - 4) * .05;
+    above += at(p[0], p[1], side > 0 ? -30 : -150, '<path d="M0 0 C6 -8 18 -10 22 -4 C24 2 16 10 4 8Z" fill="' + (i > 12 ? "#9bc07a" : "#f0896d") + '" stroke="#8d3a24" stroke-width=".9" transform="scale(' + f(s) + ')"/>');
+  }
+  return { above: above, below: below };
+}
+
+function drawRaspberry() {
+  var r = rng(71), above = "", below = "", i;
+  for (i = 0; i < 10; i++) below += roots(108 + (r() - .5) * 18, G + 4, Math.PI / 2 + (r() - .5) * 1.4, 70 + r() * 35, 1.8, r, 352);
+  // buried tip with new roots and a bud
+  below += stem(quad([326, G - 2], [336, G + 16], [346, G + 32], 8), "#8a3f5a", 3, "#3f1426");
+  for (i = 0; i < 8; i++) below += roots(344 + (r() - .5) * 6, G + 30, Math.PI / 2 + (r() - .5) * 1.6, 30 + r() * 20, 1.3, r, 352);
+  below += at(338, G + 18, -70, '<path d="M0 -4 C6 -5 12 -2 15 0 C12 2 6 5 0 4Z" fill="#f0f0dc" stroke="#6d7f45" stroke-width="1"/>');
+  var canes = [
+    [[108, G - 2], [80, 90], [40, 130]],
+    [[110, G - 2], [120, 40], [190, 90]],
+    [[112, G - 2], [150, 70], [240, 130]],
+    [[106, G - 2], [60, 140], [30, 200]],
+    [[114, G - 2], [230, 20], [326, G - 2]]
+  ];
+  var lv = "";
+  canes.forEach(function (c, k) {
+    var pts = quad(c[0], c[1], c[2], 20);
+    above += stem(pts, "#8a3f5a", 3.4, "#3f1426");
+    for (var j = 2; j < 19; j += 3) {   // prickles
+      var p = pts[j]; above += '<path d="M' + f(p[0] - 1.5) + " " + f(p[1]) + " l2 -5 l1.5 5Z" + '" fill="#3f1426"/>';
+    }
+    [6, 11, 16].forEach(function (j, n) {
+      if (k === 4 && j === 16) return;
+      var p = pts[j], q = pts[j + 1], a = Math.atan2(q[1] - p[1], q[0] - p[0]) / D2R, side = (n + k) % 2 ? 1 : -1;
+      var ex = p[0] + Math.cos((a + side * 60) * D2R) * 12, ey = p[1] + Math.sin((a + side * 60) * D2R) * 12;
+      lv += stem([[p[0], p[1]], [ex, ey]], "#7aa055", 1.4) + trifoliate(ex, ey, a + side * 60, 40, GREENS[(j + k) % 4]);
+    });
+  });
+  above += lv;
+  return { above: above, below: below };
+}
+
+function drawForsythia() {
+  var r = rng(111), above = "", below = "", i;
+  var WOOD = "#8a7052", WOODD = "#3e2e1c";
+  for (i = 0; i < 9; i++) below += roots(110 + (r() - .5) * 18, G + 4, Math.PI / 2 + (r() - .5) * 1.4, 70 + r() * 35, 1.8, r, 352);
+  // buried section of the layered branch, wound, new roots, back leg of the pin
+  below += '<path d="M286 ' + (G - 26) + ' L286 ' + (G + 46) + '" stroke="#55585c" stroke-width="3.4" stroke-linecap="round"/>';
+  var bur = quad([246, G], [276, G + 40], [312, G], 14);
+  below += stem(bur, WOOD, 4.5, WOODD);
+  below += '<path d="M272 ' + (G + 22) + ' l9 -3 l3 6 z" fill="#f2e6c4" stroke="#5a3a1c" stroke-width=".9"/>';
+  for (i = 0; i < 9; i++) below += roots(276 + (r() - .5) * 12, G + 24, Math.PI / 2 + (r() - .5) * 1.5, 34 + r() * 26, 1.4, r, 352);
+  below += '<path d="M274 ' + (G - 26) + ' L274 ' + (G + 46) + '" stroke="#7a7d82" stroke-width="3.4" stroke-linecap="round"/><path d="M274 ' + (G - 26) + ' Q280 ' + (G - 36) + ' 286 ' + (G - 26) + '" stroke="#7a7d82" stroke-width="3.4" fill="none"/>';
+  // pin top shows above the soil
+  above += '<path d="M274 ' + (G - 2) + ' L274 ' + (G - 26) + ' Q280 ' + (G - 36) + ' 286 ' + (G - 26) + ' L286 ' + (G - 2) + '" stroke="#7a7d82" stroke-width="3.4" fill="none" stroke-linecap="round"/>';
+  var canes = [
+    [[106, G - 2], [70, 90], [30, 110]],
+    [[108, G - 2], [96, 50], [150, 40]],
+    [[112, G - 2], [140, 60], [200, 92]],
+    [[104, G - 2], [50, 160], [26, 196]],
+    [[114, G - 2], [190, 70], [246, G]],      // layered branch, going down
+    [[312, G], [326, 190], [330, 120]]        // tip coming back up
+  ];
+  canes.forEach(function (c, k) {
+    var pts = quad(c[0], c[1], c[2], 18);
+    above += stem(pts, WOOD, k >= 4 ? 4.5 : 3.6, WOODD);
+    for (var j = 4; j < 18; j += 3) {
+      if (k === 4 && j > 13) continue;
+      var p = pts[j], q = pts[j + 1], a = Math.atan2(q[1] - p[1], q[0] - p[0]) / D2R;
+      above += leaf(p[0], p[1], a - 55, 26, 8, GREENS[(j + k) % 4]) + leaf(p[0], p[1], a + 55, 26, 8, GREENS[(j + k + 1) % 4]);
+    }
+    var tp = pts[18], tq = pts[16];
+    if (k !== 4) above += leaf(tp[0], tp[1], Math.atan2(tp[1] - tq[1], tp[0] - tq[0]) / D2R, 22, 7, GREENS[k % 4]);
+  });
+  return { above: above, below: below };
+}
+
+function bulbShape(x, y, s, fill) {
+  var d = "M" + x + " " + (y - 34 * s) + " C" + (x + 6 * s) + " " + (y - 20 * s) + " " + (x + 26 * s) + " " + (y - 10 * s) + " " + (x + 25 * s) + " " + (y + 8 * s) + " C" + (x + 24 * s) + " " + (y + 22 * s) + " " + (x + 12 * s) + " " + (y + 26 * s) + " " + x + " " + (y + 26 * s) + " C" + (x - 12 * s) + " " + (y + 26 * s) + " " + (x - 24 * s) + " " + (y + 22 * s) + " " + (x - 25 * s) + " " + (y + 8 * s) + " C" + (x - 26 * s) + " " + (y - 10 * s) + " " + (x - 6 * s) + " " + (y - 20 * s) + " " + x + " " + (y - 34 * s) + "Z";
+  var o = '<path d="' + d + '" fill="' + fill + '" stroke="#5a3a1c" stroke-width="1.2"/>';
+  for (var k = -2; k <= 2; k++) o += '<path d="M' + f(x + k * 4 * s) + " " + f(y - 30 * s) + " Q" + f(x + k * 10 * s) + " " + f(y) + " " + f(x + k * 7 * s) + " " + f(y + 24 * s) + '" fill="none" stroke="#5a3a1c" stroke-width=".7" opacity=".6"/>';
+  return o;
+}
+function drawDaffodil() {
+  var r = rng(91), above = "", below = "", i;
+  // a crowded clump of bulbs with offsets
+  [[160, 318], [200, 312], [242, 320]].forEach(function (b, k) {
+    for (i = 0; i < 6; i++) below += roots(b[0] - 10 + i * 4, b[1] + 22, Math.PI / 2 + (r() - .5) * 1.2, 18 + r() * 12, 1, r, 356);
+    below += stem([[b[0], G], [b[0], b[1] - 30]], "#d8e6b0", 3.4, "#6d7f45");
+  });
+  below += bulbShape(140, 330, .36, "#c9a170") + bulbShape(262, 334, .34, "#c9a170");
+  below += bulbShape(160, 318, .74, "#b68a58") + bulbShape(242, 320, .7, "#b68a58") + bulbShape(200, 312, .86, "#a97b4c");
+  // strap leaves
+  [[-104, 128], [-96, 140], [-84, 132], [-74, 118], [-110, 112], [-66, 104], [-118, 96]].forEach(function (l, k) {
+    above += sword(176 + k * 8, G - 2, l[0], l[1], 11, ["#6d9c5c", "#5f8f50", "#79a868"][k % 3], "#2f4a24");
+  });
+  function daff(x, y, s, ang) {
+    var o = "", k;
+    for (k = 0; k < 6; k++) { var a = k * 60 + ang; o += at(x, y, a, '<path d="M0 0 C' + f(8 * s) + " " + f(-8 * s) + " " + f(20 * s) + " " + f(-6 * s) + " " + f(26 * s) + ' 0 C' + f(20 * s) + " " + f(6 * s) + " " + f(8 * s) + " " + f(8 * s) + ' 0 0Z" fill="#f7dc4c" stroke="#9a7a10" stroke-width=".9"/>'); }
+    o += '<circle cx="' + x + '" cy="' + y + '" r="' + f(10 * s) + '" fill="#f39a1f" stroke="#9a5a10" stroke-width="1"/><circle cx="' + x + '" cy="' + y + '" r="' + f(6 * s) + '" fill="#e07b10"/>';
+    return o;
+  }
+  above += stem([[196, G - 2], [190, 140], [176, 84]], "#6d9c5c", 3, "#2f4a24") + daff(170, 80, 1, 10);
+  above += stem([[210, G - 2], [216, 150], [238, 104]], "#6d9c5c", 3, "#2f4a24") + daff(244, 100, .85, 30);
+  return { above: above, below: below };
+}
+function drawCrocus() {
+  var r = rng(101), above = "", below = "", i;
+  [[150, 290], [200, 286], [252, 292]].forEach(function (c, k) {
+    for (i = 0; i < 6; i++) below += roots(c[0] - 10 + i * 4, c[1] + 26, Math.PI / 2 + (r() - .5) * 1.3, 16 + r() * 14, 1, r, 356);
+    below += stem([[c[0], G], [c[0], c[1] - 14]], "#d8e6b0", 3, "#6d7f45");
+    // old corm under new one
+    below += '<ellipse cx="' + c[0] + '" cy="' + (c[1] + 20) + '" rx="12" ry="5" fill="#7a6248" stroke="#3d2c1a"/>';
+    // new corm with netted tunic
+    below += '<ellipse cx="' + c[0] + '" cy="' + c[1] + '" rx="17" ry="14" fill="#cfae7a" stroke="#5a3a1c" stroke-width="1.2"/>';
+    below += '<path d="M' + (c[0] - 14) + " " + (c[1] - 6) + " L" + (c[0] + 14) + " " + (c[1] + 8) + " M" + (c[0] - 14) + " " + (c[1] + 8) + " L" + (c[0] + 14) + " " + (c[1] - 6) + " M" + (c[0] - 16) + " " + (c[1] + 1) + " L" + (c[0] + 16) + " " + (c[1] + 1) + '" stroke="#7a5a34" stroke-width=".8" opacity=".7"/>';
+    [[-20, 12], [21, 10]].forEach(function (p) { below += '<circle cx="' + (c[0] + p[0]) + '" cy="' + (c[1] + p[1]) + '" r="4" fill="#c79e66" stroke="#5a3a1c" stroke-width=".9"/>'; });
+  });
+  // grassy leaves with a white stripe and goblet flowers
+  [150, 200, 252].forEach(function (x, k) {
+    for (i = 0; i < 5; i++) {
+      var a = -90 + (i - 2) * 9;
+      above += at(x + (i - 2) * 2, G - 2, a, '<path d="M0 -2.6 Q45 -3 ' + (78 + k * 6) + ' 0 Q45 3 0 2.6Z" fill="#4f8a3d" stroke="#2a4a20" stroke-width=".8"/><path d="M2 0 L' + (70 + k * 6) + ' 0" stroke="#f2f6ea" stroke-width="1"/>');
+    }
+    var fx = x + (k - 1) * 4, fy = G - 70 - k * 6;
+    above += stem([[x, G - 2], [fx, fy + 16]], "#f1ecdc", 3, "#8a8670");
+    above += '<path d="M' + (fx - 12) + " " + (fy + 18) + " C" + (fx - 16) + " " + (fy - 6) + " " + (fx - 6) + " " + (fy - 18) + " " + fx + " " + (fy - 20) + " C" + (fx + 6) + " " + (fy - 18) + " " + (fx + 16) + " " + (fy - 6) + " " + (fx + 12) + " " + (fy + 18) + " Z" + '" fill="#8a64c8" stroke="#3e2470" stroke-width="1.1"/>';
+    above += '<path d="M' + fx + " " + (fy - 18) + " L" + fx + " " + (fy + 16) + " M" + (fx - 7) + " " + (fy - 12) + " Q" + (fx - 6) + " " + fy + " " + (fx - 3) + " " + (fy + 16) + " M" + (fx + 7) + " " + (fy - 12) + " Q" + (fx + 6) + " " + fy + " " + (fx + 3) + " " + (fy + 16) + '" stroke="#5a3a98" stroke-width=".9" fill="none"/>';
+  });
+  return { above: above, below: below };
+}
+
+var DRAW = { peony: drawPeony, iris: drawIris, grass: drawGrass, strawberry: drawStrawberry, tulip: drawTulip, glad: drawGlad, raspberry: drawRaspberry, forsythia: drawForsythia, daffodil: drawDaffodil, crocus: drawCrocus };
+var ART = {};
+Object.keys(DRAW).forEach(function (k) { ART[k] = DRAW[k](); });
+
+function soilDefs(id) {
+  return '<defs><pattern id="sp-' + id + '" width="22" height="22" patternUnits="userSpaceOnUse"><rect width="22" height="22" fill="#c4a27a"/>' +
+    '<circle cx="4" cy="5" r="1.4" fill="#8a6a48"/><circle cx="14" cy="12" r="1" fill="#7a5a3a"/><circle cx="9" cy="17" r="2" fill="#e3d2b5"/><circle cx="18" cy="3" r=".9" fill="#7a5a3a"/><circle cx="2" cy="14" r="1" fill="#9a7a56"/></pattern>' +
+    '<linearGradient id="sky-' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e6ebe6"/><stop offset="1" stop-color="#f6f5f0"/></linearGradient></defs>';
+}
+function sceneSVG(key) {
+  var a = ART[key];
+  return '<svg viewBox="0 0 400 360" role="img" aria-label="Illustration of the plant, with the soil cut away when you dig">' + soilDefs(key) +
+    '<rect width="400" height="' + G + '" fill="url(#sky-' + key + ')"/>' +
+    '<rect y="' + G + '" width="400" height="' + (360 - G) + '" fill="#e8d9c0"/>' +
+    '<g>' + a.below + '</g>' +
+    '<g class="soil-cover"><rect y="' + G + '" width="400" height="' + (360 - G) + '" fill="url(#sp-' + key + ')"/></g>' +
+    '<path d="M0 ' + G + ' L400 ' + G + '" stroke="#6b4c2c" stroke-width="2.5"/>' +
+    '<g>' + a.above + '</g>' +
+    '<g class="dig-label"><rect x="118" y="' + (G + 44) + '" width="164" height="34" rx="17" fill="rgba(47,64,51,.6)"/><text x="200" y="' + (G + 66) + '" text-anchor="middle" font-family="DM Sans, sans-serif" font-size="14" letter-spacing="1.2" fill="#f9f8f5">SOIL NOT DUG YET</text></g>' +
+    '</svg>';
+}
+
+/* ------------------------------------------------------------------ */
+/* Station content                                                     */
+/* ------------------------------------------------------------------ */
+var FAMILIES = {
+  "Layering": { color: "var(--layer)", methods: ["Tip", "Simple", "Serpentine", "Air"] },
+  "Separation": { color: "var(--sep)", methods: ["Bulb", "Corm"] },
+  "Division": { color: "var(--div)", methods: ["Crown", "Rhizome", "Clump", "Stolon"] }
+};
+var CATS = Object.keys(FAMILIES);
+
+var STATIONS = [
+  {
+    id: "peony", name: "Peony", latin: "Paeonia lactiflora", bed: "Perennial border",
+    clues: ["Herbaceous perennial. Stems die back to the ground each fall.", "This clump has grown in the same spot for eight years and now blooms less.", "It is early fall."],
+    dig: "Thick, fleshy storage roots meet in one woody crown. Pink buds (eyes) sit 1–2 in. below the soil.",
+    cat: "Division", method: "Crown",
+    hint: ["The roots and buds are all joined in one solid mass. Nothing comes apart on its own.", "Look at where the buds are: on top of one woody base that the storage roots hang from."],
+    why: ["Everything is joined in one continuous crown, so you must cut it apart. That is division.", "Fleshy storage roots attached to a woody crown with eyes on top means crown division."],
+    q3: { prompt: "How big should each division be?", options: ["3–5 eyes with a good share of storage roots", "One eye per piece, to get the most plants", "Cut through the middle of each eye cluster", "Roots only; eyes will form later"], correct: 0,
+      hint: "Small pieces are slow to establish and may not bloom for years.",
+      why: "Each division needs 3–5 eyes and enough storage roots to feed them. Replant with the eyes 1–2 in. deep; planted deeper, peonies often won’t bloom." }
+  },
+  {
+    id: "iris", name: "Bearded iris", latin: "Iris germanica", bed: "Sunny bed",
+    clues: ["Flat fans of sword-shaped leaves.", "Thick tan stems lie along the top of the soil. The oldest ones in the middle have no leaves.", "Bloom finished six weeks ago."],
+    dig: "Fibrous roots grow from the underside of the horizontal stems. Each young stem ends in a leaf fan.",
+    cat: "Division", method: "Rhizome",
+    hint: ["These stems are all connected. You will need a knife.", "The thick stems run sideways along the soil surface."],
+    why: ["The horizontal stems are joined to each other, so you cut them apart. That is division.", "Thick horizontal stems at the soil surface are rhizomes."],
+    q3: { prompt: "Which pieces do you replant?", options: ["Young rhizomes, each with a leaf fan and roots", "The old leafless center", "Any piece of rhizome, with or without leaves", "The leaf fans alone, cut off at the base"], correct: 0,
+      hint: "Think about which part is worn out and which part is still growing.",
+      why: "Keep firm, young rhizomes that each have a fan and roots. Discard the old center. Trim the fan to about 6 in. and replant with the top of the rhizome at the soil surface." }
+  },
+  {
+    id: "grass", name: "Maiden grass", latin: "Miscanthus sinensis", bed: "Back of the border",
+    clues: ["Ornamental grass, five years in this bed.", "The outer ring is lush, but the middle of the clump is brown and hollow.", "It is early spring and new shoots are just starting."],
+    dig: "A dense mat of fibrous roots holds the clump together. Roots under the center are dark and woody.",
+    cat: "Division", method: "Clump",
+    hint: ["The plant is one tight mass of roots and shoots. It won’t pull apart by hand.", "There is no bulb, rhizome or runner. It is a tight bunch of shoots."],
+    why: ["The clump has to be cut apart with a spade or saw, so this is division.", "A tight bunch of shoots on one fibrous root mass is clump division."],
+    q3: { prompt: "What do you do with the brown, hollow center?", options: ["Discard it and replant the vigorous outer sections", "Replant it in the middle of the bed", "Divide it into small pieces and pot them up", "Leave it in place and fertilize it"], correct: 0,
+      hint: "The center is the oldest part of the plant.",
+      why: "The dead center has used up its soil and won’t recover. Cut foliage back, split the clump with a spade or saw, discard the center and replant the outer sections at the same depth." }
+  },
+  {
+    id: "strawberry", name: "Strawberry", latin: "Fragaria × ananassa", bed: "Edible bed",
+    clues: ["Low plant with three-part, toothed leaves.", "Thin reddish stems run across the soil with small plants at their tips.", "It is midsummer."],
+    dig: "Each small plant has its own short roots where it touches the soil. It is still attached to the mother plant.",
+    cat: "Division", method: "Stolon",
+    hint: ["The young plants are still attached by a stem. You cut that stem to make new plants.", "Follow the thin reddish stems. They grow above ground."],
+    why: ["You cut the connecting stem to free each young plant, so this is division.", "Above-ground stems that root at their nodes are stolons, also called runners."],
+    q3: { prompt: "When do you cut the runner?", options: ["After the daughter plant has rooted", "As soon as you see a runner", "Before the daughter touches the soil", "Never; daughters must stay attached"], correct: 0,
+      hint: "The mother plant feeds the daughter until it has roots of its own.",
+      why: "Pin the daughter into soil or a pot and wait until it roots, usually two to three weeks. Then cut the runner and plant with the crown at the soil surface." }
+  },
+  {
+    id: "tulip", name: "Tulip", latin: "Tulipa", bed: "Spring bulb bed",
+    clues: ["Flowered in spring.", "The leaves are now yellow and flopping over.", "Blooms got smaller each year."],
+    dig: "About 6 in. down: a layered, papery-coated structure. Smaller copies are attached at its base.",
+    cat: "Separation", method: "Bulb",
+    hint: ["The small copies are complete little plants. They come apart in your hand.", "Look inside: fleshy layers, like an onion."],
+    why: ["The small copies come apart naturally, without cutting. That is separation.", "Fleshy, layered scale leaves on a basal plate make a bulb."],
+    q3: { prompt: "Where do the new offsets come from?", options: ["Buds on the basal plate", "Seeds that fell from the flower", "The papery outer tunic", "The tips of the roots"], correct: 0,
+      hint: "Look at the base of the parent bulb, where the roots attach.",
+      why: "Offsets grow from buds on the basal plate. Lift the bulbs after the foliage yellows, pull the offsets off, and replant them; small offsets may take a year or two to bloom." }
+  },
+  {
+    id: "daffodil", name: "Daffodil", latin: "Narcissus", bed: "Woodland edge",
+    clues: ["Strap-shaped leaves and yellow trumpet flowers in early spring.", "The patch has spread into a tight clump with lots of leaves but few flowers.", "It is early summer and the foliage has turned yellow."],
+    dig: "A crowded cluster of layered, papery-coated structures, each with its own basal plate. Smaller ones are attached at the sides.",
+    cat: "Separation", method: "Bulb",
+    hint: ["The crowded pieces each have their own roots and pull apart by hand.", "Picture one cut in half: fleshy layers wrapped around a center, like an onion."],
+    why: ["Each piece is already a complete plant that comes apart without cutting. That is separation.", "Fleshy, layered scales on a basal plate: these are bulbs."],
+    q3: { prompt: "When should you lift and separate a crowded daffodil clump?", options: ["After the foliage yellows and dies back", "While it is in full bloom", "As soon as the leaves come up", "Cut the green leaves off first, then dig"], correct: 0,
+      hint: "The leaves are still feeding something below ground.",
+      why: "The leaves refill the bulb for next year, so wait until they yellow. Then lift the clump, pull the bulbs apart, and replant about three times as deep as the bulb is tall. Crowding is the most common reason daffodils stop blooming." }
+  },
+  {
+    id: "glad", name: "Gladiolus", latin: "Gladiolus × hortulanus", bed: "Cutting garden",
+    clues: ["Sword-shaped leaves and a tall flower spike in late summer.", "It is fall, before the first frost.", "Not hardy here; it is dug and stored each winter."],
+    dig: "A solid, flattened structure with a papery tunic. A shriveled one sits under it. Marble-size pieces cluster around the base.",
+    cat: "Separation", method: "Corm",
+    hint: ["The little marble-size pieces pop off by hand.", "Cut one open in your mind: it is solid all the way through, not layered."],
+    why: ["The new pieces come apart without cutting, so this is separation.", "A solid, swollen stem base with a tunic is a corm."],
+    q3: { prompt: "What happened to the corm you planted in spring?", options: ["It shriveled under the new corm; discard it", "It doubled in size", "It split into fleshy scales", "It turned into a rhizome"], correct: 0,
+      hint: "Look at the bottom of the stack.",
+      why: "A corm is used up each season and a new one forms on top. Discard the old corm, cure the new corm and cormels, and store them. Cormels take two to three years to reach blooming size." }
+  },
+  {
+    id: "crocus", name: "Crocus", latin: "Crocus vernus", bed: "Lawn edge",
+    clues: ["Grass-like leaves with a silver-white stripe down the middle.", "Cup-shaped purple flowers in late winter.", "The patch is crowded, and the leaves died back in late spring."],
+    dig: "Small, solid, rounded structures in a netted, fibrous tunic. Each sits on a shriveled older one, with tiny ones clustered around the base.",
+    cat: "Separation", method: "Corm",
+    hint: ["The little pieces around the base pop off by hand.", "It looks like a small bulb on the outside, but it is solid inside, with no layers."],
+    why: ["The new pieces come apart without cutting, so this is separation.", "Solid stem tissue in a tunic, sitting on last year’s shriveled one: a corm."],
+    q3: { prompt: "How do you replant the corms and cormels?", options: ["About 3–4 in. deep, pointed end up", "On the soil surface", "About 12 in. deep", "Pointed end down"], correct: 0,
+      hint: "The growing point is on top of a corm.",
+      why: "Plant crocus corms 3–4 in. deep with the pointed growing end up, in fall. Discard the shriveled old corms. Cormels can go in the same planting; they reach blooming size in a year or two." }
+  },
+  {
+    id: "raspberry", name: "Black raspberry", latin: "Rubus occidentalis", bed: "Berry row",
+    clues: ["Arching, prickly purple canes.", "It is late summer.", "One cane has bent over and its tip is touching the soil."],
+    dig: "The cane tip has pushed into the soil and formed roots. A new bud near the tip is ready to grow.",
+    cat: "Layering", method: "Tip",
+    hint: ["The new plant formed while the cane was still attached to the parent.", "Which part of the cane went into the ground?"],
+    why: ["Roots formed while the cane was still attached to the parent plant. That is layering.", "The buried part is the very tip of the cane: tip layering."],
+    q3: { prompt: "To make more, how deep do you bury other cane tips?", options: ["3–4 in.", "Lay them on the surface", "About 12 in.", "Cut the tips off first, then bury them"], correct: 0,
+      hint: "The tip has to turn back up to make a shoot.",
+      why: "Bury tips 3–4 in. deep in late summer. Leave them attached through winter and cut the new plant free the next spring, keeping about 6 in. of old cane as a handle." }
+  },
+  {
+    id: "forsythia", name: "Forsythia", latin: "Forsythia × intermedia", bed: "Shrub border",
+    clues: ["Deciduous shrub with long, arching, flexible branches.", "Bright yellow flowers cover it in early spring, before the leaves.", "Last spring, someone bent one low branch down to the ground and covered part of it with soil."],
+    dig: "The middle of the branch is pinned 3–4 in. under the soil with a wire staple. Roots are growing from a nicked node. The branch tip still sticks up out of the soil.",
+    cat: "Layering", method: "Simple",
+    hint: ["The new roots formed while the branch was still attached to the shrub.", "Only one section is buried, and the tip is still above the soil."],
+    why: ["Roots formed while the branch was still attached to the parent shrub. That is layering.", "One bend, one buried and wounded node, tip left above ground: simple layering."],
+    q3: { prompt: "Why was the buried node nicked with a knife?", options: ["To block sugars and auxin moving down the stem so they build up and trigger roots", "To let water drain out of the stem", "To kill the branch tip so it stops growing", "To make the stem easier to bend"], correct: 0,
+      hint: "Think about what moves down a stem through the phloem.",
+      why: "Wounding cuts the phloem, so sugars and auxin collect at the wound and roots form there. The xylem stays intact, so the tip keeps getting water. Cut the rooted layer free once it has a good root system, usually after one season." }
+  }
+];
+
+/* ------------------------------------------------------------------ */
+/* State                                                               */
+/* ------------------------------------------------------------------ */
+var KEY = "division-garden-walk-v1";
+var state = load() || freshState();
+STATIONS.forEach(function (st) { if (!state.stations[st.id]) state.stations[st.id] = { dug: false, tries: [[], [], []], done: [false, false, false] }; });
+function freshState() {
+  var s = { name: "", stations: {} };
+  STATIONS.forEach(function (st) { s.stations[st.id] = { dug: false, tries: [[], [], []], done: [false, false, false] }; });
+  return s;
+}
+/* No saved progress: every page load starts a fresh walk.
+   Also clear anything an earlier version of this page stored in the browser. */
+function load() { return null; }
+function save() { /* progress lives only in this page session */ }
+try { localStorage.removeItem(KEY); } catch (e) {}
+
+function points(id) {
+  var s = state.stations[id], p = 0;
+  for (var i = 0; i < 3; i++) if (s.done[i]) p++;
+  return p;
+}
+function isDone(id) { return state.stations[id].done[2]; }
+
+/* ------------------------------------------------------------------ */
+/* Garden map                                                          */
+/* ------------------------------------------------------------------ */
+var SPOTS = {
+  peony: [180, 330, .72], grass: [480, 330, .72], raspberry: [800, 330, .72], forsythia: [1130, 330, .72], daffodil: [1430, 330, .72],
+  iris: [230, 560, .76], strawberry: [530, 560, .76], tulip: [830, 560, .76], glad: [1110, 560, .76], crocus: [1380, 560, .76]
+};
+function drawMap() {
+  var r = rng(5), s = "", i;
+  s += '<defs><linearGradient id="msky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e6ebe6"/><stop offset="1" stop-color="#f4f3ee"/></linearGradient>' +
+       '<pattern id="mulch" width="26" height="26" patternUnits="userSpaceOnUse"><rect width="26" height="26" fill="#8c6c55"/><path d="M3 5 l7 3 M14 15 l6 -4 M5 20 l8 1 M18 4 l4 6" stroke="#6a4a32" stroke-width="2" stroke-linecap="round"/><circle cx="21" cy="21" r="1.4" fill="#a98262"/></pattern>' +
+       '<pattern id="gravel" width="24" height="24" patternUnits="userSpaceOnUse"><rect width="24" height="24" fill="#e2d6bf"/><circle cx="5" cy="6" r="2" fill="#cbbd9f"/><circle cx="16" cy="14" r="2.4" fill="#d3c6aa"/><circle cx="9" cy="19" r="1.5" fill="#bfae8c"/><circle cx="20" cy="4" r="1.2" fill="#c9b994"/></pattern></defs>';
+  s += '<rect width="1600" height="660" fill="#b5c7a8"/>';
+  s += '<rect width="1600" height="150" fill="url(#msky)"/>';
+  // hedge along the back
+  for (i = 0; i < 42; i++) { var hx = i * 40 - 10; s += '<ellipse cx="' + hx + '" cy="' + (150 - r() * 18) + '" rx="' + (34 + r() * 14) + '" ry="' + (42 + r() * 14) + '" fill="' + ["#4e6a4f", "#5b7562", "#46604a"][i % 3] + '"/>'; }
+  s += '<rect y="150" width="1600" height="510" fill="#b5c7a8"/>';
+  // mowing stripes
+  for (i = 0; i < 8; i++) s += '<rect y="' + (160 + i * 64) + '" width="1600" height="32" fill="#c0cfb3" opacity=".6"/>';
+  // beds
+  s += '<rect x="40" y="250" width="1520" height="110" rx="40" fill="url(#mulch)" stroke="#5b4030" stroke-width="3"/>';
+  s += '<rect x="70" y="480" width="1460" height="110" rx="40" fill="url(#mulch)" stroke="#5b4030" stroke-width="3"/>';
+  // path
+  s += '<path d="M-20 430 C 300 380, 520 470, 800 420 S 1300 390, 1620 440 L1620 470 C 1300 420, 1050 455, 800 452 S 300 410, -20 462Z" fill="url(#gravel)" stroke="#bda98a" stroke-width="2"/>';
+  // stepping bench
+  s += '<rect x="1480" y="610" width="90" height="16" rx="4" fill="#8b6a4a"/><rect x="1488" y="626" width="8" height="20" fill="#6b4c32"/><rect x="1554" y="626" width="8" height="20" fill="#6b4c32"/>';
+  // plants
+  STATIONS.forEach(function (st) {
+    var p = SPOTS[st.id], x = p[0], y = p[1], sc = p[2];
+    var tf = "translate(" + f(x - 200 * sc) + " " + f(y - G * sc) + ") scale(" + sc + ")";
+    var done = isDone(st.id);
+    s += '<g class="spot" id="spot-' + st.id + '" tabindex="0" role="button" aria-label="' + st.name + (done ? ", complete" : ", not visited") + '" data-id="' + st.id + '">';
+    s += '<ellipse class="ring" cx="' + x + '" cy="' + (y - 70 * sc) + '" rx="' + f(150 * sc + 30) + '" ry="' + f(160 * sc + 20) + '"/>';
+    s += '<ellipse cx="' + x + '" cy="' + (y + 2) + '" rx="' + f(120 * sc) + '" ry="' + f(12 * sc) + '" fill="#5a3e2a" opacity=".55"/>';
+    s += '<g transform="' + tf + '">' + ART[st.id].above + '</g>';
+    // name stake
+    var sx = x, sy = y + 58;
+    s += '<rect x="' + (sx - 62) + '" y="' + (sy - 84) + '" width="128" height="38" rx="4" fill="' + (done ? "#3e5641" : "#faf9f6") + '" stroke="' + (done ? "#2f4033" : "#8e8d8a") + '" stroke-width="1.2"/>';
+    s += '<text x="' + (sx + 2) + '" y="' + (sy - 59) + '" text-anchor="middle" font-family="Newsreader, Georgia, serif" font-weight="500" font-size="18" fill="' + (done ? "#f9f8f5" : "#2f4033") + '">' + st.name + '</text>';
+    if (done) s += '<circle cx="' + (sx + 66) + '" cy="' + (sy - 84) + '" r="13" fill="#faf9f6" stroke="#c88a73" stroke-width="2"/><path d="M' + (sx + 59) + " " + (sy - 84) + " l5 5 l9 -10" + '" stroke="#3e5641" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>';
+    s += '</g>';
+  });
+  var map = document.getElementById("map");
+  map.innerHTML = s;
+  map.querySelectorAll(".spot").forEach(function (g) {
+    g.addEventListener("click", function () { openStation(g.getAttribute("data-id")); });
+    g.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openStation(g.getAttribute("data-id")); } });
+  });
+}
+
+/* ------------------------------------------------------------------ */
+/* Chips, tally, report                                                */
+/* ------------------------------------------------------------------ */
+var CHECK = '<svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="12" fill="var(--moss)"/><path d="M7.5 13.5l4 4 7-8" stroke="var(--accent-ink)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+var SPROUT = '<svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="12" fill="none" stroke="var(--line-strong)" stroke-width="1"/><path d="M13 20v-8M13 13c0-3-2-5-5-5 0 3 2 5 5 5zM13 11c0-3 2-5 5-5 0 3-2 5-5 5z" stroke="var(--sage)" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>';
+function renderChips() {
+  document.getElementById("chips").innerHTML = STATIONS.map(function (st) {
+    var done = isDone(st.id), started = state.stations[st.id].done[0];
+    return '<button type="button" class="chip' + (done ? " done" : "") + '" data-id="' + st.id + '">' + (done ? CHECK : SPROUT) +
+      '<span><span class="nm">' + st.name + '</span><br><span class="lt">' + st.latin + '</span></span>' +
+      '<span class="state">' + (done ? points(st.id) + "/3" : started ? "in progress" : "") + "</span></button>";
+  }).join("");
+  document.querySelectorAll(".chip").forEach(function (b) { b.addEventListener("click", function () { openStation(b.getAttribute("data-id")); }); });
+}
+function renderTally() {
+  var done = 0, score = 0;
+  STATIONS.forEach(function (st) { if (isDone(st.id)) done++; score += points(st.id); });
+  document.getElementById("doneCount").textContent = done;
+  document.getElementById("scoreCount").textContent = score;
+  return { done: done, score: score };
+}
+function answerLabel(st, step) {
+  var s = state.stations[st.id];
+  if (!s.done[step]) return null;
+  if (step === 0) return st.cat;
+  if (step === 1) return st.method || st.q2.options[st.q2.correct];
+  return st.q3.options[st.q3.correct];
+}
+function renderReport() {
+  var t = renderTally();
+  document.getElementById("reportBody").innerHTML = STATIONS.map(function (st) {
+    var c = [0, 1, 2].map(function (i) {
+      var lab = answerLabel(st, i), tries = state.stations[st.id].tries[i].length;
+      if (!lab) return '<td class="miss">—</td>';
+      return "<td>" + (i === 2 ? "Correct" : lab) + (tries > 1 ? ' <span class="lt">(' + tries + " tries)</span>" : "") + "</td>";
+    });
+    return "<tr><td><b>" + st.name + "</b></td>" + c.join("") + "<td>" + (isDone(st.id) ? points(st.id) + " / 3" : '<span class="lt">not finished</span>') + "</td></tr>";
+  }).join("");
+  return t;
+}
+function reportText() {
+  var t = renderTally(), lines = [];
+  lines.push("Division Garden Walk: field report");
+  lines.push("Student: " + (state.name || "(no name entered)"));
+  lines.push("Date: " + new Date().toLocaleDateString());
+  lines.push("Plants completed: " + t.done + " / 10");
+  lines.push("Score: " + t.score + " / 30 (one point per question answered correctly)");
+  lines.push("");
+  STATIONS.forEach(function (st) {
+    var s = state.stations[st.id];
+    if (!isDone(st.id)) { lines.push(st.name + ": not finished"); return; }
+    lines.push(st.name + ": " + st.cat + (st.method ? " / " + st.method : " / " + st.q2.options[st.q2.correct]) + ". Tries per question: " + s.tries.map(function (x) { return x.length; }).join(", ") + ". Points: " + points(st.id) + "/3");
+  });
+  return lines.join("\n");
+}
+
+/* ------------------------------------------------------------------ */
+/* Station sheet                                                       */
+/* ------------------------------------------------------------------ */
+var current = null, lastFocus = null;
+var scrim = document.getElementById("scrim");
+
+function openStation(id) {
+  lastFocus = document.activeElement;
+  current = STATIONS.filter(function (s) { return s.id === id; })[0];
+  var idx = STATIONS.indexOf(current);
+  document.getElementById("sheetEyebrow").textContent = "Station " + (idx + 1) + " of " + STATIONS.length + " · " + current.bed;
+  document.getElementById("sheetTitle").textContent = current.name;
+  document.getElementById("sheetLatin").textContent = current.latin;
+  document.getElementById("clues").innerHTML = current.clues.map(function (c) { return "<li>" + c + "</li>"; }).join("");
+  var sc = document.getElementById("scene");
+  sc.innerHTML = sceneSVG(current.id) + '<div class="scene-foot"><button class="btn" type="button" id="digBtn"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2v9M6.5 11h7l-1 6.5h-5z" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round"/></svg>Dig it up</button><span id="digHint" class="lt"></span></div>';
+  document.getElementById("digBtn").addEventListener("click", dig);
+  setDug(state.stations[id].dug, false);
+  renderSteps();
+  scrim.hidden = false;
+  document.body.style.overflow = "hidden";
+  document.getElementById("sheet").scrollTop = 0;
+  document.getElementById("sheetTitle").focus();
+}
+function closeStation() {
+  scrim.hidden = true;
+  document.body.style.overflow = "";
+  current = null;
+  drawMap(); renderChips(); renderReport();
+  if (lastFocus && lastFocus.focus) { try { lastFocus.focus(); } catch (e) {} }
+}
+function setDug(on) {
+  var sc = document.getElementById("scene"), note = document.getElementById("digNote"), btn = document.getElementById("digBtn");
+  sc.classList.toggle("dug", !!on);
+  if (on) {
+    note.textContent = current.dig; note.classList.remove("locked");
+    btn.disabled = true; btn.lastChild.textContent = "Dug up"; btn.classList.remove("glow");
+    document.getElementById("digHint").textContent = "";
+  } else {
+    note.textContent = "Dig the plant up to see what is below the soil."; note.classList.add("locked");
+    btn.classList.add("glow");
+    document.getElementById("digHint").textContent = "Dig before you decide.";
+  }
+}
+function dig() {
+  state.stations[current.id].dug = true; save();
+  setDug(true);
+  renderSteps();
+}
+
+function stepDefs(st) {
+  var defs = [];
+  defs.push({ title: "Category", prompt: "Which kind of propagation does this plant call for?", options: CATS, correct: CATS.indexOf(st.cat), fam: true,
+    hint: st.hint[0], why: st.why[0] });
+  if (st.method) {
+    var m = FAMILIES[st.cat].methods;
+    defs.push({ title: "Method", prompt: "Which " + st.cat.toLowerCase() + " method fits?", options: m, correct: m.indexOf(st.method), hint: st.hint[1], why: st.why[1] });
+  } else {
+    defs.push({ title: "Alternative", prompt: st.q2.prompt, options: st.q2.options, correct: st.q2.correct, wide: true, hint: st.q2.hint, why: st.q2.why });
+  }
+  defs.push({ title: "Technique", prompt: st.q3.prompt, options: st.q3.options, correct: st.q3.correct, wide: true, hint: st.q3.hint, why: st.q3.why });
+  return defs;
+}
+function shuffledOrder(id, step, n) {
+  // stable shuffle per plant and step so answers aren't always first
+  var r = rng(id.length * 97 + step * 31 + id.charCodeAt(0)), order = [], i;
+  for (i = 0; i < n; i++) order.push(i);
+  for (i = n - 1; i > 0; i--) { var j = Math.floor(r() * (i + 1)); var t = order[i]; order[i] = order[j]; order[j] = t; }
+  return order;
+}
+function renderSteps() {
+  var st = current, s = state.stations[st.id], defs = stepDefs(st), html = "";
+  defs.forEach(function (d, i) {
+    var unlocked = s.dug && (i === 0 || s.done[i - 1]);
+    var order = d.fam ? d.options.map(function (_, k) { return k; }) : shuffledOrder(st.id, i, d.options.length);
+    html += '<div class="step' + (unlocked ? "" : " locked") + (s.done[i] ? " done" : "") + '"><div class="step-head"><span class="num">' + (i + 1) + "</span><h3>" + d.title + "</h3></div>";
+    html += '<p class="prompt">' + d.prompt + "</p>";
+    html += '<div class="opts' + (d.wide ? " wide" : "") + '">';
+    order.forEach(function (k) {
+      var tried = s.tries[i].indexOf(k) >= 0, right = s.done[i] && k === d.correct;
+      var cls = right ? " right" : tried ? " wrong" : "";
+      var dis = !unlocked || s.done[i] || tried;
+      var fam = d.fam ? '<span class="fam" style="background:' + FAMILIES[d.options[k]].color + '"></span>' : "";
+      html += '<button type="button" class="opt' + cls + '" data-step="' + i + '" data-k="' + k + '"' + (dis ? " disabled" : "") + ">" + fam + d.options[k] + (right ? " — correct" : "") + "</button>";
+    });
+    html += "</div>";
+    var last = s.tries[i][s.tries[i].length - 1];
+    if (s.done[i]) html += '<div class="fb ok" role="status"><strong>' + (s.tries[i].length === 1 ? "Correct on the first try. +1 point" : "Correct after " + s.tries[i].length + " tries. +1 point") + "</strong>" + d.why + "</div>";
+    else if (s.tries[i].length) html += '<div class="fb no" role="status"><strong>Not quite. Try again.</strong>' + d.hint + "</div>";
+    html += "</div>";
+  });
+  document.getElementById("steps").innerHTML = html;
+  document.querySelectorAll("#steps .opt").forEach(function (b) { b.addEventListener("click", function () { choose(+b.getAttribute("data-step"), +b.getAttribute("data-k")); }); });
+  document.getElementById("sheetEnd").hidden = !s.done[2];
+  var next = nextUnfinished();
+  document.getElementById("nextBtn").hidden = !next;
+}
+function choose(step, k) {
+  var st = current, s = state.stations[st.id], d = stepDefs(st)[step];
+  if (s.done[step] || s.tries[step].indexOf(k) >= 0) return;
+  s.tries[step].push(k);
+  if (k === d.correct) s.done[step] = true;
+  save();
+  renderSteps(); renderTally();
+  var stepEl = document.querySelectorAll("#steps .step")[step];
+  var fb = stepEl && stepEl.querySelector(".fb");
+  if (s.done[step]) {
+    var nextBtn = document.querySelector('#steps .opt[data-step="' + (step + 1) + '"]:not(:disabled)');
+    if (nextBtn) nextBtn.focus(); else if (step === 2) document.getElementById("backBtn").focus();
+  } else {
+    var again = stepEl.querySelector(".opt:not(:disabled)"); if (again) again.focus();
+  }
+  if (fb && fb.scrollIntoView) fb.scrollIntoView({ block: "nearest" });
+}
+function nextUnfinished() {
+  if (!current) return null;
+  var i = STATIONS.indexOf(current);
+  for (var n = 1; n <= STATIONS.length; n++) { var st = STATIONS[(i + n) % STATIONS.length]; if (!isDone(st.id)) return st; }
+  return null;
+}
+
+document.getElementById("closeBtn").addEventListener("click", closeStation);
+document.getElementById("backBtn").addEventListener("click", closeStation);
+document.getElementById("nextBtn").addEventListener("click", function () {
+  var n = nextUnfinished(); if (n) { var lf = lastFocus; openStation(n.id); lastFocus = lf; }
+});
+scrim.addEventListener("click", function (e) { if (e.target === scrim) closeStation(); });
+document.addEventListener("keydown", function (e) {
+  if (scrim.hidden) return;
+  if (e.key === "Escape") { closeStation(); return; }
+  if (e.key === "Tab") {   // keep focus inside the sheet
+    var f = Array.prototype.filter.call(document.getElementById("sheet").querySelectorAll("button:not(:disabled), [tabindex='-1']"), function (el) { return el.offsetParent !== null; });
+    if (!f.length) return;
+    var first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+});
+
+/* name, copy, reset */
+var nameInput = document.getElementById("studentName");
+nameInput.value = state.name || "";
+nameInput.addEventListener("input", function () { state.name = nameInput.value.trim(); save(); });
+document.getElementById("copyBtn").addEventListener("click", function () {
+  var txt = reportText(), msg = document.getElementById("copyMsg"), ta = document.getElementById("reportText");
+  if (!state.name) msg.textContent = "Add your name at the top first, then copy again.";
+  var fallback = function () { ta.hidden = false; ta.value = txt; ta.rows = txt.split("\n").length; ta.focus(); ta.select(); msg.textContent = "Select all and copy the text below."; };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(function () { if (state.name) msg.textContent = "Report copied. Paste it into Canvas."; }, fallback);
+  } else fallback();
+});
+document.getElementById("resetBtn").addEventListener("click", function () { document.getElementById("confirmReset").hidden = false; document.getElementById("resetNo").focus(); });
+document.getElementById("resetNo").addEventListener("click", function () { document.getElementById("confirmReset").hidden = true; });
+document.getElementById("resetYes").addEventListener("click", function () {
+  var nm = state.name; state = freshState(); state.name = nm; save();
+  document.getElementById("confirmReset").hidden = true;
+  drawMap(); renderChips(); renderReport();
+});
+
+/* JPG export of the field report */
+function makeReportCanvas() {
+  var W = 1600, rowH = 66, top = 380, H = top + rowH * STATIONS.length + 220;
+  var c = document.createElement("canvas"); c.width = W; c.height = H;
+  var x = c.getContext("2d");
+  var serif = '"Newsreader", Georgia, serif', sans = '"DM Sans", "Segoe UI", sans-serif';
+  var MOSS = "#3e5641", DEEP = "#2f4033", SAGE = "#5b7065", CLAY = "#c88a73", INKC = "#1a1c1a", FAINT = "#8e8d8a", HAIR = "rgba(91,112,101,0.18)";
+  var t = renderTally();
+  function track(str, px) { x.letterSpacing = px + "px"; return str; }
+  x.fillStyle = "#faf9f6"; x.fillRect(0, 0, W, H);
+  x.strokeStyle = HAIR; x.lineWidth = 2; x.strokeRect(36, 36, W - 72, H - 72);
+  x.fillStyle = SAGE; x.font = "500 20px " + sans; x.fillText(track("PLANT PROPAGATION  ·  FIELD REPORT", 3), 96, 120); track("", 0);
+  x.fillStyle = DEEP; x.font = "300 76px " + serif; x.fillText("Division ", 96, 200);
+  var w1 = x.measureText("Division ").width;
+  x.fillStyle = "#754330"; x.font = "italic 300 76px " + serif; x.fillText("Garden ", 96 + w1, 200);
+  var w2 = x.measureText("Garden ").width;
+  x.fillStyle = DEEP; x.font = "300 76px " + serif; x.fillText("Walk", 96 + w1 + w2, 200);
+  // sprig mark
+  x.strokeStyle = SAGE; x.lineWidth = 2.5; x.lineCap = "round";
+  x.beginPath(); x.moveTo(W - 150, 220); x.quadraticCurveTo(W - 150, 150, W - 130, 96); x.stroke();
+  [[W - 146, 190, -1], [W - 143, 160, 1], [W - 138, 130, -1]].forEach(function (l) {
+    x.save(); x.translate(l[0], l[1]); x.rotate(l[2] * 0.9 - 1.57 * 0); x.fillStyle = l[2] > 0 ? "#b2ceb3" : "#d1e8da";
+    x.beginPath(); x.ellipse(l[2] * 16, -6, 18, 7, l[2] * -0.6, 0, Math.PI * 2); x.fill(); x.restore();
+  });
+  x.fillStyle = CLAY; x.beginPath(); x.arc(W - 128, 92, 6, 0, Math.PI * 2); x.fill();
+  x.strokeStyle = HAIR; x.lineWidth = 1.5; x.beginPath(); x.moveTo(96, 250); x.lineTo(W - 96, 250); x.stroke();
+  x.fillStyle = INKC; x.font = "400 40px " + serif; x.fillText(state.name || "(no name entered)", 96, 312);
+  x.fillStyle = SAGE; x.font = "400 22px " + sans; x.fillText(new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" }), 96, 348);
+  x.textAlign = "right";
+  x.fillStyle = MOSS; x.font = "300 72px " + serif; x.fillText(t.score + " / " + (STATIONS.length * 3), W - 96, 316);
+  x.fillStyle = SAGE; x.font = "400 20px " + sans; x.fillText(t.done + " of " + STATIONS.length + " plants complete", W - 96, 348);
+  x.textAlign = "left";
+  var cols = [96, 470, 760, 1030, 1330];
+  var y0 = top + 40;
+  x.fillStyle = SAGE; x.font = "500 16px " + sans;
+  ["PLANT", "CATEGORY", "METHOD", "TRIES (1 / 2 / 3)", "POINTS"].forEach(function (h, i) { x.fillText(track(h, 2.5), cols[i], y0); });
+  track("", 0);
+  STATIONS.forEach(function (st, i) {
+    var s = state.stations[st.id], y = y0 + 20 + i * rowH, done = isDone(st.id);
+    x.strokeStyle = HAIR; x.lineWidth = 1.5; x.beginPath(); x.moveTo(96, y + rowH); x.lineTo(W - 96, y + rowH); x.stroke();
+    var cy = y + rowH / 2 + 9;
+    x.fillStyle = DEEP; x.font = "400 29px " + serif; x.fillText(st.name, cols[0], cy);
+    x.font = "400 24px " + sans;
+    x.fillStyle = s.done[0] ? INKC : FAINT; x.fillText(s.done[0] ? st.cat : "—", cols[1], cy);
+    x.fillStyle = s.done[1] ? INKC : FAINT; x.fillText(s.done[1] ? st.method : "—", cols[2], cy);
+    x.fillStyle = SAGE; x.font = "400 22px " + sans; x.fillText(s.tries.map(function (q) { return q.length || "–"; }).join("  /  "), cols[3], cy);
+    if (done) {
+      var p = points(st.id);
+      x.fillStyle = p === 3 ? MOSS : INKC; x.font = "500 28px " + serif; x.fillText(p + " / 3", cols[4], cy);
+      x.fillStyle = MOSS; x.beginPath(); x.arc(cols[4] + 110, cy - 9, 14, 0, Math.PI * 2); x.fill();
+      x.strokeStyle = "#f9f8f5"; x.lineWidth = 3; x.lineCap = "round"; x.lineJoin = "round";
+      x.beginPath(); x.moveTo(cols[4] + 103, cy - 9); x.lineTo(cols[4] + 108, cy - 4); x.lineTo(cols[4] + 117, cy - 14); x.stroke();
+    } else { x.fillStyle = FAINT; x.font = "italic 400 24px " + serif; x.fillText("not finished", cols[4], cy); }
+  });
+  x.fillStyle = SAGE; x.font = "italic 400 22px " + serif;
+  x.fillText("One point for each question answered correctly. Tries show how many attempts each question took.", 96, H - 86);
+  return c;
+}
+document.getElementById("jpgBtn").addEventListener("click", function () {
+  var go = function () {
+    var url = makeReportCanvas().toDataURL("image/jpeg", 0.92);
+    var img = document.getElementById("jpgImg"), wrap = document.getElementById("jpgWrap"), msg = document.getElementById("jpgMsg");
+    img.src = url; wrap.hidden = false;
+    var fname = "garden-walk-" + ((state.name || "report").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "report") + ".jpg";
+    try { var a = document.createElement("a"); a.href = url; a.download = fname; document.body.appendChild(a); a.click(); a.remove(); } catch (e) {}
+    msg.textContent = "Your report image is below. If it didn’t download, right-click it (or press and hold on a phone) and choose Save image.";
+    if (!state.name) msg.textContent = "Add your name at the top first. " + msg.textContent;
+    wrap.scrollIntoView({ block: "nearest" });
+  };
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(go, go); else go();
+});
+
+drawMap(); renderChips(); renderReport();
+})();
+</script>
+
+</body>
+</html>
