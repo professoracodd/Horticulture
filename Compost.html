@@ -113,6 +113,19 @@
   h1.title{font-size:46px; line-height:1.1; font-weight:600; letter-spacing:-0.02em; margin-bottom:10px;}
   h1.title em{font-style:italic; font-weight:500; color:var(--nitro-hi);}
   .subtitle{color:var(--ochre); font-size:16.5px; max-width:62ch; line-height:1.65; margin:0;}
+  .steps-line{display:flex; flex-wrap:wrap; align-items:center; gap:4px 12px; margin:8px 0 0; font-family:var(--font-mono); font-size:15px; letter-spacing:0.1em; text-transform:uppercase; color:var(--parchment-dim);}
+  .steps-line .sep{color:var(--rim); letter-spacing:0;}
+  .steps-line .st{transition:color .3s;}
+  .steps-line .st.done{color:var(--moss);}
+  .steps-line .st.now{color:var(--nitro-hi); animation:stepGlow 1.8s ease-in-out infinite;}
+  @keyframes stepGlow{0%,100%{text-shadow:0 0 0 rgba(255,182,140,0);} 50%{text-shadow:0 0 10px rgba(255,182,140,0.95), 0 0 22px rgba(217,119,54,0.7);}}
+  @media (prefers-reduced-motion: reduce){ .steps-line .st.now{animation:none; text-shadow:0 0 8px rgba(255,182,140,0.8);} }
+  .overview{position:fixed; inset:0; z-index:101; display:flex; align-items:center; justify-content:center; padding:20px; background:rgba(12,8,5,0.82); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);}
+  .overview[hidden]{display:none;}
+  .overview-card{width:min(620px,100%); background:linear-gradient(180deg, rgba(44,34,26,0.98), rgba(35,27,20,0.99)); border:1px solid var(--rim); border-radius:12px; padding:26px 28px; box-shadow:0 30px 80px -20px rgba(0,0,0,0.8);}
+  .overview-card h2{font-size:28px; margin:2px 0 12px;}
+  .overview-card p{font-size:16.5px; line-height:1.65; color:var(--parchment); margin:0 0 22px;}
+  .overview-card .actions{margin-top:0;}
   @media (max-width:640px){ h1.title{font-size:34px;} .header-tools{position:static; justify-content:flex-end; margin-bottom:10px;} }
 
   .rail{
@@ -792,6 +805,14 @@
 </style>
 </head>
 <body>
+  <div class="overview" id="overview" role="dialog" aria-modal="true" aria-labelledby="overviewTitle" aria-describedby="overviewText" hidden>
+    <div class="overview-card">
+      <div class="eyebrow">What you'll do</div>
+      <h2 id="overviewTitle">Five piles, one change at a time</h2>
+      <p id="overviewText">You'll build five compost piles and run each one from start to finish. Pile 1 is your control. Piles 2 through 5 each change one thing (fewer turns, more nitrogen, more water, or a smaller pile) so you can see what it does. Then you'll compare all five, answer questions on what happened, and turn in a PDF.</p>
+      <div class="actions"><button class="btn" id="overviewOk" type="button">Got it →</button></div>
+    </div>
+  </div>
   <div class="intro" id="intro" role="dialog" aria-modal="true" aria-labelledby="introTitle" aria-describedby="introDesc">
     <div class="intro-card">
       <div class="eyebrow">Before you start</div>
@@ -830,7 +851,7 @@
     </div>
     <div class="eyebrow">Soil Food Web · Hot Composting</div>
     <h1 class="title">Compost Calculator <em>Assignment</em></h1>
-    <p class="subtitle">You'll build five compost piles and run each one from start to finish. Pile 1 is your control. Piles 2 through 5 each change one thing (fewer turns, more nitrogen, more water, or a smaller pile) so you can see what it does. Then you'll compare all five, answer questions on what happened, and turn in a PDF.</p>
+    <p class="steps-line" id="stepsLine" aria-label="Assignment steps"></p>
 
     <nav class="tracker" id="tracker" aria-label="Assignment progress"></nav>
 
@@ -3694,6 +3715,20 @@ Now it's your turn. Type your name and follow the glow.
     queueGuide();
   }
 
+  function renderStepsLine(){
+    const line = document.getElementById("stepsLine");
+    if(!line) return;
+    const names = ["Gather","Water","Turn","Cure","Shake","Compare","PDF"];
+    let now = -1;
+    if(A.screen === "lab") now = STAGES.indexOf(stageNow());
+    else if(A.screen === "compare") now = A.exported ? 7 : (A.questions.length && A.questions.every(q=>q.solved) ? 6 : 5);
+    const html = names.map((n, i)=>{
+      const cls = i === now ? "now" : (i < now ? "done" : "");
+      return `<span class="st ${cls}"${i === now ? ' aria-current="step"' : ""}>${n}</span>`;
+    }).join('<span class="sep" aria-hidden="true">→</span>');
+    if(line.innerHTML !== html) line.innerHTML = html;
+  }
+
   function renderTracker(){
     const nav = document.getElementById("tracker");
     const chips = [];
@@ -3824,6 +3859,8 @@ Now it's your turn. Type your name and follow the glow.
 
   // ---------- Guide engine: one glowing control at a time ----------
   function guideFor(){
+    const ovBox = document.getElementById("overview");
+    if(ovBox && !ovBox.hidden) return {el:"#overviewOk", text:""};
     const introBox = document.getElementById("intro");
     if(introBox && !introBox.hidden){
       return {el: document.getElementById("introDone").disabled ? null : "#introDone", text:""};
@@ -3897,6 +3934,7 @@ Now it's your turn. Type your name and follow the glow.
   }
   function refreshGuide(){
     if(A.screen === "lab" && stageNow() === "gather") renderRecipeCard();
+    renderStepsLine();
     updateGates();
     const g = guideFor();
     const el = g.el ? document.querySelector(g.el) : null;
@@ -4500,11 +4538,20 @@ Now it's your turn. Type your name and follow the glow.
       if(fsEl && fsEl()){ try { (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch(e){} }
       v.pause();
       box.hidden = true;
+      const ov = document.getElementById("overview");
+      ov.hidden = false;
+      const ok = document.getElementById("overviewOk");
+      try { ok.focus(); } catch(e){}
+      queueGuide();
+    };
+    document.getElementById("overviewOk").addEventListener("click", ()=>{
+      document.getElementById("overview").hidden = true;
       if(app){ app.inert = false; app.removeAttribute("aria-hidden"); }
       const n = document.getElementById("studentName");
       if(n) n.focus();
       queueGuide();
-    };
+    });
+    document.getElementById("overview").addEventListener("keydown", e=>{ if(e.key === "Tab"){ e.preventDefault(); document.getElementById("overviewOk").focus(); } });
 
     try {
       const raw = document.getElementById("introVideoData").textContent.trim();
