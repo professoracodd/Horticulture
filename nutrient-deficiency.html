@@ -53,6 +53,15 @@
 
   /* ---------- Header ---------- */
   header.top { padding: 28px 0 0; }
+  .hdr { position: relative; }
+  .brand { padding-right: 46px; }
+  .a11y { position: absolute; top: -4px; right: 20px; width: 34px; height: 34px; padding: 0; display: grid; place-items: center; cursor: pointer; color: var(--ink); background: var(--surface); border: 1.5px solid var(--line-strong); border-radius: 50%; z-index: 5; }
+  .a11y:hover, .a11y[aria-expanded="true"] { background: var(--leaf-tint); border-color: var(--leaf); }
+  .a11y svg { width: 22px; height: 22px; }
+  .a11y-note { position: absolute; top: 36px; right: 20px; width: min(330px, calc(100vw - 40px)); z-index: 6; background: var(--surface); border: 1.5px solid var(--ink); border-radius: 10px; padding: 12px 14px; font-size: 0.88rem; color: var(--ink-2); box-shadow: 0 6px 18px rgba(24,41,30,.15); }
+  .a11y-note[hidden] { display: none; }
+  .a11y-note b { color: var(--ink); font-family: var(--display); }
+  .a11y-note p { margin: 4px 0 0; }
   .brand { display: flex; align-items: flex-start; gap: 16px; }
   h1 {
     font-family: var(--display);
@@ -240,6 +249,7 @@
   .qbtn.yes:hover { background: var(--leaf); border-color: var(--leaf); }
   .rhead { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
   .rhead h2 { margin: 0 0 4px; }
+  .printrow { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: -6px 0 16px; font-size: 0.9rem; color: var(--ink-2); }
   .sr { position: absolute; left: -9999px; }
 
   /* ---------- Responsive ---------- */
@@ -255,7 +265,22 @@
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition: none !important; animation: none !important; }
   }
+  #print-sheet { display: none; }
   @media print {
+    @page { size: landscape; margin: 10mm; }
+    header.top, main, .skip { display: none !important; }
+    #print-sheet { display: block; }
+    .pp { display: flex; flex-direction: column; height: 188mm; break-after: page; }
+    .pp:last-child { break-after: auto; }
+    .pp svg { flex: 1 1 auto; min-height: 0; width: 100%; }
+    .pp h2 { margin: 0 0 2px; font-size: 16pt; }
+    .pp p { margin: 0 0 6px; font-size: 10pt; color: #000; }
+    .pp .node, .pp .edge, .pp .ninote { opacity: 1; transition: none; }
+    .pp .edge path { marker-end: url(#ahp); stroke: #555; }
+    .pp .node.res rect { stroke-width: 3.5; }
+    .pp .nbox { font-size: 15px; line-height: 1.15; padding: 3px 8px; }
+    .pp .nbox.res b { font-size: 22px; }
+    .pp, .pp * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .tabs, .skip, .zone-picker, .qbtns { display: none; }
     [role="tabpanel"][hidden] { display: block; }
     body { background: #fff; }
@@ -266,7 +291,14 @@
 <a class="skip" href="#content">Skip to content</a>
 
 <header class="top">
-  <div class="wrap">
+  <div class="wrap hdr">
+    <button class="a11y" id="a11y-btn" aria-expanded="false" aria-controls="a11y-note" aria-label="Accessibility information">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="6.6" r="1.7" fill="currentColor"/><path d="M6.4 9.6 L12 10.4 L17.6 9.6 M12 10.4 V14.2 M12 14.2 L9.4 18.4 M12 14.2 L14.6 18.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="a11y-note" id="a11y-note" hidden>
+      <b>Built to be accessible</b>
+      <p>Everything works with a keyboard. Use the arrow keys to move between tabs. Screen readers get text descriptions of the plant and leaf drawings, and the diagnostic key reads out each question, your answer and your full path. Animation is turned off if your device is set to reduce motion.</p>
+    </div>
     <div class="brand">
       <div>
         <h1>Nutrient Deficiency Guide</h1>
@@ -409,12 +441,15 @@
     <!-- ============ DIAGNOSTIC KEY ============ -->
     <section role="tabpanel" id="p-key" aria-labelledby="tab-key" tabindex="0" hidden>
       <p class="panel-intro">Answer each description with yes or no. The key draws its way to a nutrient, then pulls back to show the whole chart with your path glowing.</p>
-      <div class="stage" id="key-stage"><svg id="key-svg" aria-label="Diagnostic flow chart"></svg></div>
-      <div id="key-now" aria-live="polite"></div>
+      <p class="printrow"><button class="zone-btn" id="key-print">Print the full chart</button><span>Prints both charts, one per page. Choose Save as PDF to keep a copy on your phone.</span></p>
+      <div class="stage" id="key-stage"><svg id="key-svg" aria-hidden="true" focusable="false"></svg></div>
+      <div id="key-now"></div>
     </section>
 
   </div>
 </main>
+
+<div id="print-sheet" aria-hidden="true"></div>
 
 
 <script>
@@ -453,6 +488,13 @@
   function mobPill(m) {
     return '<span class="mob ' + m + '">' + (m === 'mobile' ? ARROW_UP + 'Mobile' : LOCK + 'Immobile') + '</span>';
   }
+
+  /* ---------------- Accessibility note ---------------- */
+  var a11yBtn = document.getElementById('a11y-btn'), a11yNote = document.getElementById('a11y-note');
+  function a11yToggle(open) { a11yNote.hidden = !open; a11yBtn.setAttribute('aria-expanded', open); }
+  a11yBtn.addEventListener('click', function (e) { e.stopPropagation(); a11yToggle(a11yNote.hidden); });
+  document.addEventListener('click', function (e) { if (!a11yNote.hidden && !a11yNote.contains(e.target)) a11yToggle(false); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !a11yNote.hidden) { a11yToggle(false); a11yBtn.focus(); } });
 
   /* ---------------- Tabs ---------------- */
   var tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
@@ -694,6 +736,29 @@
   markup += '<g class="ninote" transform="translate(' + pos['new'].x + ',' + (pos['new'].y + 5 * GY) + ')"><rect x="' + (-BW / 2) + '" y="-90" width="' + BW + '" height="180" rx="8"/>' +
     '<foreignObject x="' + (-BW / 2) + '" y="-90" width="' + BW + '" height="180"><div class="nbox"><b>Nickel (Ni)</b>Nickel was only recently added as an essential nutrient, so its deficiency symptoms are not well defined. Common symptoms include chlorosis and interveinal chlorosis in younger leaves.</div></foreignObject></g>';
   svg.innerHTML = markup;
+  /* print sheet: both charts, fully revealed, one per page */
+  function printBox(side) {
+    var ids = side === 'i' ? SIDE.i.slice(1) : SIDE.m, x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+    ids.forEach(function (id) { var q = pos[id]; x0 = Math.min(x0, q.x - BW / 2); x1 = Math.max(x1, q.x + BW / 2); y0 = Math.min(y0, q.y - BH / 2); y1 = Math.max(y1, q.y + BH / 2); });
+    if (side === 'i') y0 -= 70;
+    return (x0 - 40) + ' ' + (y0 - 40) + ' ' + (x1 - x0 + 80) + ' ' + (y1 - y0 + 80);
+  }
+  var pdefs = '<defs><marker id="ahp" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#555"/></marker></defs>';
+  var pbody = markup.replace(/<defs>.*<\/defs>/, '');
+  document.getElementById('print-sheet').innerHTML = [
+    ['m', 'Mobile nutrients', 'Start at the top box. Answer Yes or No and follow the arrow to a nutrient.'],
+    ['i', 'Immobile nutrients', 'Use this chart when the first question on the Mobile chart is answered No, meaning older leaves are not the ones affected. Start at the top box.']
+  ].map(function (c) {
+    return '<section class="pp"><h2>Nutrient Deficiency Guide: ' + c[1] + '</h2><p>' + c[2] + '</p><svg viewBox="' + printBox(c[0]) + '">' + pdefs + pbody + '</svg><p>' + FALLBACK + '</p></section>';
+  }).join('');
+  document.querySelectorAll('#print-sheet .pp').forEach(function (sec, k) {
+    var keep = k ? SIDE.i.slice(1) : SIDE.m;
+    sec.querySelectorAll('.node').forEach(function (g) { if (keep.indexOf(g.dataset.id) < 0) g.remove(); });
+    edges.forEach(function (e) { if (keep.indexOf(e.from) < 0 || keep.indexOf(e.to) < 0) sec.querySelector('.edge[data-id="' + e.id + '"]').remove(); });
+    if (!k) sec.querySelector('.ninote').remove();
+  });
+  document.getElementById('key-print').addEventListener('click', function () { window.print(); });
+
   var nodeEls = {}, edgeEls = {};
   svg.querySelectorAll('.node').forEach(function (g) { nodeEls[g.dataset.id] = g; });
   svg.querySelectorAll('.edge').forEach(function (g) { edgeEls[g.dataset.id] = g; });
@@ -744,22 +809,25 @@
     svg.querySelector('.ninote').classList.toggle('on', done && sideOf() === 'i');
     stage.classList.toggle('pan', done && !busy);
   }
+  function said(q) { return (q.a ? 'Yes' : 'No') + ' to: ' + KEY[q.id].t; }
   function renderCtl(focus) {
     var h = '', tools = (path.length ? '<button class="zone-btn" data-act="back">Back</button> ' : '') + '<button class="zone-btn" data-act="restart">Start over</button>';
-    if (busy) h = '';
+    var trail = path.length ? 'Your path: ' + path.map(said).join('. ') + '.' : '';
+    if (busy) h = '<p class="sr" role="status">Moving to the next step.</p>';
     else if (cur && cur.charAt(0) === '=') {
       var n = BY[cur.slice(1)];
-      h = '<div class="qcard result"><div class="rhead">' + tile(n) + '<div><h2>' + n.name + ' (' + n.s + ')</h2>' + mobPill(n.mob) + '</div></div><p>' + n.sx + '</p>' +
+      h = '<div class="qcard result" role="group" tabindex="-1" aria-labelledby="rt" aria-describedby="rp"><div class="rhead">' + tile(n) + '<div><h2 id="rt">' + n.name + ' (' + n.s + ')</h2>' + mobPill(n.mob) + '</div></div><p>' + n.sx + '</p>' +
         (n.s === 'Zn' ? '<p>' + ZN_NOTE + '</p>' : '') + (STARRED[n.s] ? '<p>' + FALLBACK + '</p>' : '') +
+        '<p class="sr" id="rp">Result: ' + n.name + '. ' + trail + '</p>' +
         '<p class="qlabel">Drag the chart to pan and scroll to zoom.</p><div class="qbtns">' + tools + '</div></div>';
     } else if (dead) {
-      h = '<div class="qcard dead"><h2>No match in this key</h2><p>' + FALLBACK + '</p><div class="qbtns">' + tools + '</div></div>';
+      h = '<div class="qcard dead" role="group" tabindex="-1" aria-labelledby="rt" aria-describedby="rp"><h2 id="rt">No match in this key</h2><p>' + FALLBACK + '</p><p class="sr" id="rp">' + trail + '</p><div class="qbtns">' + tools + '</div></div>';
     } else {
-      h = '<div class="qcard"><p class="qlabel">Does this match what you see?</p><span class="sr">' + KEY[cur].t + '</span>' +
-        '<div class="qbtns"><button class="qbtn yes" data-a="1">Yes</button><button class="qbtn no" data-a="0">No</button>' + tools + '</div></div>';
+      h = '<div class="qcard"><p class="qlabel">Does this match what you see?</p><span class="sr" id="qsr">' + (path.length ? 'You answered ' + said(path[path.length - 1]) + '. ' : '') + 'Question ' + (path.length + 1) + ': ' + KEY[cur].t + '. Does this match what you see?</span>' +
+        '<div class="qbtns"><button class="qbtn yes" data-a="1" aria-describedby="qsr">Yes</button><button class="qbtn no" data-a="0" aria-describedby="qsr">No</button>' + tools + '</div></div>';
     }
     nowEl.innerHTML = h;
-    var b = nowEl.querySelector('button'); if (focus && b) b.focus({ preventScroll: true });
+    var f = nowEl.querySelector('.qcard[tabindex]') || nowEl.querySelector('button'); if (focus && f) f.focus({ preventScroll: true });
   }
   function finish() {
     setTimeout(function () {
