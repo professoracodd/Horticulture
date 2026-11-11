@@ -1573,7 +1573,7 @@ const Snd = {
         case 'pant': for (let i = 0; i < 4; i++) { this.noise(.07, .035, 1500, i * .22, 'bandpass'); this.noise(.06, .03, 900, i * .22 + .1, 'bandpass'); } break;
         case 'slosh': this.noise(.25, .05, 700, 0, 'lowpass'); this.tone(300, 500, .2, 'sine', .035); break;
         case 'micro': this.tone(118, 118, 1.15, 'sawtooth', .025, 0, ['lowpass', 300]); [1.2, 1.38, 1.56].forEach(d => this.tone(1900, 1900, .1, 'square', .03, d, ['lowpass', 3000])); break;
-        case 'jingle': if (this.clip('jingle', { dur: .5, vol: .42, fade: .05 })) break; {   // CeCe's little metal collar tag: a few soft, high, inharmonic pings
+        case 'jingle': if (this.clip('jingle', { dur: .5, vol: .17, fade: .05 })) break; {   // CeCe's little metal collar tag: a few soft, high, inharmonic pings
           const f = pick([3520, 3951, 4186, 4699, 5274]), n = 2 + (Math.random() * 2 | 0);
           for (let i = 0; i < n; i++) {
             const ff = f * (1 + Math.random() * .12), d = i * (.035 + Math.random() * .03), v = .05 * (1 - i * .18);
@@ -2187,7 +2187,7 @@ class Dog {
     // collar jingle: soft metal tag tinkle while she moves or dances (quiet on purpose)
     this.jinT = (this.jinT || 0) - dt;
     if (this.jinT <= 0 && (this.moving || this.dancing || this.shakeHold > 0) && App.screen !== 'results') {
-      Snd.play('jingle'); this.jinT = (this.dancing ? .22 : this.speedNow > 1.9 ? .2 : .4) * (.8 + Math.random() * .45);
+      Snd.play('jingle'); this.jinT = (this.dancing ? .55 : this.speedNow > 1.9 ? .5 : 1.0) * (.8 + Math.random() * .45);
     }
     // ambient vocalising — the kids wanted her noisier
     this.vocT = (this.vocT || rnd(3, 7)) - dt;
